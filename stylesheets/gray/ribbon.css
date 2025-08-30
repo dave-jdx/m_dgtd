@@ -1,0 +1,66 @@
+QToolBar {
+    background-color: rgb(60, 60, 60);
+    /* background-color: rgb(228,228,228); */
+    /* height: 100px; */
+    /* border-bottom: 20px; */
+    border-top: 0px;
+    margin-bottom: 0px;
+    font-family: Arial, 'Segoe UI', Tahoma, "Microsoft YaHei", sans-serif;
+    
+}
+
+QTabWidget:pane {
+	border-radius: 0px;
+	margin:0px;
+	padding: 0px;
+    background-color: rgb(228,228,228);
+    /* border-bottom:1px solid rgba(0,0,0,20%); */
+    border-top: 1px solid rgba(0,0,0,20%);
+    /* top:-1; */
+}
+QTabWidget{
+    background-color: rgb(228,228,60);
+    font-family: Arial, 'Segoe UI', Tahoma, "Microsoft YaHei", sans-serif;
+}
+
+QTabWidget::tab-bar {
+    left: 0px;
+}
+
+QTabBar::tab {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 18px;
+    padding-right: 18px;
+    
+    font-family: Arial, 'Segoe UI', Tahoma, "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    /* font-weight: 400; */
+    /* font-family: "Microsoft YaHei",Arial,sans-serif; */
+    /* font-size: 16px; */
+    /* border-top-left-radius: 3px;
+    border-top-right-radius: 3px; */
+    height: 26px;
+    min-width: 80px;
+    margin-left: 0px;
+    /* margin-right:5px; */
+
+    background-color: rgb(60,60,60);
+    color:rgb(228,228,228);
+    border: 1px solid rgba(0,0,0,20%);
+    /* border-bottom: 1px solid rgba(0,0,0,20%); */
+ }
+
+QTabBar::tab:hover {
+    background: rgba(173, 208, 173, 20%);
+    /* background: rgb(63, 63, 64); */
+    color: rgb(228,228,228);
+}
+
+QTabBar::tab:selected{
+    background: rgb(239,239,239);
+    /* font-weight: 500; */
+    color: #2A2A2A;
+    border: 1px solid rgba(0,0,0,20%);
+    border-bottom-color: #f9f9f9;
+}

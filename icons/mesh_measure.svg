@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{fill:#A0C786;}
+	.st2{fill:#C1E0AD;}
+	.st3{fill:#7CA861;}
+	.st4{fill:#3C532E;}
+	.st5{fill:#CDB981;stroke:#AE9755;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st6{fill:#3E351A;}
+	.st7{fill:url(#SVGID_1_);stroke:#4A7033;stroke-width:4;stroke-miterlimit:10;}
+	.st8{fill:none;stroke:#4A7033;stroke-width:4;stroke-miterlimit:10;}
+	.st9{fill:#BF6845;stroke:#A15333;stroke-width:4;stroke-miterlimit:10;}
+</style>
+<g id="图层_4" class="st0">
+</g>
+<g id="图层_7">
+	<polygon class="st1" points="129.67,128 8.61,70 14.49,64.79 49.33,53.29 63.67,55 150.9,79.99 155.15,84.3 155.33,123.07 	"/>
+	<polyline class="st2" points="116,92.07 154.33,80.51 154.33,111.85 117.98,122.15 116,118.07 116,92.07 	"/>
+	<polyline class="st3" points="117,121.78 155.33,110.22 155.33,167.19 118.98,177.5 117,173.42 117,121.78 	"/>
+	<polyline class="st4" points="117,175.56 155.33,164 155.33,195.33 118.98,205.64 117,201.56 117,175.56 	"/>
+</g>
+<g id="图层_6">
+	<polygon class="st5" points="215.11,231.85 116,204.83 149.04,193.85 248.15,220.88 	"/>
+	<path class="st6" d="M244.41,197.64l-26.31,8.76c-1.79,0.59-3,2.27-3,4.15v23.06l35.06-11.66v-20.15
+		C250.17,198.81,247.24,196.7,244.41,197.64z"/>
+</g>
+<g id="图层_5">
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="18.0412" y1="61.3044" x2="104.2922" y2="210.6956">
+		<stop  offset="0" style="stop-color:#B3D89B"/>
+		<stop  offset="1" style="stop-color:#719E55"/>
+	</linearGradient>
+	<path class="st7" d="M109.51,205.68l-99.75-26.5c-2.61-0.69-4.43-3.06-4.43-5.76V72.08c0-3.91,3.71-6.76,7.49-5.76l99.75,26.5
+		c2.61,0.69,4.43,3.06,4.43,5.76v101.33C117,203.83,113.29,206.68,109.51,205.68z"/>
+	<path class="st8" d="M47.76,53.59c1.05-0.35,2.22-0.41,3.4-0.1l99.75,26.5c2.61,0.69,4.43,3.06,4.43,5.76v101.33
+		c0,2.49-1.51,4.56-3.58,5.47l-0.9,0.3"/>
+	<line class="st8" x1="8.61" y1="66.77" x2="47.76" y2="53.59"/>
+	<line class="st8" x1="112.72" y1="205.64" x2="151.7" y2="192.57"/>
+	
+		<ellipse transform="matrix(0.925 -0.3799 0.3799 0.925 -46.8389 32.9441)" class="st9" cx="60.04" cy="135.13" rx="24.56" ry="30.79"/>
+</g>
+</svg>

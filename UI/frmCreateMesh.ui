@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmCreateMesh</class>
+ <widget class="QMainWindow" name="frmCreateMesh">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>330</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>生成网格</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="btnMesh">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>290</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>生成</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCancel">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>290</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>331</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>参数设置</string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>311</width>
+        <height>231</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QCheckBox" name="chk_optimize_tet">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>120</y>
+         <width>161</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>优化四面体网格</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txt_smoothind_steps">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>49</y>
+         <width>171</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>84</y>
+         <width>111</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>3D算法</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>14</y>
+         <width>111</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>尺寸范围(m)</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>49</y>
+         <width>111</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>平滑次数</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="cbx3dAlogrithm">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>84</y>
+         <width>171</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Delaunay </string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Frontal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>HXT</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLineEdit" name="txt_size_min">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>14</y>
+         <width>81</width>
+         <height>28</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txt_size_max">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>14</y>
+         <width>81</width>
+         <height>28</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>局部尺寸</string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>311</width>
+        <height>231</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QTableWidget" name="tb_local_size">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>291</width>
+         <height>181</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="btnClear">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>200</y>
+         <width>121</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>移除全部</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btnRemove">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>200</y>
+         <width>121</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>移除选中行</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnSave">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>290</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存设置</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

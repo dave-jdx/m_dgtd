@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmAntennaPoints</class>
+ <widget class="QMainWindow" name="frmAntennaPoints">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>459</width>
+    <height>585</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Antenna input points</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>441</width>
+      <height>501</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Anntenna points</string>
+    </property>
+    <widget class="QPushButton" name="btnAddFreq">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>460</y>
+       <width>191</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add Point</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnRemoveFreq">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>460</y>
+       <width>201</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Remove Point</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tbPoints">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>421</width>
+       <height>421</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnApply">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>540</y>
+      <width>151</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Apply</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>540</y>
+      <width>151</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>OK</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmFrequency2</class>
+ <widget class="QMainWindow" name="frmFrequency2">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>352</width>
+    <height>448</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>求解设置</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>410</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>确定</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCancel">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>410</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>370</y>
+      <width>160</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>存储表面电流</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtDiffraction">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>340</y>
+      <width>160</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>111</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>透射次数</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtTransmission">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>310</y>
+      <width>160</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>310</y>
+      <width>111</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>绕射次数</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtReflection">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>280</y>
+      <width>160</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>280</y>
+      <width>111</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>反射次数</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>331</width>
+      <height>231</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="tabPosition">
+     <enum>QTabWidget::East</enum>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <property name="tabsClosable">
+     <bool>false</bool>
+    </property>
+    <property name="tabBarAutoHide">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>100</y>
+        <width>101</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>频点数量</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>101</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>起始(Hz)</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtIncrement">
+      <property name="geometry">
+       <rect>
+        <x>159</x>
+        <y>70</y>
+        <width>160</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtEnd">
+      <property name="geometry">
+       <rect>
+        <x>159</x>
+        <y>40</y>
+        <width>160</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>101</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>步进(Hz)</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtStart">
+      <property name="geometry">
+       <rect>
+        <x>159</x>
+        <y>10</y>
+        <width>160</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtFreqNum">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>159</x>
+        <y>100</y>
+        <width>160</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>101</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>终止(Hz)</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+     <widget class="QTableWidget" name="tbFreqList">
+      <property name="geometry">
+       <rect>
+        <x>2</x>
+        <y>0</y>
+        <width>321</width>
+        <height>191</height>
+       </rect>
+      </property>
+      <column>
+       <property name="text">
+        <string>频率值(HZ)</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QPushButton" name="btnAdd">
+      <property name="geometry">
+       <rect>
+        <x>2</x>
+        <y>195</y>
+        <width>100</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>添加频点</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnRemove">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>195</y>
+        <width>100</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>移除选中行</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QComboBox" name="cbxFreqType">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>331</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>等间隔频点</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>离散频点</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>cbxFreqType</tabstop>
+  <tabstop>txtFreqNum</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>txtStart</tabstop>
+  <tabstop>txtEnd</tabstop>
+  <tabstop>txtIncrement</tabstop>
+  <tabstop>txtReflection</tabstop>
+  <tabstop>txtTransmission</tabstop>
+  <tabstop>txtDiffraction</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>btnOK</tabstop>
+  <tabstop>btnCancel</tabstop>
+  <tabstop>btnAdd</tabstop>
+  <tabstop>btnRemove</tabstop>
+  <tabstop>tbFreqList</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

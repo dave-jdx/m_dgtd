@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmFFR</class>
+ <widget class="QMainWindow" name="frmFFR">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>511</width>
+    <height>506</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Request FarField Raditation</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>491</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tabPosition">
+     <attribute name="title">
+      <string>Position</string>
+     </attribute>
+     <widget class="QGroupBox" name="gbxStart">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>221</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Start</string>
+      </property>
+      <widget class="QLabel" name="lblThe_start">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>θ</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>φ</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtThe_start">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtPhi_start">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="gbxEnd">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>130</y>
+        <width>221</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>End</string>
+      </property>
+      <widget class="QLabel" name="lblThe_end">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>θ</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>55</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>φ</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtThe_end">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtPhi_end">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="gbxIncrement">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>240</y>
+        <width>221</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Increment</string>
+      </property>
+      <widget class="QLabel" name="lblThe_inc">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>θ</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblPhi_inc">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>φ</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtThe_inc">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtPhi_inc">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>240</y>
+        <width>221</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Number of field points</string>
+      </property>
+      <widget class="QLabel" name="lblThe_n">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>θ</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblPhi_n">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>φ</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtThe_n">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtPhi_n">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>171</width>
+         <height>30</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="gbxCsystem">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>9</y>
+        <width>461</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Coordinate system</string>
+      </property>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>15</y>
+         <width>341</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="lblRequestName">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>360</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Label</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtName">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>360</y>
+        <width>361</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tabAdvanced">
+     <attribute name="title">
+      <string>Advanced</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnCreate">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>460</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnAdd">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>460</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnClose">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>460</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Close</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{fill:url(#SVGID_1_);stroke:#4A7033;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{opacity:0.46;fill:#565656;}
+</style>
+<g id="图层_1" class="st0">
+</g>
+<g id="图层_3">
+</g>
+<g id="图层_2">
+	
+		<radialGradient id="SVGID_1_" cx="101" cy="104.3333" r="118.0125" fx="208.0076" fy="137.9461" gradientTransform="matrix(0.3023 -0.9532 1.4162 0.4492 -77.2929 153.7401)" gradientUnits="userSpaceOnUse">
+		<stop  offset="0" style="stop-color:#EE1B1B"/>
+		<stop  offset="0.045" style="stop-color:#EE261B"/>
+		<stop  offset="0.1231" style="stop-color:#ED421C"/>
+		<stop  offset="0.2249" style="stop-color:#EC701D"/>
+		<stop  offset="0.3453" style="stop-color:#EAAF1E"/>
+		<stop  offset="0.3846" style="stop-color:#E9C51F"/>
+		<stop  offset="0.4058" style="stop-color:#E0CA1F"/>
+		<stop  offset="0.4905" style="stop-color:#BFDB1F"/>
+		<stop  offset="0.5613" style="stop-color:#ABE51F"/>
+		<stop  offset="0.6092" style="stop-color:#A4E91F"/>
+		<stop  offset="0.6165" style="stop-color:#A0E624"/>
+		<stop  offset="0.6977" style="stop-color:#72C458"/>
+		<stop  offset="0.7737" style="stop-color:#4EAA81"/>
+		<stop  offset="0.8425" style="stop-color:#34979F"/>
+		<stop  offset="0.9016" style="stop-color:#258BB1"/>
+		<stop  offset="0.9441" style="stop-color:#1F87B7"/>
+	</radialGradient>
+	<path class="st1" d="M127.9,18.33c0,0-74.01,30.22-124.56,116.67c0,0,84.46,59.33,124.56,106c0,0,60.1-70,124.1-106.67
+		C252,134.33,209,46.78,127.9,18.33z"/>
+	<rect class="st2" width="64" height="64"/>
+	<rect x="64" y="64" class="st2" width="64" height="64"/>
+	<rect x="128" class="st2" width="64" height="64"/>
+	<rect x="192" y="64" class="st2" width="64" height="64"/>
+	<rect y="128" class="st2" width="64" height="64"/>
+	<rect x="128" y="128" class="st2" width="64" height="64"/>
+	<rect x="64" y="192" class="st2" width="64" height="64"/>
+	<rect x="192" y="192" class="st2" width="64" height="64"/>
+</g>
+</svg>

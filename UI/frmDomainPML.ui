@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmDomainPML</class>
+ <widget class="QMainWindow" name="frmDomainPML">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>363</width>
+    <height>409</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>完美匹配层/外推面</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>370</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>确定</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCancel">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>370</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="gbxPML">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>341</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>完美匹配层</string>
+    </property>
+    <widget class="QCheckBox" name="chkPMLVisible">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>95</y>
+       <width>61</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>显示</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>壳体厚度(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtThickness">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>20</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkUsed_pml">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>95</y>
+       <width>61</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>创建</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>网格尺寸(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txt_pml_mesh_size">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>60</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chk_pml_mesh_size">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>60</y>
+       <width>61</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>启用</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnApply">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>370</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>应用</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="gbxAir">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>341</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>空气域</string>
+    </property>
+    <widget class="QLineEdit" name="txtDistancePML">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>60</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>空气域距离(m)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>频率(Hz)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDistanceEXF">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>100</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkEXFVisible">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>175</y>
+       <width>61</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>显示</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkUsed_exf">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>175</y>
+       <width>61</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>创建</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>100</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>外推面距离(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtFreq">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>20</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkFreq">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>20</y>
+       <width>51</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>60</y>
+       <width>50</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1/4λ</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>100</y>
+       <width>50</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1/8λ</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>140</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>网格尺寸(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txt_exf_mesh_size">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>140</y>
+       <width>141</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chk_exf_mesh_size">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>140</y>
+       <width>61</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>启用</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>btnOK</tabstop>
+  <tabstop>btnCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

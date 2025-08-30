@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:url(#SVGID_1_);}
+	.st1{fill:url(#SVGID_2_);}
+	.st2{fill:#EFEADA;stroke:#A78F45;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#A78F45;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{fill:#BF6845;}
+</style>
+<g id="图层_3">
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="208.1898" y1="64.1773" x2="173.3102" y2="261.9894">
+		<stop  offset="0" style="stop-color:#ECD381"/>
+		<stop  offset="1" style="stop-color:#CFB154"/>
+	</linearGradient>
+	<polyline class="st0" points="128,141.33 128,254 253.5,184.83 253.5,72.17 128,141.33 	"/>
+</g>
+<g id="图层_2">
+	<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="142.0833" y1="239.9167" x2="-10.8333" y2="87">
+		<stop  offset="0" style="stop-color:#E3DBC0"/>
+		<stop  offset="1" style="stop-color:#EFEADA"/>
+	</linearGradient>
+	<polygon class="st1" points="128,141.33 128,254 2.5,184.83 2.5,73.67 	"/>
+	<polygon class="st2" points="128,141.33 2.5,72.17 128,3 253.5,72.17 	"/>
+	<polyline class="st3" points="2.5,72.17 2.5,184.83 128,254 253.5,184.83 253.5,72.17 	"/>
+	<circle class="st4" cx="128" cy="135.83" r="22.5"/>
+</g>
+</svg>

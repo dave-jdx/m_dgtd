@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{fill:#E8F1E2;}
+	.st2{fill:url(#SVGID_1_);stroke:#90B07A;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#90B07A;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{fill:url(#SVGID_2_);stroke:#4A7033;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st5{fill:#4A7033;}
+	.st6{fill:#90B07A;}
+	.st7{fill:url(#SVGID_3_);stroke:#A18737;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+</g>
+<g id="图层_3">
+	<path class="st1" d="M219.92,3l33.97,34.36h-31.67c-1.27,0-2.3-1.03-2.3-2.3V3"/>
+</g>
+<g id="图层_2">
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="195.5301" y1="149.8889" x2="195.5301" y2="3">
+		<stop  offset="0" style="stop-color:#D2E6C6"/>
+		<stop  offset="1" style="stop-color:#E8F1E2"/>
+	</linearGradient>
+	<path class="st2" d="M219.92,34.05V3h-78.44c-2.38,0-4.31,1.93-4.31,4.31v138.28c0,2.38,1.93,4.31,4.31,4.31h108.1
+		c2.38,0,4.31-1.93,4.31-4.31V37.36h-30.67C221.4,37.36,219.92,35.88,219.92,34.05z"/>
+	<line class="st3" x1="219.92" y1="3" x2="253.89" y2="37.36"/>
+</g>
+<g id="图层_4">
+	<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="87" y1="254.2222" x2="87" y2="124">
+		<stop  offset="0" style="stop-color:#D2E6C6"/>
+		<stop  offset="1" style="stop-color:#E8F1E2"/>
+	</linearGradient>
+	<path class="st4" d="M164.5,254.22H9.5c-3.56,0-6.44-2.89-6.44-6.44V130.44c0-3.56,2.89-6.44,6.44-6.44h155
+		c3.56,0,6.44,2.89,6.44,6.44v117.33C170.94,251.34,168.06,254.22,164.5,254.22z"/>
+	<rect x="5.06" y="126" class="st5" width="163.89" height="28.78"/>
+</g>
+<g id="图层_6">
+	<path class="st6" d="M229.46,54.67h-67.02c-1.35,0-2.44-1.09-2.44-2.44v0c0-1.35,1.09-2.44,2.44-2.44h67.02
+		c1.35,0,2.44,1.09,2.44,2.44v0C231.9,53.57,230.81,54.67,229.46,54.67z"/>
+	<path class="st6" d="M229.46,76.93h-67.02c-1.35,0-2.44-1.09-2.44-2.44v0c0-1.35,1.09-2.44,2.44-2.44h67.02
+		c1.35,0,2.44,1.09,2.44,2.44v0C231.9,75.83,230.81,76.93,229.46,76.93z"/>
+	<path class="st6" d="M229.04,99.19h-67.02c-1.35,0-2.44-1.09-2.44-2.44v0c0-1.35,1.09-2.44,2.44-2.44h67.02
+		c1.35,0,2.44,1.09,2.44,2.44v0C231.48,98.09,230.39,99.19,229.04,99.19z"/>
+	<path class="st6" d="M229.46,121.44h-67.02c-1.35,0-2.44-1.09-2.44-2.44l0,0c0-1.35,1.09-2.44,2.44-2.44h67.02
+		c1.35,0,2.44,1.09,2.44,2.44l0,0C231.9,120.35,230.81,121.44,229.46,121.44z"/>
+</g>
+<g id="图层_5">
+	<rect x="31.28" y="154.78" class="st6" width="4" height="97.39"/>
+	
+		<rect x="17.47" y="200.36" transform="matrix(-1.836970e-16 1 -1 -1.836970e-16 234.25 195.3056)" class="st6" width="4" height="28.83"/>
+	
+		<rect x="100.02" y="116.07" transform="matrix(-1.836970e-16 1 -1 -1.836970e-16 285.0161 80.9838)" class="st6" width="4" height="133.86"/>
+	
+		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="269.2582" y1="115.6217" x2="194.5916" y2="190.2883" gradientTransform="matrix(0.7071 0.7071 -0.7071 0.7071 83.9572 -128.4845)">
+		<stop  offset="0" style="stop-color:#EAD17F"/>
+		<stop  offset="1" style="stop-color:#D1B357"/>
+	</linearGradient>
+	<polygon class="st7" points="192.59,90.63 118.51,98.73 139.25,119.47 87,171.72 111.98,196.7 164.23,144.45 184.5,164.72 	"/>
+</g>
+</svg>

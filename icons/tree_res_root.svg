@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{display:inline;fill:#FFFF00;}
+	.st2{fill:url(#SVGID_1_);stroke:#4A7033;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:#FFFFFF;stroke:#4A7033;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#79BF62;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st5{fill:none;stroke:#BC572F;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+</g>
+<g id="图层_3" class="st0">
+	<rect x="0.42" class="st1" width="255.17" height="255.17"/>
+</g>
+<g id="图层_4">
+	
+		<radialGradient id="SVGID_1_" cx="97.6667" cy="93.1667" r="118.0125" fx="204.6742" fy="126.7794" gradientTransform="matrix(0.3023 -0.9532 1.4162 0.4492 -63.8043 144.4121)" gradientUnits="userSpaceOnUse">
+		<stop  offset="0" style="stop-color:#EE1B1B"/>
+		<stop  offset="0.045" style="stop-color:#EE261B"/>
+		<stop  offset="0.1231" style="stop-color:#ED421C"/>
+		<stop  offset="0.2249" style="stop-color:#EC701D"/>
+		<stop  offset="0.3453" style="stop-color:#EAAF1E"/>
+		<stop  offset="0.3846" style="stop-color:#E9C51F"/>
+		<stop  offset="0.4058" style="stop-color:#E0CA1F"/>
+		<stop  offset="0.4905" style="stop-color:#BFDB1F"/>
+		<stop  offset="0.5613" style="stop-color:#ABE51F"/>
+		<stop  offset="0.6092" style="stop-color:#A4E91F"/>
+		<stop  offset="0.6165" style="stop-color:#A0E624"/>
+		<stop  offset="0.6977" style="stop-color:#72C458"/>
+		<stop  offset="0.7737" style="stop-color:#4EAA81"/>
+		<stop  offset="0.8425" style="stop-color:#34979F"/>
+		<stop  offset="0.9016" style="stop-color:#258BB1"/>
+		<stop  offset="0.9441" style="stop-color:#1F87B7"/>
+	</radialGradient>
+	<path class="st2" d="M124.56,7.17c0,0-74.01,30.22-124.56,116.67c0,0,84.46,59.33,124.56,106c0,0,60.1-70,124.1-106.67
+		C248.67,123.17,205.67,35.61,124.56,7.17z"/>
+	<circle class="st3" cx="176.78" cy="177.11" r="76.89"/>
+	<path class="st4" d="M137.63,179c0,0,4.44-35.33,27.56-35.33s27.11,34.42,27.11,34.42s2.71,30.38,25.88,30.38"/>
+	<path class="st5" d="M121.26,178c0,0,4.44-35.33,27.56-35.33s27.11,34.42,27.11,34.42s3.56,34.47,29.33,34.47
+		c29.23,0,27-34.47,27-34.47"/>
+	<line class="st5" x1="109.44" y1="179.22" x2="248.67" y2="179.22"/>
+</g>
+<g id="图层_2">
+</g>
+</svg>

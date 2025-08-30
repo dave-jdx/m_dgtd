@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmModelMedia</class>
+ <widget class="QMainWindow" name="frmModelMedia">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>462</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>模型材料</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>391</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>选择模型体域(鼠标左键点击选择)</string>
+    </property>
+    <widget class="QTableWidget" name="tbFaces">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>20</y>
+       <width>381</width>
+       <height>291</height>
+      </rect>
+     </property>
+     <column>
+      <property name="text">
+       <string>面编号</string>
+      </property>
+      <property name="textAlignment">
+       <set>AlignJustify|AlignVCenter</set>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>材料名称</string>
+      </property>
+      <property name="textAlignment">
+       <set>AlignJustify|AlignVCenter</set>
+      </property>
+     </column>
+    </widget>
+    <widget class="QToolButton" name="btnClear">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>315</y>
+       <width>121</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>移除全部</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnRemove">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>315</y>
+       <width>121</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>移除选中行</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QToolButton" name="btnApply">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>420</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>应用</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>420</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>确定</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>101</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>模型默认材料</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbxMedia">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>20</y>
+      <width>181</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="btnMore">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>20</y>
+      <width>76</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>材料库</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="btnClose">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>420</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

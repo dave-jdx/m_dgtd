@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{fill:#D3E6C7;stroke:#6A994D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#CFB154;stroke:#A78F45;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#EFEADA;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{fill:#6A994D;}
+	.st5{fill:#DBECCC;}
+	.st6{fill:#C9DBBA;}
+	.st7{fill:none;stroke:#6A994D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+</g>
+<g id="图层_3" class="st0">
+</g>
+<g id="图层_2">
+	<path class="st1" d="M220.34,236.41c0,3.73-3.02,6.75-6.75,6.75H46.09c-3.73,0-6.75-3.02-6.75-6.75V19.59
+		c0-3.73,3.02-6.75,6.75-6.75h167.5c3.73,0,6.75,3.02,6.75,6.75V236.41z"/>
+	<circle class="st2" cx="205.82" cy="205.94" r="47.86"/>
+	<polyline class="st3" points="193.42,179.34 176.6,196.57 235.04,196.57 	"/>
+	<polyline class="st3" points="218.22,232.23 235.04,215 176.6,215 	"/>
+	<polygon class="st4" points="145.23,171.76 145.23,105.12 182.47,78.56 182.47,145.27 	"/>
+	<polygon class="st5" points="77.53,92.86 114.77,66.33 182.47,78.56 145.23,105.42 	"/>
+	<polygon class="st6" points="145.23,172.13 145.23,105.42 77.06,93.31 77.06,159.72 	"/>
+	<path class="st7" d="M114.77,132.43"/>
+	<path class="st7" d="M77.06,159.9"/>
+	<line class="st7" x1="182.94" y1="78.56" x2="145.23" y2="105.42"/>
+	<polyline class="st7" points="114.77,66.33 182.94,78.56 182.94,145.27 	"/>
+	<line class="st7" x1="114.77" y1="66.33" x2="77.06" y2="93.19"/>
+	<line class="st7" x1="145.23" y1="172.13" x2="182.94" y2="145.27"/>
+	<polygon class="st7" points="145.23,172.13 77.06,159.9 77.06,93.19 145.23,105.42 	"/>
+</g>
+</svg>

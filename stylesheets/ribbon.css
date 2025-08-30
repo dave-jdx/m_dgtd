@@ -1,0 +1,51 @@
+QToolBar {
+    background-color: rgb(162, 162, 162);
+    border-bottom: 0px;
+    border-top: 0px;
+    
+}
+
+QTabWidget:pane {
+	border-radius: 0px;
+	margin:0px;
+	padding: 0px;
+    background-color: rgb(228,228,228);
+    border-bottom:1px solid rgba(0,0,0,20%);
+    border-top: 1px solid rgba(0,0,0,20%);
+    top:-1;
+}
+QTabWidget{
+    background-color: rgb(162,162,162);
+}
+
+QTabWidget::tab-bar {
+    left: 2px;
+}
+
+QTabBar::tab {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 18px;
+    padding-right: 18px;
+    /* border-top-left-radius: 3px;
+    border-top-right-radius: 3px; */
+    height: 25px;
+    /* margin-right:5px; */
+    background-color: rgb(162,162,162);
+    color:rgb(204,204,204);
+    border: 1px solid rgba(0,0,0,0);
+    /* border-bottom: 1px solid rgba(0,0,0,20%); */
+ }
+
+QTabBar::tab:hover {
+    /* background: rgba(173, 208, 173, 20%); */
+    background-color: rgb(69, 70, 70);
+    /* color: rgb(204,0,0); */
+}
+
+QTabBar::tab:selected{
+    background: rgb(251,251,251);
+    color: #2A2A2A;
+    border: 1px solid rgba(0,0,0,20%);
+    border-bottom-color: #f9f9f9;
+}

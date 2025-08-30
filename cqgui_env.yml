@@ -1,0 +1,16 @@
+name: cq-occ-conda-test-py3
+channels:
+  - CadQuery
+  - conda-forge
+dependencies:
+  - pyqt=5
+  - pyqtgraph
+  - python=3.7.9
+  - spyder
+  - path
+  - logbook
+  # - requests
+  # - cadquery=master
+  - pythonocc-core=7.4.1
+  # - netgen
+  # - vtk=8.2.0

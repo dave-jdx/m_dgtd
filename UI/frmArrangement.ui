@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmArrangement</class>
+ <widget class="QMainWindow" name="frmArrangement">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>540</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Arrangement</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="btnApply">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>560</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Apply</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>560</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>OK</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupWorkplane">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>501</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Workplane</string>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Origin(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtOrigin">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>70</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDirection">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Normal Direction</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtRotatebyZ">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>190</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>190</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Rotate by Z(deg)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtAxisLength">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>230</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>230</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Axis Length(m)</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnStartPick">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>25</y>
+       <width>471</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pick a face by Ctrl+Mouseleft</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtAngel">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>150</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Angel-XY/YZ/XZ(deg)</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupArrange">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>501</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Antenna Arrange</string>
+    </property>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X-distance(m)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_14">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Display Size(pixel)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDisplayPixel">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>150</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Z-distance(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDistance_Z">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>30</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDistance_Y">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_13">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y-distance(m)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtDistance_X">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>70</y>
+       <width>281</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>15</y>
+      <width>171</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Antenna </string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAntennaFile">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>15</y>
+      <width>221</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnAntenna">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>15</y>
+      <width>71</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>New</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

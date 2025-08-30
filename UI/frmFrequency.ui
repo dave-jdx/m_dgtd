@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmFrequency</class>
+ <widget class="QMainWindow" name="frmFrequency">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>525</width>
+    <height>416</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Solution frequency</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>521</width>
+      <height>321</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Frequency</string>
+     </attribute>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>171</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start frequency(Hz)</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtStart">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>120</y>
+        <width>241</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>170</y>
+        <width>171</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>End frequency(Hz)</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtEnd">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>170</y>
+        <width>241</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>220</y>
+        <width>171</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Increcement(Hz)</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtIncrement">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>220</y>
+        <width>241</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>40</y>
+        <width>241</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Sinosoid</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Blackman</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Chirp</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Gaussian</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Gaussian dirivative</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Hamming</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Hanning</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Raised cosine</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>201</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Choose a waveform type</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Advanced</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnOK">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>360</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>OK</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCancel">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>360</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cancel</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

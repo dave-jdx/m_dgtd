@@ -1,0 +1,79 @@
+2024-07-03 16:55:56,043 - project - ERROR - 加载工程文件失败:'ProjectTree' object has no attribute 'actionsFFRItem'
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1066, in loadProject
+    self.nodeAction_InitResults()
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 2411, in nodeAction_InitResults
+    nItem.setData(0,self.actionIndex,self.actionsFFRItem)
+AttributeError: 'ProjectTree' object has no attribute 'actionsFFRItem'
+2024-07-03 16:56:07,835 - project - ERROR - 加载工程文件失败:'ProjectTree' object has no attribute 'actionsFFRItem'
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1066, in loadProject
+    self.nodeAction_InitResults()
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 2411, in nodeAction_InitResults
+    nItem.setData(0,self.actionIndex,self.actionsFFRItem)
+AttributeError: 'ProjectTree' object has no attribute 'actionsFFRItem'
+2024-07-03 17:35:59,721 - project - ERROR - 加载工程文件失败:type object 'Project' has no attribute 'dataName'
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1534, in loadProject
+    fname=fpath+"/"+Project.dataName
+AttributeError: type object 'Project' has no attribute 'dataName'
+2024-07-03 17:52:27,504 - project - ERROR - 保存工程失败'Project' object has no attribute 'getDumpFileName'
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1702, in nodeAction_SaveProject
+    self.dumpProject()
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1515, in dumpProject
+    api_project.dumpData(pObj.getDumpFileName(),pObj)
+AttributeError: 'Project' object has no attribute 'getDumpFileName'
+2024-07-03 17:55:44,310 - project - ERROR - 保存工程失败[WinError 3] 系统找不到指定的路径。: ''
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1702, in nodeAction_SaveProject
+    self.dumpProject()
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1515, in dumpProject
+    api_project.dumpData(pObj.name,pObj)
+  File "d:\project\cae\emx1.1\src\app\api\api_project.py", line 116, in dumpData
+    os.makedirs(fpath)
+  File "c:\Users\30381_\.conda\envs\caex\lib\os.py", line 223, in makedirs
+    mkdir(name, mode)
+FileNotFoundError: [WinError 3] 系统找不到指定的路径。: ''
+2024-07-03 17:59:53,364 - project - ERROR - 保存工程失败[WinError 3] 系统找不到指定的路径。: ''
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1706, in nodeAction_SaveProject
+    self.dumpProject()
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1515, in dumpProject
+    api_project.dumpData(pObj.name,pObj)
+  File "d:\project\cae\emx1.1\src\app\api\api_project.py", line 116, in dumpData
+    os.makedirs(fpath)
+  File "c:\Users\30381_\.conda\envs\caex\lib\os.py", line 223, in makedirs
+    mkdir(name, mode)
+FileNotFoundError: [WinError 3] 系统找不到指定的路径。: ''
+2024-07-03 18:02:55,735 - project - ERROR - 保存工程失败local variable 'fname' referenced before assignment
+Traceback (most recent call last):
+  File "d:\project\cae\emx1.1\src\app\widgets\projectTree.py", line 1706, in nodeAction_SaveProject
+    self.dumpProject(fname)
+UnboundLocalError: local variable 'fname' referenced before assignment
+2024-07-03 21:34:03,046 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:04,457 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:05,058 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:06,061 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:06,638 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:07,000 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:07,584 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:34:30,216 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:02,094 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:04,863 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:06,339 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:07,173 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:07,924 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:08,905 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:09,858 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:10,632 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:11,154 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:11,568 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:12,400 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:12,887 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:13,968 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:15,422 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:17,043 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:17,898 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:35:26,904 - project - DEBUG - 当前节点是发射天线不设置类型
+2024-07-03 21:36:06,310 - project - DEBUG - 当前节点是发射天线不设置类型

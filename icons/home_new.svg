@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{fill:#6A994D;}
+	.st2{fill:#FFFFFF;stroke:#6A994D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#6A994D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+</g>
+<g id="图层_3">
+	<path class="st1" d="M149,2l72,72.67h-68.06c-2.18,0-3.94-1.77-3.94-3.94V2"/>
+</g>
+<g id="图层_2">
+	<path class="st2" d="M149,69V2H42.39C38.31,2,35,5.31,35,9.39v237.22c0,4.08,3.31,7.39,7.39,7.39h171.22
+		c4.08,0,7.39-3.31,7.39-7.39V74.67h-66.33C151.54,74.67,149,72.13,149,69z"/>
+	<line class="st3" x1="149" y1="2" x2="221" y2="74.67"/>
+</g>
+</svg>

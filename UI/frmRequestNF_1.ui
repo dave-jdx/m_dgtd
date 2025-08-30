@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>frmNF</class>
+ <widget class="QMainWindow" name="frmNF">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>408</width>
+    <height>514</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>电磁环境</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>391</width>
+      <height>300</height>
+     </rect>
+    </property>
+    <property name="tabPosition">
+     <enum>QTabWidget::East</enum>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tabPosition">
+     <attribute name="title">
+      <string>全局观察点</string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>171</width>
+        <height>130</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>起始</string>
+      </property>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>55</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>V</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>85</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>N</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtU_start">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>25</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtV_start">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>55</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtN_start">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>85</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>10</y>
+        <width>171</width>
+        <height>130</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>终止</string>
+      </property>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>V</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>N</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtU_end">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>25</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtV_end">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>55</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtN_end">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>85</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>150</y>
+        <width>171</width>
+        <height>130</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>步进</string>
+      </property>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>V</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>N</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtU_inc">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>25</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtV_inc">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>55</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtN_inc">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>85</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>150</y>
+        <width>171</width>
+        <height>130</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>观察点数</string>
+      </property>
+      <widget class="QLabel" name="label_10">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_11">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>V</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_12">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>21</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>N</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtU_n">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>25</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtV_n">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>55</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtN_n">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>85</y>
+         <width>126</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>页</string>
+     </attribute>
+     <widget class="QTableWidget" name="tbPoints">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>391</width>
+        <height>260</height>
+       </rect>
+      </property>
+      <column>
+       <property name="text">
+        <string>X(m)</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Y(m)</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Z(m)</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QPushButton" name="btnAddRow">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>265</y>
+        <width>101</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>添加点</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnRemoveRow">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>265</y>
+        <width>101</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>移除选中行</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnCreate">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>470</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>创建</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnAdd">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>470</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>新增</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnClose">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>470</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtName">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>430</y>
+      <width>281</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblRequestName">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>430</y>
+      <width>60</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>名称</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>389</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>坐标系</string>
+    </property>
+    <widget class="QComboBox" name="cbxAxisType">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>2</x>
+       <y>25</y>
+       <width>251</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>全局坐标系</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>局部坐标系(发射天线安装面)</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QCheckBox" name="chkShowNF">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>25</y>
+       <width>111</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>显示观察点</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QComboBox" name="cbxPointType">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>389</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>等间隔观察点</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>离散观察点</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,41 @@
+CTitleBar {
+    /* background: rgb(74,74,76); */
+    background-color: lightblue;
+     /* border-top-right-radius: 5px;
+    border-top-left-radius: 5px; */
+}
+
+#CTitleBar_buttonClose {
+    border-top-right-radius: 5px;
+}
+#CTitleBar_labelTitle{
+    font-size:20px;
+    color:rgb(255,255,255);
+    margin-left:5px;
+}
+#bottomWidget {
+    background: white;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+CTitleBar > QPushButton {
+    background: transparent;
+    color:rgb(178,178,178);
+    /* color:red; */
+    background-color:rgb(74,74,76)
+    
+}
+CTitleBar > QPushButton:hover {
+    background: rgba(0, 0, 0, 30);
+}
+CTitleBar > QPushButton:pressed {
+    background: rgba(0, 0, 0, 60);
+}
+#CTitleBar_buttonClose:hover {
+    color: white;
+    background: rgb(232, 17, 35);
+}
+#CTitleBar_buttonClose:pressed {
+    color: white;
+    background: rgb(165, 69, 106);
+}
