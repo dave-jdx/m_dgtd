@@ -24,7 +24,7 @@ class frmStructDirichlet(Ui_frmStructDirichlet,frmBase):
         self._faceId=faceId
 
         
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
 
  
         

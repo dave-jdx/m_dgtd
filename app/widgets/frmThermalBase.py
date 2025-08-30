@@ -24,7 +24,7 @@ class frmThermalBase(Ui_frmThermalDirichlet,frmBase):
         self.parent=parent
 
         
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
  
         self.btnApply.clicked.connect(self.actionApply)
         self.btnOK.clicked.connect(self.actionOK)

@@ -2,15 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
+Created on 2019年7月15日
+@author: Irony
+@site: https://pyqt5.com https://github.com/892768447
+@email: 892768447@qq.com
+@file: CustomWidgets.CTitleBar
 @description: 自定义标题栏
 """
 
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QWindowStateChangeEvent, QFont, QMouseEvent
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QSpacerItem, QSizePolicy, \
-    QLabel, QPushButton, QApplication,QToolButton
-from ..icons import sysIcons,menuIcons
-from ..dataModel.menu import menuButton,menuPool
+    QLabel, QPushButton, QApplication
+from ..icons import sysIcons
 
 
 __Author__ = 'Irony'
@@ -37,12 +41,8 @@ class CTitleBar(QWidget):
 
         self.labelTitle.setText(title)
         # 是否需要隐藏最小化或者最大化按钮
-        # self.showMinimizeButton(True)
-        # self.showNormalButton(False)
-        # self.showMaximizeButton(self.isMaximizeable())
-         # 是否需要隐藏最小化或者最大化按钮
-        self.showMinimizeButton(self.isMinimizeable())
-        # self.showNormalButton(False)
+        self.showMinimizeButton(True)
+        self.showNormalButton(False)
         self.showMaximizeButton(self.isMaximizeable())
 
         # 绑定信号
@@ -77,13 +77,13 @@ class CTitleBar(QWidget):
     def isMinimizeable(self):
         """是否可以最小化
         """
- 
+        return True
         return self.testWindowFlags(Qt.WindowMinimizeButtonHint)
 
     def isMaximizeable(self):
         """是否可以最大化
         """
-
+        return True
         return self.testWindowFlags(Qt.WindowMaximizeButtonHint)
 
     def isResizable(self):
@@ -188,7 +188,7 @@ class CTitleBar(QWidget):
         :param title:
         """
         self.labelTitle.setPixmap(sysIcons.windowIcon.pixmap(25,25))
-        self.labelTitle.setText(title)
+        # self.labelTitle.setText(title)
 
     def setupUi(self):
         """创建UI
@@ -214,22 +214,12 @@ class CTitleBar(QWidget):
         self.lblIcon.setObjectName("CTitleBar_icon")
         self.labelTitle = QLabel(self)
         self.labelTitle.setObjectName('CTitleBar_labelTitle')
-        # self.btn_project_new=QToolButton(self)
-        # self.btn_project_new.setIcon(menuIcons.home_new)
-        # self.btn_project_new.setObjectName('CTitleBar_btn_project_new')
-        # self.btn_project_new.setStyleSheet("background-color:transparent;margin-left:10px;")
-        # # self.btn_project_new.setMaximumSize(30,30)
-        # self.btn_project_new.setToolTip("新建项目")
-        # self.btn_project_new.setText("新建项目")
-
         
         # self.labelTitle.setStyleSheet("font-size:20px;color:rgb(255,255,255);margin-left:5px;")
         layout.addWidget(self.lblIcon,alignment=Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(self.labelTitle,alignment=Qt.AlignmentFlag.AlignCenter)
- 
+        layout.addWidget(self.labelTitle,alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addItem(QSpacerItem(
             40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        
         # 最小化,最大化,还原,关闭按钮
         for name, text in (('buttonMinimum', '0'), ('buttonMaximum', '1'),
                            ('buttonNormal', '2'), ('buttonClose', 'r')):

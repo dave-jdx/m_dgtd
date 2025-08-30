@@ -10,19 +10,20 @@ from ..icons import sysIcons
 from .baseStyle import baseStyle
 
 from .frmCircuitCreate import frmCircuitCreate
+from .frmBase import frmBase
 
-class frmCircuit(Ui_frmCircuit,QtWidgets.QMainWindow):
+class frmCircuit(Ui_frmCircuit,frmBase):
     sigMidiaModify=QtCore.pyqtSignal(tuple)
   
     def __init__(self,parent=None,mediaData:tuple=None):
         super(frmCircuit,self).__init__(parent)
-        self.setWindowIcon(sysIcons.windowIcon)
+        # self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
         self.parent=parent
 
         
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowModality(QtCore.Qt.ApplicationModal)
  
         
 
@@ -38,6 +39,7 @@ class frmCircuit(Ui_frmCircuit,QtWidgets.QMainWindow):
 
         self.onLoad()  
     def onLoad(self):
+        super().onLoad()
         self.tbFaces.setFont(self._font)
         self.groupBox_2.setStyleSheet("QGroupBox:title{left:10px;height:50px;}")
         

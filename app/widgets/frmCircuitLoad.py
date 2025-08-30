@@ -20,7 +20,7 @@ class frmCircuitLoad(Ui_frmCIrcuitLoad,frmBase):
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
         self.parent=parent   
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         self._u_length=0
         self._v_length=0
         self._isManual=False

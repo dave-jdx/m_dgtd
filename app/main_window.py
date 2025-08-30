@@ -69,7 +69,7 @@ from .widgets.polarPlotWidget import PolarPlotWidget
 from . import __version__
 # from .utils import dock, add_actions, open_url, about_dialog, check_gtihub_for_updates, confirm
 from .mixins import MainMixin
-from .icons import icon,menuIcons,sysIcons
+from .icons import icon,menuIcons,sysIcons,treeIcons
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import os
@@ -149,8 +149,8 @@ mainStyle="""
 """
 
 class MainWindow(QMainWindow, MainMixin):
-    name = '电磁-电路-热-结构多物理CAE软件V1.0'
-    org = 'Xidian university'
+    name = '多物理场仿真软件V1.0'
+    org = 'CSSC'
     _gripSize = 2
     def __init__(self, parent=None, spid=None,projectFile:str=""):
 
@@ -180,16 +180,20 @@ class MainWindow(QMainWindow, MainMixin):
         self._surfaceDisplay=True #显示后处理云图
         # print("project file",projectFile)
         # self.setWindowTitle(f"{self.name}:{projectFile}")
-        self.setWindowTitle(f"{self.name}")
-        # self.setWindowFlags(self.windowFlags()|QtCore.Qt.WindowType.FramelessWindowHint)
+        # self.setWindowTitle(f"{self.name}")
+        self.setWindowFlags(self.windowFlags()|QtCore.Qt.WindowType.FramelessWindowHint)
         
         status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(status_bar)
         
         # status_bar.showMessage("Powered by CSSC",100000000)
 
-        label = QLabel("西安电子科技大学 张欢欢老师团队")
+        label = QLabel("Powered by CSSC")
         status_bar.addWidget(label,1)
+
+        self._titleBar=CTitleBar(self,title=f"{self.name}")#设置系统标题
+        self.setMenuWidget(self._titleBar)
+        self._titleBar.setStyleSheet(self.themeUI.titleBar)
         self.progress_bar = QtWidgets.QProgressBar()
         status_bar.addPermanentWidget(self.progress_bar)
         self.progress_bar.setRange(0,100)
@@ -205,7 +209,7 @@ class MainWindow(QMainWindow, MainMixin):
         self.tabWidget = QTabWidget()
         self.tabWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tabWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.tabWidget.setTabPosition(QtWidgets.QTabWidget.South)
+        self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setObjectName("tabWidget")
 
@@ -252,6 +256,9 @@ class MainWindow(QMainWindow, MainMixin):
         self.grid_main=None #主筛选表格 tx/freq/vtype
         self.grid_value=None #值筛选表格
         self.grid_axis=None #曲线图查看横坐标的值，选择x/y/z
+
+        self.btn_solver:QPushButton=None #求解器选择按钮
+        self.tab_sim=None
         self.grid_buttons={
             "single":False, #单选,
             "btnList":[]
@@ -331,8 +338,9 @@ class MainWindow(QMainWindow, MainMixin):
         self.dock(self.console,"控制台",defaultArea="bottom",minHeight=20)
         # self.dock(self.traceBackViewer,"Process Viewer",defaultArea="bottom")
         self.dock(self.logViewer,"日志输出",defaultArea="bottom")
-        self.prepare_menubar()
-        self.prepare_toolbar()
+        # self.prepare_menubar()
+        # self.prepare_toolbar()
+        self.prepare_ribbon()
 
         # self.selectContext.create_actions(parent=self)
 
@@ -517,6 +525,19 @@ class MainWindow(QMainWindow, MainMixin):
         # self.savePreferences()
         # self.saveComponentState()
         super(MainWindow, self).closeEvent(event)
+
+    def set_solver_dgtd(self):
+        if(self.btn_solver!=None):
+            self.btn_solver.setText("DGTD")
+        self.projectTree.set_solver("DGTD")
+
+        pass
+    def set_solver_fem_dgtd(self):
+        if(self.btn_solver!=None):
+            self.btn_solver.setText("FEM-DGTD")
+        self.projectTree.set_solver("FEM-DGTD")
+
+        pass
 
     def update_icons(self, menu:QMenu,selected_action:QAction):
         # 清空所有Action的图标
@@ -744,6 +765,23 @@ class MainWindow(QMainWindow, MainMixin):
         self.filter_main_generate()
         
         pass
+    def prepare_ribbon(self):
+        self._ribbon = RibbonWidget(self)
+        self._ribbon.setStyleSheet(self.themeUI.ribbon)
+        # self._ribbon.setMinimumWidth(1000)
+        self.addToolBar(self._ribbon)
+        self.add_tab_home()
+        if(not DEBUG_MODE):
+            self.add_tab_model()
+            # self.add_tab_exciation_port()
+            # self.add_tab_request()
+            # self.add_tab_mesh()
+            self.add_tab_simulation()
+            self.add_tab_postprocess()
+            self.add_tab_view()
+            # self.add_tab_about()
+        # self.filter_main_generate()
+
     def activate_toolbar(self,tabIndex:int):
         self._ribbon.activate_tab(tabIndex)
     def add_ribbon_button(self,pane:RibbonPane,btnObject:menuButton,btnIcon:QIcon=None,is_large:bool=True):
@@ -1156,7 +1194,7 @@ class MainWindow(QMainWindow, MainMixin):
         # self.add_ribbon_button(pane_create,menuPool.model_create_polygonLine,menuIcons.mode_pline).clicked.connect(self.noneAction)
 
         self.add_ribbon_button(pane_tools,menuPool.model_tools_exchange,menuIcons.model_exchange).clicked.connect(self.exchangeModel)
-        self.add_ribbon_button(pane_tools,menuPool.model_tools_color,menuIcons.model_color).clicked.connect(self.setModelColor)
+        # self.add_ribbon_button(pane_tools,menuPool.model_tools_color,menuIcons.model_color).clicked.connect(self.setModelColor)
 
         
         pass
@@ -1210,22 +1248,54 @@ class MainWindow(QMainWindow, MainMixin):
         self.add_ribbon_button(pane_tools,menuPool.mesh_tools_measure,menuIcons.mesh_measure).clicked.connect(self.measureDistance)
         self.add_ribbon_button(pane_tools,menuPool.mesh_tools_transform,menuIcons.mesh_transform).clicked.connect(self.vtkRotate)
         pass
+
+    def init_toolbuttons_solver_base(self):
+        s_tab=self.tab_sim
+        pane_solver= self.get_ribbon_pane(s_tab,"求解器")
+        btn_solver=self.add_ribbon_button(pane_solver,
+                                    menuPool.solver_base,
+                                    menuIcons.model_color)
+        self.btn_solver=btn_solver
+        btn_solver.setFont(self._font)
+
+         # 创建一个下拉菜单
+        dropdown_menu_solver = QMenu(btn_solver)
+        dropdown_menu_solver.setFont(self._font)
+        # 添加一些菜单项
+        action1 = QAction("DGTD", self,triggered=self.set_solver_dgtd)
+        action2 = QAction("FEM-DGTD", self,triggered=self.set_solver_fem_dgtd)
+
+
+        action1.triggered.connect(lambda: self.update_icons(dropdown_menu_solver, action1))
+        action2.triggered.connect(lambda: self.update_icons(dropdown_menu_solver, action2))
+    
+        dropdown_menu_solver.addAction(action1)
+        dropdown_menu_solver.addAction(action2)
+        # 将下拉菜单与按钮关联
+        btn_solver.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        btn_solver.setMenu(dropdown_menu_solver)
+        pass
     
     def add_tab_simulation(self):
         s_tab = self._ribbon.add_ribbon_tab(menuPool.simualtion_base) 
-        pane_excitation = self.get_ribbon_pane(s_tab,menuPool.simualtion_excitations)
+        self.tab_sim=s_tab
+        # pane_excitation = self.get_ribbon_pane(s_tab,menuPool.simualtion_base)
+        self.init_toolbuttons_solver_base()
         pane_request=self.get_ribbon_pane(s_tab,menuPool.simualtion_request)
         
         # pane_prop= self.get_ribbon_pane(s_tab,menuPool.simualtion_prop)
         pane_operator = self.get_ribbon_pane(s_tab,menuPool.simualtion_operator)
+        
 
     
         # self.add_ribbon_button(pane_solution,menuPool.request_solution_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_AddFFR)
-        self.add_ribbon_button(pane_excitation,menuPool.resuest_solution_tx,menuIcons.req_tx).clicked.connect(self.projectTree.nodeAction_tx)
-        self.add_ribbon_button(pane_request,menuPool.request_solution_emi,menuIcons.req_rx).clicked.connect(self.projectTree.nodeAction_rx)
-        self.add_ribbon_button(pane_request,menuPool.request_solution_nf,menuIcons.req_nf).clicked.connect(self.projectTree.nodeAction_AddNF_defalut)
-        
-        self.add_ribbon_button(pane_operator,menuPool.excitaion_settings_freq,menuIcons.exc_frequency).clicked.connect(self.projectTree.nodeAction_FrequencyProperties)
+        # self.add_ribbon_button(pane_excitation,menuPool.solver_base,menuIcons.model_color).clicked.connect(self.projectTree.nodeAction_tx)
+
+        self.add_ribbon_button(pane_request,menuPool.param_time,menuIcons.exc_frequency).clicked.connect(self.projectTree.nodeAction_TimeProperties)
+        self.add_ribbon_button(pane_request,menuPool.param_obs_point,treeIcons.gdtd_req_points).clicked.connect(self.projectTree.nodeAction_NFProperties)
+        self.add_ribbon_button(pane_request,menuPool.param_obs_domain,treeIcons.gdtd_req_domain).clicked.connect(self.projectTree.nodeAction_DomainProperties)
+        self.add_ribbon_button(pane_request,menuPool.param_obs_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_FFRProperties)
+       
         self.add_ribbon_button(pane_operator,menuPool.simualtion_prop_parallel,menuIcons.sim_p).clicked.connect(self.projectTree.nodeAction_SetMPI)
 
         self.add_ribbon_button(pane_operator,menuPool.simulation_input_generate,menuIcons.mesh_export).clicked.connect(self.projectTree.simulation_input_generate)

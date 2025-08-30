@@ -73,7 +73,7 @@ def icon(name):
     return qta.icon(*args,**kwargs)
 class sysIcons():
     windowIcon=QIcon(":/images/icons/app.svg")
-    windowIcon=QIcon(":/images/icons/logo_xidian.png")
+    # windowIcon=QIcon(":/images/icons/logo_xidian.png")
     
     startupIcon=QIcon(":/images/icons/startup.png")
     startupPixmap=QPixmap(":/images/icons/startup.png")
@@ -166,8 +166,10 @@ class treeIcons():
     gdtd_result_struct_domain=QIcon("./icons/dgtd/结果分析-位移量-观察域.png")
 
     gdtd_model=QIcon("./icons/dgtd/模型.png")
+  
     gdtd_model_item=QIcon("./icons/dgtd/模型-item.png")
     gdtd_component=QIcon("./icons/dgtd/组件.png")
+   
     gdtd_component_item=QIcon("./icons/dgtd/组件-item.png")
 
     gdtd_pf=QIcon("./icons/dgtd/物理场.png")
@@ -190,6 +192,8 @@ class treeIcons():
     gdtd_req=QIcon("./icons/dgtd/求解设置.png")
     gdtd_req_points=QIcon("./icons/dgtd/求解设置-观察点.png")
     gdtd_req_domain=QIcon("./icons/dgtd/求解设置-观察域.png")
+
+    gdtd_bnd_source=QIcon("./icons/dgtd/边界源.png")
 
     
 

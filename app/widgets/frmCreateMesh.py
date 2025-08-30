@@ -14,7 +14,7 @@ class frmCreateMesh(Ui_frmCreateMesh,frmBase):
         super(frmCreateMesh,self).__init__(parent)
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         # self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.btnCancel.clicked.connect(self.close)
         self.btnMesh.clicked.connect(self.actionCreate)

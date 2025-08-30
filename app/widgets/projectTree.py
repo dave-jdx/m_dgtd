@@ -456,14 +456,14 @@ class ProjectTree(QWidget, ComponentMixin):
         #                 triggered=self.nodeAction_ShowHidePort),
         # ]
         self.actionsPFRoot=[
-            # QAction(tree.nodeActions.pf_em, self, enabled=True,
-            #             triggered=self.nodeAction_AddEM),
-            # QAction(tree.nodeActions.pf_circuit, self, enabled=True,
-            #             triggered=self.nodeAction_AddCircuit),
-            # QAction(tree.nodeActions.pf_thermal, self, enabled=True,
-            #             triggered=self.nodeAction_AddThermal),
-            # QAction(tree.nodeActions.pf_structure, self, enabled=True,
-            #             triggered=self.nodeAction_AddStruct),
+            QAction(tree.nodeActions.pf_em, self, enabled=True,
+                        triggered=self.nodeAction_AddEM),
+            QAction(tree.nodeActions.pf_circuit, self, enabled=True,
+                        triggered=self.nodeAction_AddCircuit),
+            QAction(tree.nodeActions.pf_thermal, self, enabled=True,
+                        triggered=self.nodeAction_AddThermal),
+            QAction(tree.nodeActions.pf_structure, self, enabled=True,
+                        triggered=self.nodeAction_AddStruct),
         ]
         # self.actionsExcitationRoot=[
         #     QAction(tree.nodeActions.pf_em, self, enabled=True,
@@ -1046,7 +1046,7 @@ class ProjectTree(QWidget, ComponentMixin):
     '''
     project节点操作
     '''
-    def sig_createProject(self,projectName:str="FEM-DGTD-1"):
+    def sig_createProject(self,projectName:str="DGTD_1"):
         try:
             self.initialNodeField()
             # self.initialModelViewer()
@@ -1128,7 +1128,7 @@ class ProjectTree(QWidget, ComponentMixin):
 
         self.pfBoundRoot=QTreeWidgetItem(self.root) #物理场-边界条件，默认隐藏，添加时再显示
         self.pfBoundRoot.setText(0, tree.projctTreeNodes.pf_boundary)
-        self.pfBoundRoot.setIcon(0, treeIcons.pf_bound)
+        self.pfBoundRoot.setIcon(0, treeIcons.gdtd_bnd_source)
         self.pfBoundRoot.setData(0,self.actionIndex,[])
 
         self.pfBoundEMRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电磁-边界条件，默认隐藏，添加时再显示
@@ -4600,6 +4600,9 @@ class ProjectTree(QWidget, ComponentMixin):
 
         self._logger.info("导入网格完成.")
         pass
+    def set_solver(self,solver:str):
+        print("set solver",solver)
+        pass
     def nodeAction_ExportMesh(self):
         if self.currentMesh==None:
             QtWidgets.QMessageBox.about(self, "Export mesh", "请先生成或选择一个网格，当前网格对象为空")
@@ -5042,9 +5045,10 @@ class ProjectTree(QWidget, ComponentMixin):
         self.pfBoundEMPECRoot.removeChild(currentItem)
     def closeFormsOpened(self):
         try:
-            for frm in self._forms:
-                frm.close()
-            self._forms.clear()
+            # for frm in self._forms:
+            #     frm.close()
+            # self._forms.clear()
+            pass
         except Exception as e:
             print("closeFormsOpened",e)
 

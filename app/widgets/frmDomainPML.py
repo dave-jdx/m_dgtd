@@ -23,7 +23,7 @@ class frmDomainPML(Ui_frmDomainPML,frmBase):
         self.parent=parent
       
 
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         # self.setWindowModality(QtCore.Qt.ApplicationModal)
  
         # self.btnApply.clicked.connect(self.actionApply)

@@ -20,7 +20,7 @@ class frmThermalConvection(Ui_frmThermalConvection,frmBase):
         self.parent=parent
 
         
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
  
         

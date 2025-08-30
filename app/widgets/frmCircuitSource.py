@@ -26,7 +26,7 @@ class frmCircuitSource(Ui_frmCIrcuitSource,frmBase):
         self._v_length=0
         self._is_loading=True
    
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
       
         self.btnApply.clicked.connect(self.actionApply)
         self.btnOK.clicked.connect(self.actionOK)

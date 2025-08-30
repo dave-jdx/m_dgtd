@@ -12,7 +12,7 @@ class frmMeshSize(Ui_frmMeshSize,frmBase):
         super(frmMeshSize,self).__init__(parent)
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         # self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.btnCancel.clicked.connect(self.close)
         self.btnOK.clicked.connect(self.actionOK)

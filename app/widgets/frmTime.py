@@ -19,7 +19,7 @@ class frmTime(Ui_frmTime,frmBase):
         self.setupUi(self)
         self.parent=parent
 
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
 
         self.btnOK.clicked.connect(self.actionOK)
         self.btnCancel.clicked.connect(self.close)

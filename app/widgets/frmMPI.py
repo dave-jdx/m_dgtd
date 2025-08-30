@@ -1,7 +1,8 @@
 from PyQt5 import QtCore,QtWidgets
 from UI.ui_frmMPI import Ui_frmMPI
 from ..icons import sysIcons
-class frmMPI(Ui_frmMPI,QtWidgets.QMainWindow):
+from .frmBase import frmBase
+class frmMPI(Ui_frmMPI,frmBase):
     sigMPISet=QtCore.pyqtSignal(int,str)
     sigMPIRegister=QtCore.pyqtSignal()
     sigMPITest=QtCore.pyqtSignal()
@@ -10,7 +11,7 @@ class frmMPI(Ui_frmMPI,QtWidgets.QMainWindow):
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
         self.parent=parent
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.btnCancel.clicked.connect(self.close)
         self.btnOK.clicked.connect(self.btnOKClick)
@@ -26,6 +27,7 @@ class frmMPI(Ui_frmMPI,QtWidgets.QMainWindow):
         self.setFont(self._font)
 
     def onLoad(self):
+        super().onLoad()
         self.txtMPINum.setText(str(self.mpiNum))
         # self.txtInstallPath.setText(str(self.installPath))
         # if(self.power!=None):

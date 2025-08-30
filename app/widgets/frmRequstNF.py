@@ -5,8 +5,9 @@ from ..dataModel.nf import NF
 from ..icons import sysIcons
 from ..api import api_model
 from .baseStyle import baseStyle
+from .frmBase import frmBase
 import traceback
-class frmRequestNF(Ui_frmNF,QtWidgets.QMainWindow):
+class frmRequestNF(Ui_frmNF,frmBase):
     sigCreate=QtCore.pyqtSignal(NF)
     sigModify=QtCore.pyqtSignal(NF)
     sigShowNF=QtCore.pyqtSignal(NF,tuple)
@@ -17,7 +18,7 @@ class frmRequestNF(Ui_frmNF,QtWidgets.QMainWindow):
         self.setWindowIcon(sysIcons.windowIcon)
         self.parent=parent
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
         # self.setWindowModality(QtCore.Qt.ApplicationModal)
         
         self.mode=mode
@@ -55,6 +56,7 @@ class frmRequestNF(Ui_frmNF,QtWidgets.QMainWindow):
         
 
     def onLoad(self,nfObj:NF=None):
+        super().onLoad()
         self.groupBox.setStyleSheet("QGroupBox:title{left:5px}")
         self.groupBox_2.setStyleSheet("QGroupBox:title{left:5px}")
         self.groupBox_3.setStyleSheet("QGroupBox:title{left:5px}")

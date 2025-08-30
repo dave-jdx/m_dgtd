@@ -46,7 +46,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='icons/logo_xidian.png'
+    icon='icons/logo.png'
 )
 
 coll = COLLECT(
