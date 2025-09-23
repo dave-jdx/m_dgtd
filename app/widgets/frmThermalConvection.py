@@ -8,12 +8,16 @@ from PyQt5.QtGui import QFont
 from UI.ui_frmThermalConvection import Ui_frmThermalConvection
 from ..icons import sysIcons
 from .frmBase import frmBase
+from ..dataModel.pf import PF_Thermal_Base
 
 
 class frmThermalConvection(Ui_frmThermalConvection,frmBase):
-    sigMidiaModify=QtCore.pyqtSignal(tuple)
+    sigSelected=QtCore.pyqtSignal(int,PF_Thermal_Base,int)
+    sigSelectSolid=QtCore.pyqtSignal(int)
+    sigSelectFace=QtCore.pyqtSignal(int)
+    sigClosed=QtCore.pyqtSignal()
   
-    def __init__(self,parent=None):
+    def __init__(self,parent=None,thermalObj:PF_Thermal_Base=None,selectType:int=2):
         super(frmThermalConvection,self).__init__(parent)
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
@@ -21,22 +25,51 @@ class frmThermalConvection(Ui_frmThermalConvection,frmBase):
 
         
         # self.setWindowFlags(QtCore.Qt.Window|QtCore.Qt.WindowTitleHint|QtCore.Qt.WindowCloseButtonHint)
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
  
-        
 
-        # self.btnApply.clicked.connect(self.actionApply)
         self.btnOK.clicked.connect(self.actionOK)
-        # self.btnClose.clicked.connect(self.close)
+        self.btnCancel.clicked.connect(self.close)
+ 
+        self._thermalObj=thermalObj
+        self._selectType=selectType
+        self._isManual=True
 
+        if thermalObj is not None:
+            self.setWindowTitle(thermalObj.title)
+          
+ 
+            if(thermalObj.value is not None):
+                self.txtValue.setText(str(thermalObj.value))
+   
         self.onLoad()  
     def onLoad(self):
-        # self.tbFaces.setFont(self._font)
-        # self.groupBox_2.setStyleSheet("QGroupBox:title{left:10px;height:50px;}")
-        
-        
+        super().onLoad()
         pass
     def actionApply(self):
+        try:
+            selectId_old=self._thermalObj.selectId
+            thermalObj=PF_Thermal_Base()
+            selectId=-1
+            thermalObj.selectId=selectId
+            thermalObj.value=float(self.txtValue.text())
+            thermalObj.title=self._thermalObj.title
+            thermalObj.lblTitle=self._thermalObj.lblTitle
+            self.sigSelected.emit(selectId,thermalObj,selectId_old)
+            return (1,"suceess")
+        except Exception as e:
+            QtWidgets.QMessageBox.about(self,"Error","面编号/值不合法，请重新输入"+str(e))
+            return(-1,"error")
         pass
     def actionOK(self):
+        code,message=self.actionApply()
+        if(code!=1):
+            return
+        self.close()
+        
+        pass
+
+    def closeEvent(self, event):
+        self.sigClosed.emit()
+        super(frmThermalConvection, self).closeEvent(event)
+        
         pass

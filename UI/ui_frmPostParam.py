@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmPostParam.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmPostParam.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,26 +14,33 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_frmPostParam(object):
     def setupUi(self, frmPostParam):
         frmPostParam.setObjectName("frmPostParam")
-        frmPostParam.resize(323, 119)
+        frmPostParam.resize(323, 158)
         self.centralwidget = QtWidgets.QWidget(frmPostParam)
         self.centralwidget.setObjectName("centralwidget")
         self.btnOK = QtWidgets.QPushButton(self.centralwidget)
-        self.btnOK.setGeometry(QtCore.QRect(60, 80, 80, 30))
+        self.btnOK.setGeometry(QtCore.QRect(60, 120, 80, 30))
         self.btnOK.setObjectName("btnOK")
         self.btnCancel = QtWidgets.QPushButton(self.centralwidget)
-        self.btnCancel.setGeometry(QtCore.QRect(180, 80, 80, 30))
+        self.btnCancel.setGeometry(QtCore.QRect(180, 120, 80, 30))
         self.btnCancel.setObjectName("btnCancel")
         self.gbxDomain = QtWidgets.QGroupBox(self.centralwidget)
-        self.gbxDomain.setGeometry(QtCore.QRect(10, 10, 301, 61))
+        self.gbxDomain.setGeometry(QtCore.QRect(10, 10, 301, 101))
         self.gbxDomain.setObjectName("gbxDomain")
         self.chk1 = QtWidgets.QCheckBox(self.gbxDomain)
-        self.chk1.setGeometry(QtCore.QRect(40, 20, 91, 30))
+        self.chk1.setGeometry(QtCore.QRect(30, 20, 91, 30))
         self.chk1.setChecked(True)
         self.chk1.setObjectName("chk1")
         self.chk2 = QtWidgets.QCheckBox(self.gbxDomain)
-        self.chk2.setGeometry(QtCore.QRect(170, 20, 121, 30))
+        self.chk2.setGeometry(QtCore.QRect(150, 20, 121, 30))
         self.chk2.setChecked(True)
         self.chk2.setObjectName("chk2")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(52, 70, 91, 28))
+        self.label.setObjectName("label")
+        self.txtMaxNum = QtWidgets.QLineEdit(self.centralwidget)
+        self.txtMaxNum.setGeometry(QtCore.QRect(160, 70, 121, 28))
+        self.txtMaxNum.setText("")
+        self.txtMaxNum.setObjectName("txtMaxNum")
         frmPostParam.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(frmPostParam)
@@ -48,3 +55,4 @@ class Ui_frmPostParam(object):
         self.gbxDomain.setTitle(_translate("frmPostParam", "图形设置"))
         self.chk1.setText(_translate("frmPostParam", "显示模型"))
         self.chk2.setText(_translate("frmPostParam", "显示分析结果"))
+        self.label.setText(_translate("frmPostParam", "显示单元数"))

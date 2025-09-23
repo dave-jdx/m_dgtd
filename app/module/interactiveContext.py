@@ -52,7 +52,7 @@ from OCC.Core.TopTools import TopTools_IndexedMapOfShape
 class InteractiveContext(QWidget, ComponentMixin):
     sigPointClicked=QtCore.pyqtSignal(int,tuple)#(edgepoint(p1,p2),edgeId
     sigLineClicked=QtCore.pyqtSignal(tuple,int)#（edgepoint(p1,p2),edgeId
-    sigFaceClicked=QtCore.pyqtSignal(int,bool)#edgeId
+    sigFaceClicked=QtCore.pyqtSignal(int,bool,TopoDS_Shape,int)#
     sigFaceLengthUV=QtCore.pyqtSignal(float,float)#(u_length,v_length)
     sigFaceChoosed=QtCore.pyqtSignal(tuple,tuple,int)#(x,y,z),(0,0,1) (center,direction)
     sigBodyClicked=QtCore.pyqtSignal(int,bool)#(shapeId,isSelcted)
@@ -174,6 +174,24 @@ class InteractiveContext(QWidget, ComponentMixin):
         return c_faceId
 
         pass
+    def getFaceById(self,faceId):
+        c_faceId=0
+        isFind=False
+        faceShape=None
+        for shape in self._shapeList:
+            if(isFind):break
+            face_explorer = TopExp_Explorer(shape, TopAbs_FACE)
+            while face_explorer.More():
+                f = face_explorer.Current()
+                if(c_faceId==faceId):
+                    isFind=True
+                    faceShape=f
+                    break
+                c_faceId=c_faceId+1
+                face_explorer.Next()
+        if(not isFind):faceShape=None
+        
+        return faceShape
     def clearSolidSelected(self):
         keys_to_delete = [key for key in self._solidSelectedDic if key!=-1]
 
@@ -317,7 +335,7 @@ class InteractiveContext(QWidget, ComponentMixin):
             
 
             
-            faceId=self.getFaceId(selectedShape)
+            faceId,_shapeId=self.getFaceId(selectedShape)
             k=self.FACETIP+str(faceId)
             # chooseFaceId=faceId
             isSelcted=True
@@ -345,7 +363,7 @@ class InteractiveContext(QWidget, ComponentMixin):
             # print("origin",face_center.X(),face_center.Y(),face_center.Z())
             # self.display_local_axis(selectedShape)
             # self.display_local_axis_old(selectedShape)
-            self.sigFaceClicked.emit(faceId,isSelcted)
+            self.sigFaceClicked.emit(faceId,isSelcted,selectedShape,_shapeId)
             self.sigFaceLengthUV.emit(u_length,v_length)
             # self.sigFaceChoosed.emit(
             #                          (round(face_center.X(),2),round(face_center.Y(),2),round(face_center.Z(),2)),
@@ -604,19 +622,27 @@ class InteractiveContext(QWidget, ComponentMixin):
         '''
         faceId=0
         isFind=False
+        shapeIndex=0
+        shapeId=-1
         for shape in self._shapeList:
+
             if(isFind):break
+
             face_explorer = TopExp_Explorer(shape, TopAbs_FACE)
             while face_explorer.More():
                 f = face_explorer.Current()
                 if(face.IsSame(f)):
                     isFind=True
+                    shapeId=shapeIndex
                     # print("find same face",faceId)
                     break
                 faceId=faceId+1
                 face_explorer.Next()
-        if(not isFind):faceId=-1
-        return faceId
+            shapeIndex=shapeIndex+1
+        if(not isFind):
+            faceId=-1
+            shapeId=-1
+        return faceId,shapeId
         pass
     def getShapeId(self,shapeSelected:TopoDS_Shape):
         shapeId=0

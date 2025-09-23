@@ -55,6 +55,15 @@ class frmMediaIsotropic(Ui_frmMediaIsotropic,QtWidgets.QMainWindow):
             self.txtPoissonRatio.setText(str(self._isotropic.poissonRatio))
             self.txtThermalExpansion.setText(str(self._isotropic.thermalExpansion))
 
+            self.txt_s_e_lifetime.setText(str(self._isotropic.s_e_lifetime))
+            self.txt_s_h_lifetime.setText(str(self._isotropic.s_h_lifetime))
+            self.txt_s_bandgap.setText(str(self._isotropic.s_bandgap))
+            self.txt_s_e_affinity.setText(str(self._isotropic.s_e_affinity))
+            self.txt_s_e_v_band.setText(str(self._isotropic.s_e_v_band))
+            self.txt_s_e_c_band.setText(str(self._isotropic.s_e_c_band))
+            self.txt_s_e_mobility.setText(str(self._isotropic.s_e_mobility))
+            self.txt_s_h_mobility.setText(str(self._isotropic.s_h_mobility))
+
         pass
     
  
@@ -83,6 +92,15 @@ class frmMediaIsotropic(Ui_frmMediaIsotropic,QtWidgets.QMainWindow):
             media_isotropic.youngModulus=self.txtYoungModulus.text()
             media_isotropic.poissonRatio=self.txtPoissonRatio.text()
             media_isotropic.thermalExpansion=self.txtThermalExpansion.text()
+
+            media_isotropic.s_e_lifetime=self.txt_s_e_lifetime.text()
+            media_isotropic.s_h_lifetime=self.txt_s_h_lifetime.text()
+            media_isotropic.s_bandgap=self.txt_s_bandgap.text()
+            media_isotropic.s_e_affinity=self.txt_s_e_affinity.text()
+            media_isotropic.s_e_v_band=self.txt_s_e_v_band.text()
+            media_isotropic.s_e_c_band=self.txt_s_e_c_band.text()
+            media_isotropic.s_e_mobility=self.txt_s_e_mobility.text()
+            media_isotropic.s_h_mobility=self.txt_s_h_mobility.text()
             
 
             if(media_isotropic.name==""):

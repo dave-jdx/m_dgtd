@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmCircuitLoad.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmCircuitLoad.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,20 +14,20 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_frmCIrcuitLoad(object):
     def setupUi(self, frmCIrcuitLoad):
         frmCIrcuitLoad.setObjectName("frmCIrcuitLoad")
-        frmCIrcuitLoad.resize(347, 220)
+        frmCIrcuitLoad.resize(347, 254)
         self.centralwidget = QtWidgets.QWidget(frmCIrcuitLoad)
         self.centralwidget.setObjectName("centralwidget")
         self.btnApply = QtWidgets.QPushButton(self.centralwidget)
-        self.btnApply.setGeometry(QtCore.QRect(130, 170, 80, 30))
+        self.btnApply.setGeometry(QtCore.QRect(130, 210, 80, 30))
         self.btnApply.setObjectName("btnApply")
         self.btnCancel = QtWidgets.QPushButton(self.centralwidget)
-        self.btnCancel.setGeometry(QtCore.QRect(230, 170, 80, 30))
+        self.btnCancel.setGeometry(QtCore.QRect(230, 210, 80, 30))
         self.btnCancel.setObjectName("btnCancel")
         self.btnOK = QtWidgets.QPushButton(self.centralwidget)
-        self.btnOK.setGeometry(QtCore.QRect(30, 170, 80, 30))
+        self.btnOK.setGeometry(QtCore.QRect(30, 210, 80, 30))
         self.btnOK.setObjectName("btnOK")
         self.groupCondition = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupCondition.setGeometry(QtCore.QRect(10, 20, 331, 131))
+        self.groupCondition.setGeometry(QtCore.QRect(10, 20, 331, 171))
         self.groupCondition.setTitle("")
         self.groupCondition.setObjectName("groupCondition")
         self.txtFaceId = QtWidgets.QLineEdit(self.groupCondition)
@@ -38,11 +38,11 @@ class Ui_frmCIrcuitLoad(object):
         self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.label.setObjectName("label")
         self.label_3 = QtWidgets.QLabel(self.groupCondition)
-        self.label_3.setGeometry(QtCore.QRect(10, 90, 61, 30))
+        self.label_3.setGeometry(QtCore.QRect(10, 130, 61, 30))
         self.label_3.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.label_3.setObjectName("label_3")
         self.txtLoad = QtWidgets.QLineEdit(self.groupCondition)
-        self.txtLoad.setGeometry(QtCore.QRect(80, 90, 191, 30))
+        self.txtLoad.setGeometry(QtCore.QRect(80, 130, 191, 30))
         self.txtLoad.setObjectName("txtLoad")
         self.txtLengthUV = QtWidgets.QLineEdit(self.groupCondition)
         self.txtLengthUV.setGeometry(QtCore.QRect(80, 50, 191, 30))
@@ -54,6 +54,16 @@ class Ui_frmCIrcuitLoad(object):
         self.btnExchange = QtWidgets.QPushButton(self.groupCondition)
         self.btnExchange.setGeometry(QtCore.QRect(280, 50, 45, 30))
         self.btnExchange.setObjectName("btnExchange")
+        self.cbxLoadType = QtWidgets.QComboBox(self.groupCondition)
+        self.cbxLoadType.setGeometry(QtCore.QRect(80, 90, 191, 30))
+        self.cbxLoadType.setObjectName("cbxLoadType")
+        self.cbxLoadType.addItem("")
+        self.cbxLoadType.addItem("")
+        self.cbxLoadType.addItem("")
+        self.label_5 = QtWidgets.QLabel(self.groupCondition)
+        self.label_5.setGeometry(QtCore.QRect(10, 90, 61, 30))
+        self.label_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.label_5.setObjectName("label_5")
         frmCIrcuitLoad.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(frmCIrcuitLoad)
@@ -61,11 +71,15 @@ class Ui_frmCIrcuitLoad(object):
 
     def retranslateUi(self, frmCIrcuitLoad):
         _translate = QtCore.QCoreApplication.translate
-        frmCIrcuitLoad.setWindowTitle(_translate("frmCIrcuitLoad", "电路-负载"))
+        frmCIrcuitLoad.setWindowTitle(_translate("frmCIrcuitLoad", "负载设置"))
         self.btnApply.setText(_translate("frmCIrcuitLoad", "应用"))
         self.btnCancel.setText(_translate("frmCIrcuitLoad", "取消"))
         self.btnOK.setText(_translate("frmCIrcuitLoad", "确定"))
         self.label.setText(_translate("frmCIrcuitLoad", "面编号"))
-        self.label_3.setText(_translate("frmCIrcuitLoad", "电阻"))
+        self.label_3.setText(_translate("frmCIrcuitLoad", "端口值"))
         self.label_4.setText(_translate("frmCIrcuitLoad", "宽/高(m)"))
         self.btnExchange.setText(_translate("frmCIrcuitLoad", "调换"))
+        self.cbxLoadType.setItemText(0, _translate("frmCIrcuitLoad", "电阻"))
+        self.cbxLoadType.setItemText(1, _translate("frmCIrcuitLoad", "电感"))
+        self.cbxLoadType.setItemText(2, _translate("frmCIrcuitLoad", "电容"))
+        self.label_5.setText(_translate("frmCIrcuitLoad", "端口类型"))

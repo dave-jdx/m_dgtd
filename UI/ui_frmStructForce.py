@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmStructForce.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmStructForce.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -61,7 +61,7 @@ class Ui_frmStructForce(object):
 
     def retranslateUi(self, frmStructForce):
         _translate = QtCore.QCoreApplication.translate
-        frmStructForce.setWindowTitle(_translate("frmStructForce", "结构-外力"))
+        frmStructForce.setWindowTitle(_translate("frmStructForce", "力设置"))
         self.btnApply.setText(_translate("frmStructForce", "应用"))
         self.btnCancel.setText(_translate("frmStructForce", "取消"))
         self.btnOK.setText(_translate("frmStructForce", "确定"))

@@ -18,13 +18,15 @@ def createMesh(strJson:str,
         log(strJson,logFileName)
         param_json=json.loads(strJson)
         
-    
+
         fnameList=param_json["fnameList"]
         options=param_json["options"]
         localSize=param_json["localSize"]
+        face_bnd=param_json.get("face_bnd",{})
         
         vtkFileName=param_json["vtkFileName"]
         mshFileName=param_json["mshFileName"]
+        sizeH=options["maxh"]*1000
         minH=options["minh"]*1000
         maxH=options["maxh"]*1000
         smootions_steps=options["smoothing_steps"]
@@ -42,10 +44,13 @@ def createMesh(strJson:str,
 
         
 
+    
         gmsh.initialize()
         gmsh.clear()
+     
+        
         #gmsh不输出info信息
-        # gmsh.option.setNumber("General.Terminal", 1)
+        gmsh.option.setNumber("General.Terminal", 1)
     
         mediumDic={}#tag:mdiumIndex
         boundaryDic={} #tag:boundaryIndex
@@ -54,11 +59,10 @@ def createMesh(strJson:str,
         is_first=True
        
         timeStart=time.time()
+        shell_entities=[]
         for i,fname in enumerate(fnameList):
             imported_entities=gmsh.model.occ.importShapes(fname)
-            # print(f"Imported耗时:{time.time()-timeStart}")
-            msg=f"Imported耗时:{time.time()-timeStart}"
-            log(msg,logFileName)
+            print(f"Imported耗时:{time.time()-timeStart}")
             timeStart=time.time()
             gmsh.model.occ.synchronize()
             if(is_first):#只取第一个文件的体域
@@ -67,8 +71,13 @@ def createMesh(strJson:str,
                 #列表转字典 key是tag value是index
                 modelTagDic=dict(zip(modelTags,[i]*len(modelTags)))
                 is_first=False
+            else:
+                shells = [entity for entity in imported_entities if entity[0] == 2]
+                shell_entities.extend(shells)
 
+    
         surfaces = gmsh.model.getEntities(2)
+        # surfaces_nodes_befor=get_face_nodes(surfaces)
         surfaces_before=get_face_info(surfaces)
         faceId_used={}#记录已经使用的面编号
         for (dim, tag) in surfaces:
@@ -76,69 +85,43 @@ def createMesh(strJson:str,
             name = gmsh.model.getEntityName(dim, tag)
             # boundaryDic[tag]=tag-1
             
-            if(name!=""):
-                # print(f"边界面: {name}-{tag}")
-                log(f"边界面: {name}-{tag}",logFileName)
-                narr=name.split("/")
-                if(narr[1].startswith("Bound")):
-                    faceId=int(narr[1].replace("Bound",""))
-                    if(faceId!=tag-1):
-                        continue
-                    if(faceId in faceId_used):
-                        continue
-                    faceId_used[faceId]=1
-                    boundaryDic[tag]=(faceId,surfaces_before[(dim,tag)]) #记录原来的面编号，输出时使用
-
-
-                # selected_surface = (dim, tag)
-                # gmsh.model.addPhysicalGroup(2, [selected_surface[1]], tag,name)
-        
-        #使用布尔碎片处理共享面
-        face_origin_now_pairs={} #原编号，新编号
-        entities = gmsh.model.getEntities(dim=3)
-        desired_entities = [e for e in entities if e[1] in modelTags]
-
-        if(alogrithm_3d_v==4 ):
-            desired_entities=entities
-
-        
-        out_dim_tags, out_tags_map=gmsh.model.occ.fragment(desired_entities, [])
-        gmsh.model.occ.removeAllDuplicates()
-        gmsh.model.occ.synchronize()
-        out_dim_tags=[]
-
-        # 获取每个体的面
-        volume_surfaces = {}
-        volumes = [dimtag for dimtag in out_dim_tags if dimtag[0] == 3]
-        # print("新生成的体：", volumes)
-        for vol in volumes:
-            # 获取体 vol 的面
-            surfaces = gmsh.model.getBoundary([vol], oriented=False, recursive=False)
-            surface_tags = [s[1] for s in surfaces if s[0] == 2]
-            volume_surfaces[vol[1]] = set(surface_tags)
-
-        # 统计每个面的出现次数
-        surface_counts = {}
-        surface_index=1
-        for surfaces in volume_surfaces.values():
-            for s in surfaces:
-                
-                surface_counts[s] = surface_counts.get(s, 0) + 1
-                face_origin_now_pairs[surface_index]=s
-                surface_index+=1
             
 
-        # # 找到被多个体共享的面（出现次数大于1）
-        shared_surfaces = [s for s, count in surface_counts.items() if count > 1]
-        # print("共享的面标签：", shared_surfaces)
+            for k in face_bnd:
+                v=face_bnd[k]
+                com=v["com"]
+                area=v["area"]
+                area_diff = abs(area - surfaces_before[(dim,tag)]['area'])
+                com_dist = np.linalg.norm(np.array(com) - np.array(surfaces_before[(dim,tag)]['com']))
+                if area_diff < 1e-6 and com_dist < 1e-6:
+                    faceId=k
+                    boundaryDic[tag]=(faceId,surfaces_before[(dim,tag)],v["bndType"]) #记录原来的面编号，输出时使用
+        
 
-        # 打印共享面的详细信息
-        for s in shared_surfaces:
-            # print(f"共享面标签：{s}")
-            pass 
+        face_origin_now_pairs={} #原编号，新编号
+        entities = gmsh.model.getEntities(dim=3)
+        # desired_entities = [e for e in entities if e[1] in modelTags]
+
+        # if(alogrithm_3d_v==4 or alogrithm_3d_v==7):
+        #     desired_entities=entities
+
+        
+        out_dim_tags, out_tags_map=gmsh.model.occ.fragment(entities, shell_entities,
+                                                            removeObject=True, removeTool=True)
+        gmsh.model.occ.removeAllDuplicates()
+        gmsh.model.occ.synchronize()
+
+
+    
+        
         volumes=gmsh.model.getEntities(3)
         s_total_index=1
+        
+
+        
+                
         for(etype,tag) in volumes:
+            
             name=gmsh.model.getEntityName(etype,tag)
             # print(f"Found solid in gmsh with tag: {name}-{tag}")
             if(name!=""):
@@ -148,31 +131,35 @@ def createMesh(strJson:str,
                 else:
                     mediumDic[tag]=-1
                 gmsh.model.addPhysicalGroup(3,[selected_volume[1]],tag,name)
-              
+                
+          
         boundaryDic_new={}
 
         surfaces_new = gmsh.model.getEntities(dim=2)
         surfaces_after=get_face_info(surfaces_new)
         tag_new_dic={}
-        for k in boundaryDic.keys():
+        for k in face_bnd.keys():
             #为新的面赋值entityName和物理组
             for (dim, tag) in surfaces_new:
     
                 v_after=surfaces_after[(dim,tag)]
-                v_before=boundaryDic[k][1]
+                v_before=face_bnd[k]
                 area_diff = abs(v_before['area'] - v_after['area'])
                 com_dist = np.linalg.norm(np.array(v_before['com']) - np.array(v_after['com']))
                 if area_diff < 1e-6 and com_dist < 1e-6:
-                    # print("边界面匹配", k, tag,boundaryDic[k][0])
-                    log(f"边界面匹配 {k} {tag} {boundaryDic[k][0]}",logFileName)
-                    gmsh.model.setEntityName(2,tag,"Bound"+str(boundaryDic[k][0]))
-                    gmsh.model.addPhysicalGroup(2, [tag], tag,"Bound"+str(boundaryDic[k][0]))
-                    boundaryDic_new[tag]=boundaryDic[k]
+                    # print("found a match", k, tag,face_bnd[k])
+                    gmsh.model.setEntityName(2,tag,"Bound"+str(k))
+                    gmsh.model.addPhysicalGroup(2, [tag], tag,"Bound"+str(k))
+
+                    boundaryDic_new[tag]=face_bnd[k]
                 
                     break
         
 
-        # 设置网格尺寸
+
+    
+
+        # 设置网格尺寸为 0.001m
         
         gmsh.option.setNumber("Mesh.Algorithm3D", alogrithm_3d_v)  # 使用 Delaunay 算法
         gmsh.option.setNumber("Mesh.ElementOrder", 1)  # 一阶单元
@@ -180,15 +167,8 @@ def createMesh(strJson:str,
         gmsh.option.setNumber("Mesh.MeshSizeMin", minH)
         gmsh.option.setNumber("Mesh.Smoothing", smootions_steps)
         gmsh.option.setNumber("Mesh.Optimize", optimize_tetrahedra)
-        # gmsh.option.setNumber("Mesh.MeshSizeMin", 1)
-        # gmsh.option.setNumber("Mesh.Optimize", 0)
-        # gmsh.option.setNumber("Mesh.OptimizeNetgen", 0)
-        # gmsh.option.setNumber("Mesh.RecombineAll", 0) 
-        # gmsh.option.setNumber("Mesh.Smoothing", 0)
-        # gmsh.option.setNumber("Mesh.MeshSizeMin", 0)
- 
-        # 生成网格
-        gmsh.model.occ.synchronize()
+        
+        # gmsh.option.setNumber("Mesh.CharacteristicLengthMax",sizeH)
 
         size_solid={}
         for k in localSize.keys():
@@ -204,16 +184,24 @@ def createMesh(strJson:str,
             if(size_solid.get(tag)!=None):
                 size_temp=size_solid[tag]
                 gmsh.model.mesh.setSize(points, size_temp)
+        
+ 
+ 
+        # 生成网格
+        gmsh.model.occ.synchronize()
     
-        # print("生成网格")
-        log("生成网格",logFileName)
+        
+        print("生成网格")
         timeStart=time.time()
-        gmsh.option.setNumber("General.NumThreads", 8)
+        # gmsh.option.setNumber("General.NumThreads", 8)
+       
         gmsh.model.mesh.generate(3)
       
-        # print(f"生成网格耗时:{time.time()-timeStart}")
-        log(f"生成网格耗时:{time.time()-timeStart}",logFileName)
+        print(f"生成网格耗时:{time.time()-timeStart}")
         timeStart=time.time()
+
+      
+
         nodeList=[] #所有的网格顶点
         boundaryList=[] #边界面对应的网格
         tetList=[] #四面体对应的网格
@@ -221,18 +209,25 @@ def createMesh(strJson:str,
 
         # 输出所有的网格顶点
         node_tags, node_coords, _ = gmsh.model.mesh.getNodes()
-
+        print("\n所有的网格顶点:")
         for i in range(len(node_tags)):
             x = node_coords[3 * i]
             y = node_coords[3 * i + 1]
             z = node_coords[3 * i + 2]
             nodeList.append((x,y,z))
-        # print(f"节点数量:{len(nodeList)}")
-        msg=f"节点数量:{len(nodeList)}"
-        log(msg,logFileName)
+        print(f"节点数量:{len(nodeList)}")
+        #判断节点中是否有重复的值
+        # for i in range(len(nodeList)):
+        #     for j in range(i+1,len(nodeList)):
+        #         #通过元素的差值判断是否相等
+        #         if(np.linalg.norm(np.array(nodeList[i])-np.array(nodeList[j]))<1e-6):
+        #             print(f"重复节点{i},{j}")
+        # print(f"输出重复节点完毕")
+        
 
         # 输出选中面的三角面网格
-     
+        print("\n选中面的三角面网格:")
+        # 获取物理组编号为100的元素
         for k in boundaryDic_new.keys():
             #此时k是当前处理过之后的面编号，需要从物理组中获取原来的面编号
             s_tag=k
@@ -243,10 +238,9 @@ def createMesh(strJson:str,
                 for i in range(len(elem_tags[0])):
                     nodes = elem_node_tags[0][3 * i:3 * i + 3]
                     # print(f"单元 {elem_tags[0][i]}: 节点 {nodes}")
-                    boundaryList.append((nodes[0],nodes[1],nodes[2],int(boundaryDic_new[k][0]+1)))
+                    boundaryList.append((nodes[0],nodes[1],nodes[2],boundaryDic_new[k]["bndId"]))
             else:
                 print("No elements found on the selected face.")
-
         # 输出四面体网格
         
         mode_node_length=0
@@ -312,6 +306,9 @@ def write_mesh(fname:str,nodeList,boundaryList,tetList,model_nodes_length=0):
     tet_end=get_comment("End_Tet")
 
     try:
+        model_nodes_fname=os.path.splitext(fname)[0]+"_model_nodes.txt"
+        with open(model_nodes_fname,"w",encoding="utf-8") as f:
+            f.write(str(model_nodes_length))
         with open(fname,"w",encoding="utf-8") as f:
             f.write(node_begin+newline)
             f.write(str(len(nodeList))+newline)
@@ -329,7 +326,7 @@ def write_mesh(fname:str,nodeList,boundaryList,tetList,model_nodes_length=0):
 
             f.write(tet_begin+newline)
             f.write(str(len(tetList))+newline)
-            f.write(str(model_nodes_length)+newline)
+            # f.write(str(model_nodes_length)+newline)
             for i in range(len(tetList)):
                 f.write(splitext.join(map(str,tetList[i]))+newline)
             f.write(tet_end+newline)

@@ -29,6 +29,7 @@ class frmBase(QtWidgets.QMainWindow):
         self.setPalette(pal)
         
         self.gbxStyle="QGroupBox:title{left:5px;height:25px}"
+        
         self.lintEditFocusStyle="""
         background-color:rgb(255,255,0);
         font-size:14px;

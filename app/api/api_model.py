@@ -60,6 +60,8 @@ from OCC.Core.BRepTools import BRepTools_ReShape
 from OCC.Core.TopTools import TopTools_ListOfShape
 from OCC.Core.TopoDS import topods_Face
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.BRepGProp import brepgprop_VolumeProperties, brepgprop_SurfaceProperties
 # from OCC.Core.GProp import GProp_GProps
 # from OCC.Core.BRepGProp import brepgprop_VolumeProperties
 # from OCC.Core.BRepCheck import BRepCheck_Analyzer
@@ -1360,3 +1362,10 @@ def make_shell_domains(viewer:OCCViewer.Viewer3d,shape:TopoDS_Compound,
     # exportModel(domain_1008,"D:/exf2.stp")
 
     return domains_pml,ais_shapes_pml,domains_exf,ais_shapes_exf,res_pml_param
+def get_face_center_area(face):
+    mass = GProp_GProps()
+    brepgprop_SurfaceProperties(face, mass)
+    center=mass.CentreOfMass()
+    area=mass.Mass()
+    xyz=(center.X(),center.Y(),center.Z())
+    return{"com":(center.X(),center.Y(),center.Z()),"area":area}

@@ -2,6 +2,8 @@ from typing import List, Set, Dict, Tuple
 import numpy as np
 from numpy import sin, cos, pi
 import math
+import chardet
+import os
 
 
 def read_currents(fName: str):
@@ -773,6 +775,81 @@ def read_nf_sbr_Power(fName:str):
                                         float(arr[8]),float(arr[9])))
                 continue
     return fList,freqList
+def read_thermal_3d_fem(fname:str):
+    splitText="\t"
+    m_unit=1000
+    begin_tet=get_comment("Begin_Tet Mesh")
+    end_tet=get_comment("End_Tet Mesh")
+
+    begin_node=get_comment("Begin_Node Coord")
+    end_node=get_comment("End_Node Coord")
+
+    begin_thermal=get_comment("Begin_Simulation Data")
+    end_thermal=get_comment("End_Simulation Data")
+    points_list=[]
+    cell_list=[]
+    thermal_values=[]
+    inside_tet=False
+    inside_node=False
+    inside_thermal=False
+    timeList=[]
+    fList=[] #温度会有多个时刻，每个时刻的数据是一个数组，渲染时是对应一个时刻
+    with open(fname,"r",encoding="utf-8") as file:
+        for line in file:
+            line=line.strip()
+            if(line.startswith(begin_tet)):
+                inside_tet=True
+                continue
+            if(line.startswith(end_tet)):
+                inside_tet=False
+                continue
+            if(line.startswith(begin_node)):
+                inside_node=True
+                continue
+            if(line.startswith(end_node)):
+                inside_node=False
+                continue
+            if(line.startswith(begin_thermal)):
+                inside_thermal=True
+                continue
+            if(line.startswith(end_thermal)):
+                inside_thermal=False
+                continue
+            if(inside_tet):
+                #处理四面体网格数据
+                arr=line.split()
+                if(len(arr)>=5):
+                    index=int(arr[0])-1
+                    i=int(arr[1])-1
+                    j=int(arr[2])-1
+                    k=int(arr[3])-1
+                    l=int(arr[4])-1
+                    cell_list.append((i,j,k,l))
+            if(inside_node):
+                #处理节点数据
+                arr=line.split()
+                if(len(arr)>=4):
+                    index=int(arr[0])-1
+                    x=float(arr[1])*m_unit
+                    y=float(arr[2])*m_unit
+                    z=float(arr[3])*m_unit
+                    points_list.append((x,y,z))
+            if(inside_thermal):
+                #处理热分析数据
+                if(line.startswith('"Time')):
+                    timeList.append(line)
+                    if(len(thermal_values)>0):
+                        fList.append(thermal_values)
+                        thermal_values=[]
+                    continue
+                arr=line.split()
+                if(len(arr)>=2):
+                    index=int(arr[0])-1
+                    thermal=float(arr[1])
+                    thermal_values.append((thermal))
+    if(len(thermal_values)>0):
+        fList.append(thermal_values)
+    return points_list,cell_list,fList,timeList
 def read_thermal_3d(fname:str):
     splitText="\t"
     m_unit=1000
@@ -838,15 +915,17 @@ def read_thermal_3d(fname:str):
                     thermal=float(arr[1])
                     thermal_values.append((thermal))
     return points_list,cell_list,thermal_values
-def read_thermal_2d(fname:str):
+
+def read_thermal_2d_fem(fname:str):
     splitText="\t"
     begin_2d_data=get_comment("Begin_Simulation Data")
     end_2d_data=get_comment("End_Simulation Data")
 
-    thermal_values=[]
-
+    fList=[]
+    nfDic={}
     inside_thermal=False
-    with open(fname,"r",encoding="utf-8") as file:
+    t_encoding=read_txt_chardet(fname)
+    with open(fname,"r",encoding=t_encoding) as file:
         for line in file:
             line=line.strip()
     
@@ -862,7 +941,47 @@ def read_thermal_2d(fname:str):
                 arr=line.split()
                 if(len(arr)>=6):
                     try:
-                        timeStep=round(float(arr[0]),0)
+                        timeStep=float(arr[0])
+                        thermal=float(arr[5])
+                        nf_point=int(arr[1])
+                        if(nf_point in nfDic):
+                            nfDic[nf_point].append((timeStep,thermal))
+                        else:
+                            nfDic[nf_point]=[]
+                            nfDic[nf_point].append((timeStep,thermal))
+                        # thermal_values.append((timeStep,thermal))
+                    except Exception as e:
+                        print(e)
+                        pass
+    for key in nfDic:
+        fList.append(nfDic[key])
+    return fList
+def read_thermal_2d(fname:str):
+    splitText="\t"
+    begin_2d_data=get_comment("Begin_Simulation Data")
+    end_2d_data=get_comment("End_Simulation Data")
+
+    thermal_values=[]
+
+    inside_thermal=False
+    # with open(fname,"r",encoding="utf-8") as file:
+    with open(fname,"r") as file:
+        for line in file:
+            line=line.strip()
+    
+            if(line.startswith(begin_2d_data)):
+                inside_thermal=True
+                continue
+            if(line.startswith(end_2d_data)):
+                inside_thermal=False
+                continue
+
+            if(inside_thermal):
+                #处理热分析数据
+                arr=line.split()
+                if(len(arr)>=6):
+                    try:
+                        timeStep=float(arr[0])
                         thermal=float(arr[5])
                         thermal_values.append((timeStep,thermal))
                     except Exception as e:
@@ -871,6 +990,9 @@ def read_thermal_2d(fname:str):
     return thermal_values
 
 def read_displacement_3d(fname:str):
+    '''
+    位移分析数据
+    '''
     splitText="\t"
     m_unit=1000
     begin_tet=get_comment("Begin_Tet Mesh")
@@ -930,15 +1052,56 @@ def read_displacement_3d(fname:str):
             if(inside_thermal):
                 #处理热分析数据
                 arr=line.split()
-                if(len(arr)>=5):
+                if(len(arr)>=2):
                     index=int(arr[0])-1
-                    d_x=float(arr[1])*m_unit
-                    d_y=float(arr[2])*m_unit
-                    d_z=float(arr[3])*m_unit
-                    magnitude=float(arr[4])
-                    displacement_values.append((d_x,d_y,d_z,magnitude))
+                    # d_x=float(arr[1])*m_unit
+                    # d_y=float(arr[2])*m_unit
+                    # d_z=float(arr[3])*m_unit
+                    magnitude=float(arr[1])
+                    displacement_values.append(magnitude)
     return points_list,cell_list,displacement_values
+def read_em_2d_fem(fname:str):
+    splitText="\t"
+    begin_2d_data=get_comment("Begin_Simulation Data")
+    end_2d_data=get_comment("End_Simulation Data")
 
+    fList=[]
+
+    inside_data=False
+    nf_dic={}
+    t_encoding=read_txt_chardet(fname)
+    with open(fname,"r",encoding=t_encoding) as file:
+        for line in file:
+            line=line.strip()
+    
+            if(line.startswith(begin_2d_data)):
+                inside_data=True
+                continue
+            if(line.startswith(end_2d_data)):
+                inside_data=False
+                continue
+
+            if(inside_data):
+                #处理热分析数据
+                arr=line.split()
+                if(len(arr)>=9):
+                    try:
+                        timeStep=float(arr[0])
+                        v=float(arr[8])
+                        nf_point=int(arr[1])
+                        if(nf_point in nf_dic):
+                            nf_dic[nf_point].append((timeStep,v))
+                        else:
+                            nf_dic[nf_point]=[]
+                            nf_dic[nf_point].append((timeStep,v))
+                        # v = 0.0 if math.isnan(v) else v
+                        # s_values.append((timeStep,v))
+                    except Exception as e:
+                        print(e)
+                        pass
+    for key in nf_dic:
+        fList.append(nf_dic[key])
+    return fList
 def read_em_2d(fname:str):
     splitText="\t"
     begin_2d_data=get_comment("Begin_Simulation Data")
@@ -965,12 +1128,88 @@ def read_em_2d(fname:str):
                     try:
                         timeStep=float(arr[0])
                         v=float(arr[8])
+                        # v = 0.0 if math.isnan(v) else v
                         s_values.append((timeStep,v))
                     except Exception as e:
                         print(e)
                         pass
     return s_values
     pass
+def read_em_3d_fem(fname:str):
+    splitText="\t"
+    m_unit=1000
+    begin_tet=get_comment("Begin_Tet Mesh")
+    end_tet=get_comment("End_Tet Mesh")
+
+    begin_node=get_comment("Begin_Node Coord")
+    end_node=get_comment("End_Node Coord")
+
+    begin_data=get_comment("Begin_Simulation Data")
+    end_data=get_comment("End_Simulation Data")
+    points_list=[]
+    cell_list=[]
+    e_values=[]
+    inside_tet=False
+    inside_node=False
+    inside_data=False
+    fList=[] #电场会有多个时刻，每个时刻的数据是一个数组，渲染时是对应一个时刻
+    timeList=[]
+    with open(fname,"r",encoding="utf-8") as file:
+        for line in file:
+            line=line.strip()
+            if(line.startswith(begin_tet)):
+                inside_tet=True
+                continue
+            if(line.startswith(end_tet)):
+                inside_tet=False
+                continue
+            if(line.startswith(begin_node)):
+                inside_node=True
+                continue
+            if(line.startswith(end_node)):
+                inside_node=False
+                continue
+            if(line.startswith(begin_data)):
+                inside_data=True
+                continue
+            if(line.startswith(end_data)):
+                inside_data=False
+                continue
+            if(inside_tet):
+                #处理四面体网格数据
+                arr=line.split()
+                if(len(arr)>=5):
+                    index=int(arr[0])-1
+                    i=int(arr[1])-1
+                    j=int(arr[2])-1
+                    k=int(arr[3])-1
+                    l=int(arr[4])-1
+                    cell_list.append((i,j,k,l))
+            if(inside_node):
+                #处理节点数据
+                arr=line.split()
+                if(len(arr)>=4):
+                    index=int(arr[0])-1
+                    x=float(arr[1])*m_unit
+                    y=float(arr[2])*m_unit
+                    z=float(arr[3])*m_unit
+                    points_list.append((x,y,z))
+            if(inside_data):
+                #处理热分析数据
+                if(line.startswith('"Time')):
+                    timeList.append(line)
+                    if(len(e_values)>0):
+                        fList.append(e_values)
+                        e_values=[]
+                    continue
+                arr=line.split()
+                if(len(arr)>=2):
+                    index=int(arr[0])-1
+                    v=float(arr[4])
+                    e_values.append((v))
+    if(len(e_values)>0):
+        fList.append(e_values)
+    return points_list,cell_list,fList,timeList
 def read_em_3d(fname:str):
     splitText="\t"
     m_unit=1000
@@ -1132,7 +1371,14 @@ def read_em_ffr(fname:str):
 
     return resultList
     pass
-
+def read_circuit_load(fname:str):
+    s_values=[]
+    return s_values
+    pass
+def read_circuit_source(fname:str):
+    s_values=[]
+    return s_values
+    pass
 def read_ffr_gdtd(fName:str):
     #暂时只支持读取一个频点的数据
     N_START = 0  # 前1行为描述信息
@@ -1161,3 +1407,90 @@ def read_ffr_gdtd(fName:str):
 
     fList.append(points)
     return fList
+def read_circuit_load_2d(fname:str):
+    splitText="\t"
+    begin_2d_data=get_comment("Begin_Simulation Data")
+    end_2d_data=get_comment("End_Simulation Data")
+
+    values=[]
+
+    inside_thermal=False
+    t_encoding=read_txt_chardet(fname)
+    with open(fname,"r",encoding=t_encoding) as file:
+        for line in file:
+            line=line.strip()
+    
+            if(line.startswith(begin_2d_data)):
+                inside_thermal=True
+                continue
+            if(line.startswith(end_2d_data)):
+                inside_thermal=False
+                continue
+
+            if(inside_thermal):
+                #处理热分析数据
+                arr=line.split()
+                if(len(arr)>=4):
+                    try:
+                        timeStep=float(arr[0])
+                        vaule_v=float(arr[2])
+                        value_c=float(arr[3])
+                        values.append((timeStep,vaule_v,value_c))
+                    except Exception as e:
+                        print(e)
+                        pass
+    return values
+
+def read_circuit_source_2d(fname:str):
+    splitText="\t"
+    begin_2d_data=get_comment("Begin_Simulation Data")
+    end_2d_data=get_comment("End_Simulation Data")
+
+    values=[]
+
+    inside_thermal=False
+    t_encoding=read_txt_chardet(fname)
+    with open(fname,"r",encoding=t_encoding) as file:
+        for line in file:
+            line=line.strip()
+    
+            if(line.startswith(begin_2d_data)):
+                inside_thermal=True
+                continue
+            if(line.startswith(end_2d_data)):
+                inside_thermal=False
+                continue
+
+            if(inside_thermal):
+                #处理热分析数据
+                arr=line.split()
+                if(len(arr)>=3):
+                    try:
+                        timeStep=float(arr[0])
+                        vaule_v=float(arr[1])
+                        value_c=float(arr[2])
+                        values.append((timeStep,vaule_v,value_c))
+                    except Exception as e:
+                        print(e)
+                        pass
+    return values
+
+def read_txt_chardet(file_path):
+    file_size = os.path.getsize(file_path)
+
+    # 1. 自适应读取：小文件读全，大文件读前 5KB
+    with open(file_path, "rb") as f:
+        if file_size < 1024:  # 小于 1KB
+            raw_data = f.read()
+        else:  # 取前 5KB
+            raw_data = f.read(5120)
+
+    # 2. 检测编码
+    result = chardet.detect(raw_data)
+    encoding = result["encoding"]
+    confidence = result["confidence"]
+
+    print(f"检测结果: {encoding}, 置信度: {confidence:.2f}")
+
+
+    return  encoding

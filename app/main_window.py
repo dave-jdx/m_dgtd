@@ -149,7 +149,7 @@ mainStyle="""
 """
 
 class MainWindow(QMainWindow, MainMixin):
-    name = '多物理场仿真软件V1.0'
+    name = '半导体电热力仿真软件V1.0921'
     org = 'CSSC'
     _gripSize = 2
     def __init__(self, parent=None, spid=None,projectFile:str=""):
@@ -428,6 +428,7 @@ class MainWindow(QMainWindow, MainMixin):
     #     self.progress_bar.reset()
     #     pass
     def initPFSelected(self,pfName:str):
+        return
         print("initPFSelected",pfName)
         menu_action=None
         pfName_menu=""
@@ -504,6 +505,7 @@ class MainWindow(QMainWindow, MainMixin):
         # self._titleBar.setStyleSheet(self.themeUI.titleBar)
         self.setWindowState(QtCore.Qt.WindowState.WindowMaximized)
         self.projectTree.sig_createProject()
+        self.projectTree.set_solver("FEM-DGTD")
        
     def prepare_actions_home(self):
         self.action_new_project=QAction(icon('new'),'New',self,shortcut="ctrl+N",triggered=self.createProject)
@@ -528,14 +530,20 @@ class MainWindow(QMainWindow, MainMixin):
 
     def set_solver_dgtd(self):
         if(self.btn_solver!=None):
-            self.btn_solver.setText("DGTD")
+            self.btn_solver.setText("电磁")
         self.projectTree.set_solver("DGTD")
 
         pass
     def set_solver_fem_dgtd(self):
         if(self.btn_solver!=None):
-            self.btn_solver.setText("FEM-DGTD")
+            self.btn_solver.setText("电热力")
         self.projectTree.set_solver("FEM-DGTD")
+
+        pass
+    def set_solver_semi(self):
+        if(self.btn_solver!=None):
+            self.btn_solver.setText("半导体")
+        self.projectTree.set_solver("SEMI")
 
         pass
 
@@ -1222,7 +1230,7 @@ class MainWindow(QMainWindow, MainMixin):
 
         self.add_ribbon_button(pane_solution,menuPool.excitaion_settings_freq,menuIcons.exc_frequency).clicked.connect(self.projectTree.nodeAction_FrequencyProperties)
 
-        self.add_ribbon_button(pane_solution,menuPool.request_solution_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_AddFFR)
+        # self.add_ribbon_button(pane_solution,menuPool.request_solution_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_AddFFR)
         self.add_ribbon_button(pane_solution,menuPool.request_solution_nfr,menuIcons.req_nfr).clicked.connect(self.projectTree.nodeAction_AddNFR)
         self.add_ribbon_button(pane_solution,menuPool.request_solution_nf,menuIcons.req_nf).clicked.connect(self.projectTree.nodeAction_AddNF)
         self.add_ribbon_button(pane_solution,menuPool.request_solution_emi,menuIcons.req_emi).clicked.connect(self.projectTree.nodeAction_AddEMI)
@@ -1262,18 +1270,21 @@ class MainWindow(QMainWindow, MainMixin):
         dropdown_menu_solver = QMenu(btn_solver)
         dropdown_menu_solver.setFont(self._font)
         # 添加一些菜单项
-        action1 = QAction("DGTD", self,triggered=self.set_solver_dgtd)
-        action2 = QAction("FEM-DGTD", self,triggered=self.set_solver_fem_dgtd)
+        # action1 = QAction("电磁", self,triggered=self.set_solver_dgtd)
+        action2 = QAction("电热力", self,triggered=self.set_solver_fem_dgtd)
+        action3 = QAction("半导体", self,triggered=self.set_solver_semi)
 
 
-        action1.triggered.connect(lambda: self.update_icons(dropdown_menu_solver, action1))
+        # action1.triggered.connect(lambda: self.update_icons(dropdown_menu_solver, action1))
         action2.triggered.connect(lambda: self.update_icons(dropdown_menu_solver, action2))
     
-        dropdown_menu_solver.addAction(action1)
+        # dropdown_menu_solver.addAction(action1)
         dropdown_menu_solver.addAction(action2)
+        dropdown_menu_solver.addAction(action3)
         # 将下拉菜单与按钮关联
         btn_solver.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         btn_solver.setMenu(dropdown_menu_solver)
+        
         pass
     
     def add_tab_simulation(self):
@@ -1293,8 +1304,8 @@ class MainWindow(QMainWindow, MainMixin):
 
         self.add_ribbon_button(pane_request,menuPool.param_time,menuIcons.exc_frequency).clicked.connect(self.projectTree.nodeAction_TimeProperties)
         self.add_ribbon_button(pane_request,menuPool.param_obs_point,treeIcons.gdtd_req_points).clicked.connect(self.projectTree.nodeAction_NFProperties)
-        self.add_ribbon_button(pane_request,menuPool.param_obs_domain,treeIcons.gdtd_req_domain).clicked.connect(self.projectTree.nodeAction_DomainProperties)
-        self.add_ribbon_button(pane_request,menuPool.param_obs_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_FFRProperties)
+        # self.add_ribbon_button(pane_request,menuPool.param_obs_domain,treeIcons.gdtd_req_domain).clicked.connect(self.projectTree.nodeAction_DomainProperties)
+        # self.add_ribbon_button(pane_request,menuPool.param_obs_ffr,menuIcons.req_ffr).clicked.connect(self.projectTree.nodeAction_FFRProperties)
        
         self.add_ribbon_button(pane_operator,menuPool.simualtion_prop_parallel,menuIcons.sim_p).clicked.connect(self.projectTree.nodeAction_SetMPI)
 

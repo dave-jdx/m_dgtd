@@ -6,7 +6,12 @@ from ..dataModel.frequency import Frequency
 from ..dataModel.antenna import Antenna
 from ..dataModel.nf import NF
 from ..dataModel.ffr import FFR
-from ..dataModel.pf import (PF,PF_EBase,PF_EM,PF_Circuit,PF_Thermal,PF_Struct,PF_Circuit_Source,PF_Struct_Force,PF_Thermal_Base)
+from ..dataModel.pf import (PF,PF_EBase,PF_EM,PF_Circuit,
+                            PF_Thermal,PF_Struct,PF_Circuit_Source,
+                            PF_Struct_Force,PF_Thermal_Base,
+                            PF_Plane_Wave,
+                            PF_Dopping,PF_Dopping_Analysis,PF_Dopping_Gaussian,
+                            PF_SBound,PF_SBound_Metal_Contact,PF_SBound_Insulate_Gate)
 from ..dataModel.requestParam import(RequestParam,RequestParam_domain,RequestParam_temperature,RequestParam_time)
 import os,math, traceback
 from . import api_model
@@ -82,6 +87,60 @@ def write_medialLibrary_SBR(fname:str,isotropicList:list,dispersiveList:list):
         
         return (-1,"failed "+str(e),e)
     pass
+def write_mediaLibrary_SEMI(fname:str,mediaList):
+     # Write media to text
+    newline="\n"
+    splitext="\t"
+    c_tip=get_comment("计算对象涉及的材料类别总数")
+    c_tip_r=get_comment("材料索引号，用于与模型绑定")
+    c_tip_c=get_comment("依次为材料的相对介电常数、电子寿命(s)、空穴寿命(s)、带隙(V)、电子亲和能(V)、价带有效态密度(1/m3)、导带有效态密度(1/m3)、电子迁移率(m²/(V*s))、空穴迁移率(m²/(V*s)、热导率(W/(m*K))、密度(kg/m3)、比热容(J/(kg*K))、杨氏模量（Pa）、泊松比、热膨胀系数(1/K)")
+    c_begin=get_comment("Begin_Materials")
+    c_end=get_comment("End_Materials")
+
+    try:
+        fpath=os.path.dirname(fname)
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)
+        with open(fname,"w",encoding="utf-8") as f:
+            mIndex=0
+            f.write(c_begin)
+            f.write(newline)
+          
+            f.write(str(len(mediaList))+splitext+c_tip+newline)    
+            
+            for item in mediaList:
+                m:Isotropic=item
+               
+                mIndex=mIndex+1
+                # f.write(c_tip_r+newline)
+                f.write(str(mIndex)+splitext+c_tip_r+newline)
+                # f.write(c_tip_c+newline)
+                f.write(splitext.join(map(str,[m.permittivity,
+                                            #   m.permeability,
+                                            #   m.eConductivity,
+                                            m.s_e_lifetime,
+                                                m.s_h_lifetime,
+                                                m.s_bandgap,
+                                                m.s_e_affinity,
+                                                m.s_e_v_band,
+                                                m.s_e_c_band,
+                                                m.s_e_mobility,
+                                                m.s_h_mobility,
+                                              m.tConductivity,
+                                              m.density,
+                                              m.specificHeat,
+                                              m.youngModulus,
+                                              m.poissonRatio,
+                                              m.thermalExpansion]))+splitext+c_tip_c+newline)
+                f.write(newline)
+
+          
+            f.write(c_end+newline)
+        return (1,"success",None)
+    except Exception as e:
+        traceback.print_exc()
+        return (-1,"failed "+str(e),e)
+
 def write_mediaLibrary_fem(fname:str,mediaList):
     # Write media to text
     newline="\n"
@@ -100,15 +159,15 @@ def write_mediaLibrary_fem(fname:str,mediaList):
             mIndex=0
             f.write(c_begin)
             f.write(newline)
-            f.write(c_tip+newline)
-            f.write(str(len(mediaList))+newline)
+          
+            f.write(str(len(mediaList))+splitext+c_tip+newline)    
             
             for item in mediaList:
                 m:Isotropic=item
                 mIndex=mIndex+1
-                f.write(c_tip_r+newline)
-                f.write(str(mIndex)+newline)
-                f.write(c_tip_c+newline)
+                # f.write(c_tip_r+newline)
+                f.write(str(mIndex)+splitext+c_tip_r+newline)
+                # f.write(c_tip_c+newline)
                 f.write(splitext.join(map(str,[m.permittivity,
                                               m.permeability,
                                               m.eConductivity,
@@ -117,7 +176,7 @@ def write_mediaLibrary_fem(fname:str,mediaList):
                                               m.specificHeat,
                                               m.youngModulus,
                                               m.poissonRatio,
-                                              m.thermalExpansion]))+newline)
+                                              m.thermalExpansion]))+splitext+c_tip_c+newline)
 
           
             f.write(c_end+newline)
@@ -384,6 +443,167 @@ def write_bound_fem(fname,pf:PF,mediumDic:dict={},defaultMediumIndex=-1):
         traceback.print_exc()
         return (-1,"failed "+str(e),e)
         pass
+def write_param_fem_dgtd(fname,pf:PF,requestParam:RequestParam,points:list,mediumDic:dict={},defaultMediumIndex=-1):
+ 
+    fpath=os.path.dirname(fname)
+    if not os.path.exists(fpath):
+        os.makedirs(fpath)
+    newline="\n"
+    splitext="\t"
+    # spacetext=" "
+
+    c_tips=get_comment("""注意：                                             
+1.所有注释需要输出
+2.各类设置之间空一行""")
+    c_begin_bnd=get_comment("Begin_Boundary")
+    c_end_bnd=get_comment("End_Boundary")
+
+    c_begin_planwave=get_comment("Begin_PlaneWave")
+    c_end_planwave=get_comment("End_PlaneWave")
+
+    c_begin_heat=get_comment("Begin_Heat Parameters")
+    c_end_heat=get_comment("End_Heat Parameters")
+
+    c_begin_solution=get_comment("Begin_Solution Parameters")
+    c_end_solution=get_comment("End_Solution Parameters")
+
+    c_bnd_pec_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_pec_type=get_comment("边界条件类别，目前只有PEC、Port_S、Port_L等类别")
+
+    c_bnd_source_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_source_type=get_comment("边界条件类别，激励端口一般只有一个")
+    c_bnd_source_face=get_comment("端口面的宽度和高度,单位为m")
+    c_bnd_source_wave=get_comment("加源类型，1：正弦波，2：调制高斯脉冲，3：自定义波形")
+    c_bnd_source_value=get_comment("加源的幅度（V）、频率（Hz）、脉冲宽度（s）、时延（s） （如果是正弦波，则后两项默认为0；如果是调制高斯脉冲，则需要用户输入；如果用户自定义波形，则4项都输出为0）")
+
+    c_bnd_load_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_load_type=get_comment("边界条件类别，负载端口存在多个的情况")
+    c_bnd_load_face=get_comment("端口面的宽度和高度,单位为m")
+    c_bnd_load_type=get_comment("负载端口类型，1：电阻，2：电感，3：电容")
+
+    c_plane_wave_type=get_comment("加源类型，0：不加源，1：正弦波，2：调制高斯脉冲，3：自定义波形；不管是否添加平面波激励，该部分信息均应该输出")
+    c_plane_wave_value=get_comment("加源的幅度（V/m）、频率（Hz）、脉冲宽度（s）、时延（s） （如果不加源，全部为0；如果是正弦波，则后两项默认为0；如果是调制高斯脉冲，则需要用户输入；如果用户自定义波形，则4项都输出为0）")
+    c_plane_wave_theta_phi=get_comment("入射角度theta 和 phi，单位为度，一般默认为180，0")
+    c_plane_wave_e_angle=get_comment("电场极化角度设置，一般默认为90")
+    
+    c_heat_convection=get_comment("对流换热系数的值")
+    c_heat_body_num=get_comment("设置作为热源的材料个数，没有设置热源则输出0，后续相关也不用输出")
+    c_heat_body_tip=get_comment("热源材料号，热源（W/m3）")
+
+ 
+    c_solution_time=get_comment("用户设置的总仿真时间和时间步长，单位都是s")
+    c_solution_time_points=get_comment("用户设置的观察时间的值，单位是s，该行的值的个数与上一行设置的特定观察时间个数一致")
+    c_solution_time_points_row=get_comment("用户设置的特定观察时间点，单位是s")
+    c_solution_nf_num=get_comment("用户设置观察点个数 0代表没设置")
+    c_solution_nf_row=get_comment("用户设置的观察点{0}的X，Y，Z坐标值，单位是m")
+    try:
+        timeObj:RequestParam_time=requestParam.reqTime
+        with open(fname,"w",encoding="utf-8") as f:
+            f.write(c_tips+newline)
+            f.write(newline)
+            f.write(c_begin_bnd+newline)
+
+            #添加PEC边界
+            f.write("1"+splitext+c_bnd_pec_id+newline)
+            f.write("PEC"+splitext+c_bnd_pec_type+newline)
+            f.write(newline)
+
+            #添加端口激励源节点
+            f.write("2"+splitext+c_bnd_source_id+newline)
+            f.write("Port_S"+splitext+c_bnd_source_type+newline)
+            v_length=(0,0)
+            if(len(pf.circuit.circuit_source_dic)>0):
+                for k in pf.circuit.circuit_source_dic:
+                    sourceObj:PF_Circuit_Source=pf.circuit.circuit_source_dic[k]
+                    if(hasattr(sourceObj,"uv")):
+                        v_length=sourceObj.uv
+                    f.write(f"{v_length[0]/1000}  {v_length[1]/1000}"+splitext+c_bnd_source_face+newline)
+                    f.write(str(sourceObj.waveType+1)+splitext+c_bnd_source_wave+newline)
+                    f.write(splitext.join(map(str,[sourceObj.amplitude,sourceObj.frequency,sourceObj.pulseWidth,sourceObj.delay]))+splitext+c_bnd_source_value+newline)
+                    break
+            f.write(newline)
+            #添加端口负载节点
+            loadIndex=3
+            for k in pf.circuit.circuit_load_dic:
+                v=pf.circuit.circuit_load_dic[k]
+                #电阻
+                v_load=v[0]
+                v_length=v[1]
+                f.write(str(loadIndex)+splitext+c_bnd_load_id+newline)
+                f.write("Port_L"+splitext+c_bnd_load_type+newline)
+                f.write(f"{v_length[0]/1000}  {v_length[1]/1000}"+splitext+c_bnd_load_face+newline)
+                f.write(str(v[2])+splitext+c_bnd_load_type+newline)
+                f.write(str(v_load)+newline)
+                break
+            f.write(c_end_bnd+newline)
+            f.write(newline)
+
+            #添加平面波节点
+            waveObj=pf.plane_wave
+            f.write(c_begin_planwave+newline)
+            f.write(str(waveObj.waveType)+splitext+c_plane_wave_type+newline)
+            f.write(splitext.join(map(str,[waveObj.amplitude,waveObj.frequency,waveObj.pulseWidth,waveObj.delay]))+splitext+c_plane_wave_value+newline)
+            f.write(splitext.join(map(str,[waveObj.theta,waveObj.phi]))+splitext+c_plane_wave_theta_phi+newline)
+            f.write(str(waveObj.eAngle)+splitext+c_plane_wave_e_angle+newline)
+            f.write(c_end_planwave+newline)
+            f.write(newline)
+
+            # 添加热参数节点
+            
+            if(pf.thermal.used):
+                f.write(c_begin_heat+newline)
+                thermal_convection=0
+                for k in pf.thermal.thermal_convection_dic:
+                    v:PF_Thermal_Base=pf.thermal.thermal_convection_dic[k]
+                    thermal_convection=v.value
+                    break   
+                f.write(str(thermal_convection)+splitext+c_heat_convection+newline)
+                v_heat_body_num=len(pf.thermal.thermal_source_dic)
+                f.write(str(v_heat_body_num)+splitext+c_heat_body_num+newline)
+            
+                for k in pf.thermal.thermal_source_dic:
+                    v:PF_Thermal_Base=pf.thermal.thermal_source_dic[k]
+                    mIndex=defaultMediumIndex
+                    if(mediumDic!=None and mediumDic.get(k)!=None):
+                        mIndex=mediumDic[k]
+                    f.write(str(mIndex+1)+splitext+str(v.value)+splitext+c_heat_body_tip+newline)
+
+                f.write(c_end_heat+newline)
+                f.write(newline)
+            f.write(c_begin_solution+newline)
+            f.write(splitext.join(map(str,[timeObj.timeTotal_g,timeObj.timeStep_g]))+splitext+c_solution_time+newline)
+            if(timeObj.timePoints_g!=None):
+                f.write(str(len(timeObj.timePoints_g))+splitext+c_solution_time_points+newline)
+                f.write(splitext.join(map(str,timeObj.timePoints_g))+splitext+c_solution_time_points_row+newline)
+            else:
+                f.write("0"+splitext+c_solution_time_points+newline)
+                f.write("0"+splitext+c_solution_time_points_row+newline)
+                f.write(newline)
+            v_nf_num=str(len(points))
+            f.write(v_nf_num+splitext+c_solution_nf_num+newline)
+            rowIndex=0
+            for p in points:
+                rowIndex=rowIndex+1
+                f.write(splitext.join(map(str,[p[0],p[1],p[2]]))+splitext+c_solution_nf_row.format(rowIndex)+newline)
+            f.write(c_end_solution+newline)
+            f.write(newline)
+     
+            
+
+
+
+        return (1,"success",None)
+
+        
+        pass
+    except Exception as e:
+        traceback.print_exc()
+        return (-1,"failed "+str(e),e)
+    pass
+       
+
+        
+
 def write_param_fem(fname,pf:PF,requestParam:RequestParam,points:list,ffrObj:FFR,pml_param:tuple):
     try:
         fpath=os.path.dirname(fname)
@@ -925,3 +1145,243 @@ def write_project_path(fname,fpath):
         return (1,"success",None)
     except Exception as e:
         return (-1,"failed "+str(e),e)
+    
+def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediumDic:dict={},defaultMediumIndex=-1):
+ 
+    fpath=os.path.dirname(fname)
+    if not os.path.exists(fpath):
+        os.makedirs(fpath)
+    newline="\n"
+    splitext="\t"
+    # spacetext=" "
+
+    c_tips=get_comment("""注意：                                             
+1.所有注释需要输出
+2.各类设置之间空一行""")
+    c_begin_bnd=get_comment("Begin_Boundary")
+    c_end_bnd=get_comment("End_Boundary")
+
+    c_begin_planwave=get_comment("Begin_PlaneWave")
+    c_end_planwave=get_comment("End_PlaneWave")
+
+    c_begin_semi_dopping=get_comment("Begin_SemiSettings")
+    c_end_semi_dopping=get_comment("End_SemiSettings")
+
+    c_semi_dopping_rows=get_comment("半导体掺杂条件设置总个数")
+    c_semi_dopping_type=get_comment("一种半导体初始掺杂类型，共两种：解析掺杂（analysis_doping）和高斯掺杂（gaosi_doping）")
+    c_semi_dopping_body_id=get_comment("几何域编号，用于与模型绑定")
+    c_semi_dopping_face_id=get_comment("几何面编号，用于与模型绑定")
+    c_semi_dopping_e_type=get_comment("杂质类型，共两种：施主掺杂（n型electronic_doping）、受主掺杂（p型hole_doping）")
+    c_semi_dopping_concentration=get_comment("杂质浓度，单位是1/m3")
+    c_semi_dopping_depth=get_comment("高斯分布衰减结深，单位是m")
+
+    c_begin_semi_boundary=get_comment("Begin_Boundary_settings")
+    c_end_semi_boundary=get_comment("End_Boundary_settings")
+
+    c_semi_bnd_rows=get_comment("半导体边界条件设置总个数")
+    c_semi_bnd_face_id=get_comment("几何面编号，用于与模型绑定")
+    c_semi_bnd_type=get_comment("边界条件类别，目前只有金属接触(MetalContact)、薄绝缘栅(InsulateGate)两类别")
+    c_semi_bnd_e_type=get_comment("1：阳极或者源极电压的标志位；2：阴极或者漏极电压的标志位")
+    c_semi_bnd_voltage=get_comment("直流源幅度(V)")
+
+    c_semi_bnd_gate_permitivity=get_comment("氧化层相对介电常数")
+    c_semi_bnd_gate_thickness=get_comment("氧化层厚度，单位是m")
+    c_semi_bnd_work_function=get_comment("金属功函数，单位是V")
+
+    c_begin_heat=get_comment("Begin_Heat Parameters")
+    c_end_heat=get_comment("End_Heat Parameters")
+
+    c_begin_solution=get_comment("Begin_Solution Parameters")
+    c_end_solution=get_comment("End_Solution Parameters")
+
+    c_bnd_pec_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_pec_type=get_comment("边界条件类别，目前只有PEC、Port_S、Port_L等类别")
+
+    c_bnd_source_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_source_type=get_comment("边界条件类别，激励端口一般只有一个")
+    c_bnd_source_face=get_comment("端口面的宽度和高度,单位为m")
+    c_bnd_source_wave=get_comment("加源类型，1：正弦波，2：调制高斯脉冲，3：自定义波形")
+    c_bnd_source_value=get_comment("加源的幅度（V）、频率（Hz）、脉冲宽度（s）、时延（s） （如果是正弦波，则后两项默认为0；如果是调制高斯脉冲，则需要用户输入；如果用户自定义波形，则4项都输出为0）")
+
+    c_bnd_load_id=get_comment("边界条件索引号，用于与模型绑定")
+    c_bnd_load_type=get_comment("边界条件类别，负载端口存在多个的情况")
+    c_bnd_load_face=get_comment("端口面的宽度和高度,单位为m")
+    c_bnd_load_type=get_comment("负载端口类型，1：电阻，2：电感，3：电容")
+
+    c_plane_wave_type=get_comment("加源类型，0：不加源，1：正弦波，2：调制高斯脉冲，3：自定义波形；不管是否添加平面波激励，该部分信息均应该输出")
+    c_plane_wave_value=get_comment("加源的幅度（V/m）、频率（Hz）、脉冲宽度（s）、时延（s） （如果不加源，全部为0；如果是正弦波，则后两项默认为0；如果是调制高斯脉冲，则需要用户输入；如果用户自定义波形，则4项都输出为0）")
+    c_plane_wave_theta_phi=get_comment("入射角度theta 和 phi，单位为度，一般默认为180，0")
+    c_plane_wave_e_angle=get_comment("电场极化角度设置，一般默认为90")
+    
+    c_heat_convection=get_comment("对流换热系数的值")
+    c_heat_body_num=get_comment("设置作为热源的材料个数，没有设置热源则输出0，后续相关也不用输出")
+    c_heat_body_tip=get_comment("热源材料号，热源（W/m3）")
+
+ 
+    c_solution_time=get_comment("用户设置的总仿真时间和时间步长，单位都是s")
+    c_solution_time_points=get_comment("用户设置的观察时间的值，单位是s，该行的值的个数与上一行设置的特定观察时间个数一致")
+    c_solution_time_points_row=get_comment("用户设置的特定观察时间点，单位是s")
+    c_solution_nf_num=get_comment("用户设置观察点个数 0代表没设置")
+    c_solution_nf_row=get_comment("用户设置的观察点{0}的X，Y，Z坐标值，单位是m")
+    try:
+        timeObj:RequestParam_time=requestParam.reqTime
+        with open(fname,"w",encoding="utf-8") as f:
+            f.write(c_tips+newline)
+            f.write(newline)
+            # f.write(c_begin_bnd+newline)
+
+            # #添加PEC边界
+            # f.write("1"+splitext+c_bnd_pec_id+newline)
+            # f.write("PEC"+splitext+c_bnd_pec_type+newline)
+            # f.write(newline)
+
+            # #添加端口激励源节点
+            # f.write("2"+splitext+c_bnd_source_id+newline)
+            # f.write("Port_S"+splitext+c_bnd_source_type+newline)
+            # v_length=(0,0)
+            # if(len(pf.circuit.circuit_source_dic)>0):
+            #     for k in pf.circuit.circuit_source_dic:
+            #         sourceObj:PF_Circuit_Source=pf.circuit.circuit_source_dic[k]
+            #         if(hasattr(sourceObj,"uv")):
+            #             v_length=sourceObj.uv
+            #         f.write(f"{v_length[0]/1000}  {v_length[1]/1000}"+splitext+c_bnd_source_face+newline)
+            #         f.write(str(sourceObj.waveType+1)+splitext+c_bnd_source_wave+newline)
+            #         f.write(splitext.join(map(str,[sourceObj.amplitude,sourceObj.frequency,sourceObj.pulseWidth,sourceObj.delay]))+splitext+c_bnd_source_value+newline)
+            #         break
+            # f.write(newline)
+            #添加端口负载节点
+            # loadIndex=3
+            # for k in pf.circuit.circuit_load_dic:
+            #     v=pf.circuit.circuit_load_dic[k]
+            #     #电阻
+            #     v_load=v[0]
+            #     v_length=v[1]
+            #     f.write(str(loadIndex)+splitext+c_bnd_load_id+newline)
+            #     f.write("Port_L"+splitext+c_bnd_load_type+newline)
+            #     f.write(f"{v_length[0]/1000}  {v_length[1]/1000}"+splitext+c_bnd_load_face+newline)
+            #     f.write(str(v[2])+splitext+c_bnd_load_type+newline)
+            #     f.write(str(v_load)+newline)
+            #     break
+            # f.write(c_end_bnd+newline)
+            # f.write(newline)
+
+            #添加平面波节点
+            # waveObj=pf.plane_wave
+            # f.write(c_begin_planwave+newline)
+            # f.write(str(waveObj.waveType)+splitext+c_plane_wave_type+newline)
+            # f.write(splitext.join(map(str,[waveObj.amplitude,waveObj.frequency,waveObj.pulseWidth,waveObj.delay]))+splitext+c_plane_wave_value+newline)
+            # f.write(splitext.join(map(str,[waveObj.theta,waveObj.phi]))+splitext+c_plane_wave_theta_phi+newline)
+            # f.write(str(waveObj.eAngle)+splitext+c_plane_wave_e_angle+newline)
+            # f.write(c_end_planwave+newline)
+            # f.write(newline)
+
+            #半导体掺杂节点
+            f.write(c_begin_semi_dopping+newline)
+            dopping_analysis_dic=pf.dopping.dopping_analysis_dic
+            dopping_gaussian_dic=pf.dopping.dopping_gaussian_dic
+            v_num=len(dopping_analysis_dic)+len(dopping_gaussian_dic)
+            f.write(str(v_num)+splitext+c_semi_dopping_rows+newline)
+            f.write(newline)
+            for k in dopping_analysis_dic:
+                v:PF_Dopping_Analysis=dopping_analysis_dic[k]
+                f.write("analysis_doping"+splitext+c_semi_dopping_type+newline)
+                f.write(str(v.dopping_bodyId+1)+splitext+c_semi_dopping_body_id+newline)
+                f.write(str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
+                f.write(str(v.dopping_concentration)+splitext+c_semi_dopping_concentration+newline)
+                        
+                f.write(newline)
+
+            for k in dopping_gaussian_dic:
+                v:PF_Dopping_Gaussian=dopping_gaussian_dic[k]
+                f.write("gaosi_doping"+splitext+c_semi_dopping_type+newline)
+                f.write(str(v.dopping_bodyId+1)+splitext+c_semi_dopping_body_id+newline)
+                f.write(str(v.dopping_faceId+1)+splitext+c_semi_dopping_face_id+newline)
+                f.write(str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
+                f.write(str(v.dopping_concentration)+splitext+c_semi_dopping_concentration+newline)
+                f.write(str(v.dopping_depth)+splitext+c_semi_dopping_depth+newline)
+                f.write(newline)
+            f.write(c_end_semi_dopping+newline)
+            f.write(newline)
+
+
+            #半导体边界节点
+
+            f.write(c_begin_semi_boundary+newline)
+            metal_contact_dic=pf.sbound.metal_contact_dic
+            insulate_gate_dic=pf.sbound.insulate_gate_dic
+            v_num=len(metal_contact_dic)+len(insulate_gate_dic)
+            f.write(str(v_num)+splitext+c_semi_bnd_rows+newline)
+            f.write(newline)
+            for k in metal_contact_dic:
+                v:PF_SBound_Metal_Contact=metal_contact_dic[k]
+                f.write(str(v.faceId+1)+splitext+c_semi_bnd_face_id+newline)
+                f.write("MetalContact"+splitext+c_semi_bnd_type+newline)
+                f.write(str(v.contact_type+1)+splitext+c_semi_bnd_e_type+newline)
+                f.write(str(v.voltage)+splitext+c_semi_bnd_voltage+newline)
+                f.write(newline)
+            for k in insulate_gate_dic:
+                v:PF_SBound_Insulate_Gate=insulate_gate_dic[k]
+                f.write(str(v.faceId+1)+splitext+c_semi_bnd_face_id+newline)
+                f.write("InsulateGate"+splitext+c_semi_bnd_type+newline)
+        
+                f.write(str(v.voltage)+splitext+c_semi_bnd_voltage+newline)
+                f.write(str(v.permittivity)+splitext+c_semi_bnd_gate_permitivity+newline)
+                f.write(str(v.thickness)+splitext+c_semi_bnd_gate_thickness+newline)
+                f.write(str(v.metal_work_function)+splitext+c_semi_bnd_work_function+newline)
+                f.write(newline)
+            f.write(c_end_semi_boundary+newline)
+            f.write(newline)
+
+            # 添加热参数节点
+            
+            if(pf.thermal.used):
+                f.write(c_begin_heat+newline)
+                thermal_convection=0
+                for k in pf.thermal.thermal_convection_dic:
+                    v:PF_Thermal_Base=pf.thermal.thermal_convection_dic[k]
+                    thermal_convection=v.value
+                    break   
+                f.write(str(thermal_convection)+splitext+c_heat_convection+newline)
+                v_heat_body_num=len(pf.thermal.thermal_source_dic)
+                f.write(str(v_heat_body_num)+splitext+c_heat_body_num+newline)
+            
+                for k in pf.thermal.thermal_source_dic:
+                    v:PF_Thermal_Base=pf.thermal.thermal_source_dic[k]
+                    mIndex=defaultMediumIndex
+                    if(mediumDic!=None and mediumDic.get(k)!=None):
+                        mIndex=mediumDic[k]
+                    f.write(str(mIndex+1)+splitext+str(v.value)+splitext+c_heat_body_tip+newline)
+
+                f.write(c_end_heat+newline)
+                f.write(newline)
+            f.write(c_begin_solution+newline)
+            f.write(splitext.join(map(str,[timeObj.timeTotal_g,timeObj.timeStep_g]))+splitext+c_solution_time+newline)
+            if(timeObj.timePoints_g!=None):
+                f.write(str(len(timeObj.timePoints_g))+splitext+c_solution_time_points+newline)
+                f.write(splitext.join(map(str,timeObj.timePoints_g))+splitext+c_solution_time_points_row+newline)
+            else:
+                f.write("0"+splitext+c_solution_time_points+newline)
+                f.write("0"+splitext+c_solution_time_points_row+newline)
+                f.write(newline)
+            v_nf_num=str(len(points))
+            f.write(v_nf_num+splitext+c_solution_nf_num+newline)
+            rowIndex=0
+            for p in points:
+                rowIndex=rowIndex+1
+                f.write(splitext.join(map(str,[p[0],p[1],p[2]]))+splitext+c_solution_nf_row.format(rowIndex)+newline)
+            f.write(c_end_solution+newline)
+            f.write(newline)
+     
+            
+
+
+
+        return (1,"success",None)
+
+        
+        pass
+    except Exception as e:
+        traceback.print_exc()
+        return (-1,"failed "+str(e),e)
+    pass
+       

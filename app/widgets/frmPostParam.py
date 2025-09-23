@@ -11,9 +11,9 @@ from .frmBase import frmBase
 from ..dataModel.requestParam import RequestParam_domain
 
 class frmPostParam(Ui_frmPostParam,frmBase):
-    sigShowParam=QtCore.pyqtSignal(bool,bool)
+    sigShowParam=QtCore.pyqtSignal(bool,bool,int)
   
-    def __init__(self,parent=None):
+    def __init__(self,parent=None,tetera_num=1000000):
         super(frmPostParam,self).__init__(parent)
         self.setWindowIcon(sysIcons.windowIcon)
         self.setupUi(self)
@@ -28,6 +28,7 @@ class frmPostParam(Ui_frmPostParam,frmBase):
 
         self.chk1.stateChanged.connect(self.actionApply)
         self.chk2.stateChanged.connect(self.actionApply)
+        self.txtMaxNum.setText(str(tetera_num))
        
 
         self.onLoad() 
@@ -41,7 +42,8 @@ class frmPostParam(Ui_frmPostParam,frmBase):
         try:
             showModel=self.chk1.isChecked()
             showPost=self.chk2.isChecked()
-            self.sigShowParam.emit(showModel,showPost)
+            teteraNum=int(self.txtMaxNum.text())
+            self.sigShowParam.emit(showModel,showPost,teteraNum)
             return (1,"suceess")
         except Exception as e:
             QtWidgets.QMessageBox.about(self,"Error","参数设置错误"+str(e))

@@ -11,7 +11,7 @@ from .baseStyle import baseStyle
 from .frmBase import frmBase
 
 class frmCircuitLoad(Ui_frmCIrcuitLoad,frmBase):
-    sigFaceSelected=QtCore.pyqtSignal(int,float,tuple,int)
+    sigFaceSelected=QtCore.pyqtSignal(int,float,tuple,int,int)
     sigClosed=QtCore.pyqtSignal()
     sigSelectFace=QtCore.pyqtSignal(int)    
   
@@ -38,6 +38,8 @@ class frmCircuitLoad(Ui_frmCIrcuitLoad,frmBase):
             v_uv=loadObj[1][1]
             self._u_length=v_uv[0]
             self._v_length=v_uv[1]
+            loadType=loadObj[1][2]
+            self.cbxLoadType.setCurrentIndex(loadType)
         
             # self.txtLengthUV.setText(f"({v_uv[0]/1000},{v_uv[1]/1000})")
             self.setUVText(v_uv[0],v_uv[1])
@@ -56,7 +58,8 @@ class frmCircuitLoad(Ui_frmCIrcuitLoad,frmBase):
                 faceId_old=self._loadObj[0]
             faceId=int(self.txtFaceId.text())-1
             loadValue=float(self.txtLoad.text())
-            self.sigFaceSelected.emit(faceId,loadValue,(self._u_length,self._v_length),faceId_old)
+            loadType=self.cbxLoadType.currentIndex()+1
+            self.sigFaceSelected.emit(faceId,loadValue,(self._u_length,self._v_length),faceId_old,loadType)
             return (1,"suceess")
         except Exception as e:
             QtWidgets.QMessageBox.about(self,"Error","面编号/电阻不合法，请重新输入"+str(e))

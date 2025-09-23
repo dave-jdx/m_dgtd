@@ -1,4 +1,5 @@
 from typing import List,Set,Dict,Tuple
+import random
 import numpy as np
 from numpy import sin,cos,pi
 from vtkmodules.all import(
@@ -738,6 +739,8 @@ def chart_line(points:List[Tuple[float,float]],xName="X Axis",yName="Y Axis",dis
     max_y=1.5*max_y if max_y>0 else 0
     if(max_x==min_x):
         max_x+=1
+    if(max_y==min_y):
+        max_y+=1
 
     xAxis.SetRange(min_x,max_x)
     yAxis.SetRange(min_y,max_y)
@@ -1216,7 +1219,8 @@ def render_vtk_file(fileName:str):
     # actor.GetProperty().SetOpacity(0.5)          # 设置透明度
     # actor.GetProperty().EdgeVisibilityOn()       # 显示边框
     return actor
-def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list):
+
+def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list,tetera_num:int=260):
     # 创建 vtkPoints 对象并插入顶点
     points = vtkPoints()
     for coord in points_list:
@@ -1228,6 +1232,7 @@ def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list):
 
     # 创建四面体单元格并添加到 unstructured grid
     tetras = vtkCellArray()
+    tetIndex=0
     for tetra in tetrahedra:
         #tetra的每个索引减1
         tetra_cell = vtkTetra()
@@ -1235,12 +1240,17 @@ def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list):
             tetra_cell.GetPointIds().SetId(i, tetra[i])
         # tetras.InsertNextCell(tetra_cell)
         ugrid.InsertNextCell(tetra_cell.GetCellType(), tetra_cell.GetPointIds())
+        tetIndex+=1
+        if(tetIndex>tetera_num):
+            break
     # ugrid.SetCells(VTK_TETRA, tetras)
 
     # 创建 vtkFloatArray 来存储温度数据
     temperature = vtkFloatArray()
     temperature.SetName("Temperature(K)")
+
     for temp in temperature_values:
+        # temp=random.randint(293,360)
         temperature.InsertNextValue(temp)
 
     # 将温度数据添加到点数据中
@@ -1255,13 +1265,67 @@ def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list):
     mapper.SetScalarRange(temperature.GetRange())
     mapper.SetLookupTable(lut)
 
+
+    actor = vtkActor()
+    actor.SetMapper(mapper)
+    #设置透明度
+    actor.GetProperty().SetOpacity(0.8)
+
+    return actor
+def displacement_3d_fem(points_list:list,tetrahedra:list,displacement_list:list,tetera_num:int=260):
+    # 创建 vtkPoints 对象并插入顶点
+    points = vtkPoints()
+    for coord in points_list:
+        points.InsertNextPoint(coord)
+
+    # 创建 vtkUnstructuredGrid 对象并设置点
+    ugrid = vtkUnstructuredGrid()
+    ugrid.SetPoints(points)
+
+    # 创建四面体单元格并添加到 unstructured grid
+    tetras = vtkCellArray()
+    tetIndex=0
+    for tetra in tetrahedra:
+        #tetra的每个索引减1
+        tetra_cell = vtkTetra()
+        for i in range(4):
+            tetra_cell.GetPointIds().SetId(i, tetra[i])
+       
+        
+        # tetras.InsertNextCell(tetra_cell)
+        ugrid.InsertNextCell(tetra_cell.GetCellType(), tetra_cell.GetPointIds())
+        tetIndex+=1
+        if(tetIndex>tetera_num):
+            break
+    # ugrid.SetCells(VTK_TETRA, tetras)
+
+    # 创建 vtkFloatArray 来存储温度数据
+    magList = vtkFloatArray()
+    magList.SetName("Displacement")
+    for temp in displacement_list:
+        # temp=random.randint(1,5)
+        magList.InsertNextValue(temp)
+
+    # 将温度数据添加到点数据中
+    ugrid.GetPointData().SetScalars(magList)
+
+    lut = vtkLookupTable()
+    lut.SetHueRange(0.667, 0)
+
+    # 创建映射器并设置标量范围
+    mapper = vtkDataSetMapper()
+    mapper.SetInputData(ugrid)
+    mapper.SetScalarRange(magList.GetRange())
+    mapper.SetLookupTable(lut)
+
     # 创建演员
     actor = vtkActor()
     actor.SetMapper(mapper)
     #设置透明度
-    # actor.GetProperty().SetOpacity(opacity)
+    actor.GetProperty().SetOpacity(0.8)
     # actor.GetProperty().SetRepresentationToWireframe()
     return actor
+    pass
 def displacement_3d(points_list:list,tetrahedra:list,displacement_list:list):
     # 创建 vtkPoints 对象并插入顶点
     points = vtkPoints()
@@ -1332,7 +1396,7 @@ def displacement_3d(points_list:list,tetrahedra:list,displacement_list:list):
     # actor.GetProperty().SetOpacity(opacity)
     # actor.GetProperty().SetRepresentationToWireframe()
     return actor
-def em_3d(points_list:list,tetrahedra:list,e_values:list):
+def em_3d(points_list:list,tetrahedra:list,e_values:list,tetra_num:int=260):
     # 创建 vtkPoints 对象并插入顶点
     points = vtkPoints()
     for coord in points_list:
@@ -1344,6 +1408,7 @@ def em_3d(points_list:list,tetrahedra:list,e_values:list):
 
     # 创建四面体单元格并添加到 unstructured grid
     tetras = vtkCellArray()
+    tetIndex=0
     for tetra in tetrahedra:
         #tetra的每个索引减1
         tetra_cell = vtkTetra()
@@ -1351,6 +1416,9 @@ def em_3d(points_list:list,tetrahedra:list,e_values:list):
             tetra_cell.GetPointIds().SetId(i, tetra[i])
         # tetras.InsertNextCell(tetra_cell)
         ugrid.InsertNextCell(tetra_cell.GetCellType(), tetra_cell.GetPointIds())
+        tetIndex+=1
+        if(tetIndex>tetra_num):
+            break
     # ugrid.SetCells(VTK_TETRA, tetras)
 
     # 创建 vtkFloatArray 来存储温度数据
@@ -1361,7 +1429,7 @@ def em_3d(points_list:list,tetrahedra:list,e_values:list):
         eList.InsertNextValue(temp)
         # v=vIndex%100
         # eList.InsertNextValue(v)
-        # vIndex+=1
+        
 
     # 将温度数据添加到点数据中
     ugrid.GetPointData().SetScalars(eList)
@@ -1382,7 +1450,7 @@ def em_3d(points_list:list,tetrahedra:list,e_values:list):
     actor = vtkActor()
     actor.SetMapper(mapper)
     #设置透明度
-    # actor.GetProperty().SetOpacity(opacity)
+    actor.GetProperty().SetOpacity(0.5)
     # actor.GetProperty().SetRepresentationToWireframe()
     return actor
 

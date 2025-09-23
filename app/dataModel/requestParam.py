@@ -19,6 +19,10 @@ class RequestParam_time:
         self.timeStepNum_heat:int=0 #热传导时间步数
         self.timeStepFactor_heat:float=0
 
+        self.timeTotal_g:str=""
+        self.timeStep_g:str=""
+        self.timePoints_g=[]#特定观察时间点
+
 #观察域设置
 class RequestParam_domain:
     def __init__(self):

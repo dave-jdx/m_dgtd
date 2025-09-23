@@ -70,7 +70,7 @@ class Project():
     def getMeshTempPath(self):
         return self.userDataPath+"/temp"
     def getLogRateFileName(self):
-        return self.getSBRPath()+"/output/process_rate and error.txt"
+        return self.getSolverPath()+"/output/process_rate and error.txt"
     def getLogProcessFileName(self):
         return self.fpath+"/output/process_log.txt"
     def getLogResultFileName(self):

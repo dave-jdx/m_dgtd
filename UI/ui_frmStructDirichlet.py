@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmStructDirichlet.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmStructDirichlet.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -40,7 +40,7 @@ class Ui_frmStructDirichlet(object):
 
     def retranslateUi(self, frmStructDirichlet):
         _translate = QtCore.QCoreApplication.translate
-        frmStructDirichlet.setWindowTitle(_translate("frmStructDirichlet", "结构-固定位移"))
+        frmStructDirichlet.setWindowTitle(_translate("frmStructDirichlet", "位移设置"))
         self.btnApply.setText(_translate("frmStructDirichlet", "应用"))
         self.btnCancel.setText(_translate("frmStructDirichlet", "取消"))
         self.btnOK.setText(_translate("frmStructDirichlet", "确定"))

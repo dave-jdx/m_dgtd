@@ -158,6 +158,10 @@ class treeIcons():
     gdtd_result_em_points=QIcon("./icons/dgtd/结果分析-电场值-观察点.png")
     gdtd_result_em_domain=QIcon("./icons/dgtd/结果分析-电场值-观察域.png")
 
+    gdtd_result_circuit=QIcon("./icons/dgtd/电路.png")
+    gdtd_result_circuit_source=QIcon("./icons/dgtd/结果分析-电路-激励.png")
+    gdtd_result_circuit_load=QIcon("./icons/dgtd/结果分析-电路-负载.png")
+
     gdtd_result_thermal=QIcon("./icons/dgtd/温度值.png")
     gdtd_result_thermal_points=QIcon("./icons/dgtd/结果分析-温度值-观察点.png")
     gdtd_result_thermal_domain=QIcon("./icons/dgtd/结果分析-温度值-观察域.png")
@@ -194,6 +198,17 @@ class treeIcons():
     gdtd_req_domain=QIcon("./icons/dgtd/求解设置-观察域.png")
 
     gdtd_bnd_source=QIcon("./icons/dgtd/边界源.png")
+
+    gdtd_plane_wave=QIcon("./icons/dgtd/平面波.png")
+
+    gdtd_dopping=QIcon("./icons/dgtd/半导体掺杂.png")
+
+    gdtd_dopping_analysis=QIcon("./icons/dgtd/半导体解析掺杂.png")
+    gdtd_doping_gaussian=QIcon("./icons/dgtd/半导体高斯掺杂.png")
+
+    gdtd_bound_scontact=QIcon("./icons/dgtd/半导体金属接触.png")
+    gdtd_bound_sgate=QIcon("./icons/dgtd/半导体薄绝缘栅.png")
+    gdtd_e_times=QIcon("./icons/dgtd/迭代电势.png")
 
     
 

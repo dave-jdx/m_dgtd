@@ -28,6 +28,7 @@ class frmEMPEC(Ui_frmEMPEC,frmBase):
         self.btnOK.clicked.connect(self.actionOK)
         self.btnCancel.clicked.connect(self.close)
         self.txtFaceId.textChanged.connect(self.faceIdChanged)
+       
 
         print("frmPEC",self.font().pixelSize())
 

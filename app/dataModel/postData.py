@@ -22,6 +22,10 @@ class PostData():
         self.nf_H=data_nf_H()
         self.emi=data_emi()
         self.data_now:data_base=None
+
+        self.em_3d={"time_list":[],"fList":[],"tetra_num":1000000}
+        self.thermal_3d={"time_list":[],"fList":[],"tetra_num":1000000}
+        self.displacement_3d={}
         pass 
     def setDataCurrents(self):
         self.data_now=self.currents

@@ -118,13 +118,13 @@ class menuPool():
     excitaion_sources_vol=menuButton("Voltage source","Set the source")
     excitaion_loads_addLoad=menuButton("Add load","Add a load")
 
-    param_time=menuButton("时间设置","Time Setting")
-    param_obs_point=menuButton("观察点","Set observation point")
+    param_time=menuButton("仿真时长","Time Setting")
+    param_obs_point=menuButton("电磁环境","Set observation point")
     param_obs_domain=menuButton("观察域","Set observation domain")
     param_obs_ffr=menuButton("方向图","Set far field")
 
 
-    solver_base=menuButton("DGTD","Solver settings")
+    solver_base=menuButton("电热力","Solver settings")
 
     request_solution_ffr=menuButton("FarField\nradiation","FarField radiation")
     request_solution_nfr=menuButton("NearField\nradiation","NearField radiation")

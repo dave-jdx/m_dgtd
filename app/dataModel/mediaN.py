@@ -18,6 +18,15 @@ class Isotropic(MediaBase):
              "杨氏模量(Pa)",
              "泊松比",
              "热膨胀系数(1/K)",
+            "电子寿命(s)",
+            "空穴寿命(s)",
+            "能隙(eV)",
+            "电子亲和能(eV)",
+            "价带有效态密度(cm^-3)",
+            "导带有效态密度(cm^-3)",
+            "电子迁移率(cm^2/V·s)",
+            "空穴迁移率(cm^2/V·s)",
+            
              "创建者"]
     title="各项同性"
     type="Isotropic"
@@ -35,6 +44,18 @@ class Isotropic(MediaBase):
         self.youngModulus:str=None #杨氏模量
         self.poissonRatio:str=None #泊松比
         self.thermalExpansion:str=None #热膨胀系数
+
+        self.s_e_lifetime:str=None #电子寿命
+        self.s_h_lifetime:str=None #空穴寿命
+        self.s_bandgap:str=None #能隙
+        self.s_e_affinity:str=None #电子亲和能
+        self.s_e_v_band:str=None #价带有效态密度
+        self.s_e_c_band:str=None #导带有效态密度
+        self.s_e_mobility:str=None #电子迁移率
+        self.s_h_mobility:str=None #空穴迁移率
+        
+        
+
         pass
 class Anisotropic(MediaBase):
     columns=["名称",

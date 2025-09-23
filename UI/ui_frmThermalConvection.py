@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmThermalConvection.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmThermalConvection.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,32 +14,22 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_frmThermalConvection(object):
     def setupUi(self, frmThermalConvection):
         frmThermalConvection.setObjectName("frmThermalConvection")
-        frmThermalConvection.resize(308, 192)
+        frmThermalConvection.resize(308, 129)
         self.centralwidget = QtWidgets.QWidget(frmThermalConvection)
         self.centralwidget.setObjectName("centralwidget")
-        self.btnOK = QtWidgets.QPushButton(self.centralwidget)
-        self.btnOK.setGeometry(QtCore.QRect(110, 140, 80, 30))
-        self.btnOK.setObjectName("btnOK")
         self.btnCancel = QtWidgets.QPushButton(self.centralwidget)
-        self.btnCancel.setGeometry(QtCore.QRect(200, 140, 80, 30))
+        self.btnCancel.setGeometry(QtCore.QRect(190, 80, 80, 30))
         self.btnCancel.setObjectName("btnCancel")
-        self.btnOK_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.btnOK_2.setGeometry(QtCore.QRect(20, 140, 80, 30))
-        self.btnOK_2.setObjectName("btnOK_2")
+        self.btnOK = QtWidgets.QPushButton(self.centralwidget)
+        self.btnOK.setGeometry(QtCore.QRect(50, 80, 80, 30))
+        self.btnOK.setObjectName("btnOK")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(20, 70, 60, 30))
+        self.label_3.setGeometry(QtCore.QRect(20, 30, 60, 30))
         self.label_3.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.label_3.setObjectName("label_3")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(20, 30, 60, 30))
-        self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.label.setObjectName("label")
-        self.txtPower_2 = QtWidgets.QLineEdit(self.centralwidget)
-        self.txtPower_2.setGeometry(QtCore.QRect(90, 70, 181, 30))
-        self.txtPower_2.setObjectName("txtPower_2")
-        self.txtPower = QtWidgets.QLineEdit(self.centralwidget)
-        self.txtPower.setGeometry(QtCore.QRect(90, 30, 181, 30))
-        self.txtPower.setObjectName("txtPower")
+        self.txtValue = QtWidgets.QLineEdit(self.centralwidget)
+        self.txtValue.setGeometry(QtCore.QRect(90, 30, 181, 30))
+        self.txtValue.setObjectName("txtValue")
         frmThermalConvection.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(frmThermalConvection)
@@ -47,9 +37,7 @@ class Ui_frmThermalConvection(object):
 
     def retranslateUi(self, frmThermalConvection):
         _translate = QtCore.QCoreApplication.translate
-        frmThermalConvection.setWindowTitle(_translate("frmThermalConvection", "热-对流"))
-        self.btnOK.setText(_translate("frmThermalConvection", "应用"))
+        frmThermalConvection.setWindowTitle(_translate("frmThermalConvection", "对流设置"))
         self.btnCancel.setText(_translate("frmThermalConvection", "取消"))
-        self.btnOK_2.setText(_translate("frmThermalConvection", "确定"))
+        self.btnOK.setText(_translate("frmThermalConvection", "确定"))
         self.label_3.setText(_translate("frmThermalConvection", "对流系数"))
-        self.label.setText(_translate("frmThermalConvection", "面编号"))

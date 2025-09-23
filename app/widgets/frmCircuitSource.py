@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QToolButton, QMenu,
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-from UI.ui_frmCircuitSource import Ui_frmCIrcuitSource
+from UI.ui_frmCircuitSourceN import Ui_frmCIrcuitSource
 from ..icons import sysIcons
 from .frmBase import frmBase
 from ..dataModel.pf import PF_Circuit_Source
@@ -37,7 +37,7 @@ class frmCircuitSource(Ui_frmCIrcuitSource,frmBase):
         self._sourceObj=sourceObj
         if(sourceObj!=None):
             self.txtFaceId.setText(str(sourceObj.faceId+1))
-            self.cbxWaveType.setCurrentIndex(sourceObj.waveType)
+            # self.cbxWaveType.setCurrentIndex(sourceObj.waveType)
             self.txtAmplitude.setText(str(sourceObj.amplitude))
             if(type(sourceObj.frequency)!=str):
                 self.txtFrequency.setText(str(sourceObj.frequency))
@@ -52,10 +52,7 @@ class frmCircuitSource(Ui_frmCIrcuitSource,frmBase):
                 self.setUVText(v_uv[0],v_uv[1])
             if(not hasattr(sourceObj,"source_type")):
                 sourceObj.source_type=0
-            if(sourceObj.source_type==0):
-                self.rdbPortLine.setChecked(True)
-            else:
-                self.rdbPortFace.setChecked(True)
+          
 
         self.onLoad()  
     def onLoad(self):
@@ -92,7 +89,7 @@ class frmCircuitSource(Ui_frmCIrcuitSource,frmBase):
             sourceObj.pulseWidth=float(self.txtPluseWidth.text())
             sourceObj.delay=float(self.txtDelay.text())
             sourceObj.uv=(self._u_length,self._v_length)
-            sourceObj.source_type=0 if self.rdbPortLine.isChecked() else 1
+            sourceObj.source_type=1
             self.sigFaceSelected.emit(faceId,sourceObj,faceId_old)
             return (1,"suceess")
         except Exception as e:

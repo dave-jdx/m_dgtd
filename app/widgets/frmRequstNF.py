@@ -30,10 +30,10 @@ class frmRequestNF(Ui_frmNF,frmBase):
         self.btnAddRow.clicked.connect(lambda:self.addRow(self.tbPoints))
         self.btnRemoveRow.clicked.connect(lambda:self.removeRow(self.tbPoints))
 
-        self._font=self.font()
-        self._font.setPixelSize(baseStyle.fontPixel_14)
-        self._font.setFamilies(baseStyle.fontFamilys)
-        self.setFont(self._font)
+        # self._font=self.font()
+        # self._font.setPixelSize(baseStyle.fontPixel_14)
+        # self._font.setFamilies(baseStyle.fontFamilys)
+        # self.setFont(self._font)
         self.tabWidget.tabBar().setVisible(False)
 
         # self.groupBox.setStyleSheet("QGroupBox:title{left:5px}")
@@ -57,10 +57,14 @@ class frmRequestNF(Ui_frmNF,frmBase):
 
     def onLoad(self,nfObj:NF=None):
         super().onLoad()
-        self.groupBox.setStyleSheet("QGroupBox:title{left:5px}")
-        self.groupBox_2.setStyleSheet("QGroupBox:title{left:5px}")
-        self.groupBox_3.setStyleSheet("QGroupBox:title{left:5px}")
-        self.groupBox_4.setStyleSheet("QGroupBox:title{left:5px}")
+        self.groupBox.setStyleSheet(self.gbxStyle)
+        self.groupBox_2.setStyleSheet(self.gbxStyle)
+        self.groupBox_3.setStyleSheet(self.gbxStyle)
+        self.groupBox_4.setStyleSheet(self.gbxStyle)
+        self.groupBox.setFont(self.font())
+        self.groupBox_2.setFont(self.font())
+        self.groupBox_3.setFont(self.font())
+        self.groupBox_4.setFont(self.font())
         # self.groupBox_5.setStyleSheet("QGroupBox:title{left:0px}")
         self.setPointType()#切换为正确的点类型界面
         baseTitle=""

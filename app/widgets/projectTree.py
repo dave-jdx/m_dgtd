@@ -24,6 +24,9 @@ from ..utils import splitter, layout
 from OCC.Core.Quantity import *
 from OCC.Core.Select3D import *
 from OCC.Core.TopoDS import TopoDS_Edge,TopoDS_Shape,TopoDS_Face
+from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_EDGE, TopAbs_VERTEX,
+                             TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
+                               TopAbs_COMPSOLID, TopAbs_FORWARD, TopAbs_REVERSED)
 
 from .console import ConsoleWidget
 
@@ -74,10 +77,18 @@ from .frmDomainPML import frmDomainPML
 from ..module.loadPartProcessBar import PartLoadProgressBar
 from .frmOpacity import frmOpacity
 from .frmPostParam import frmPostParam
+from .frmPostFilter import frmPostFilter    
 from .frmMeshSize import frmMeshSize
 from .frmSimSelect import frmSimSelect
 from .polarPlotWidget import PolarPlotWidget
 from .frmFilter2dPolar import frmFilter2dPolar
+
+from .frmPlaneWave import frmPlaneWave
+from .frmETimes import frmETimes
+from .frmDoppingAnalysis import frmDoppingAnalysis
+from .frmDoppingGauss import frmDoppingGauss
+from .frmSBoundMetal import frmSBoundMetal
+from .frmSBoundGate import frmSBoundGate
 
 from ..api import api_model
 from ..api import api_gmsh
@@ -117,7 +128,10 @@ from ..dataModel.postData import PostData,data_base,data_nf_E,data_nf_H,data_emi
 from ..dataModel.postRender import PostRender,render_base,render_currents,render_nf_E,render_nf_H,render_emi
 from ..dataModel.modelColor import ModelColor
 from ..dataModel.pf import (PF,PF_EBase, PF_EM,PF_Circuit,PF_Thermal,PF_Struct,PF_Struct_Force,PF_Circuit_Source,
-                            PF_Thermal_Dirichlet,PF_Thermal_Source,PF_Thermal_Convection,PF_Thermal_Radiation)
+                            PF_Thermal_Dirichlet,PF_Thermal_Source,PF_Thermal_Convection,PF_Thermal_Radiation,
+                            PF_Plane_Wave,PF_E_Times,
+                            PF_Dopping,PF_Dopping_Analysis,PF_Dopping_Gaussian,
+                            PF_SBound,PF_SBound_Metal_Contact,PF_SBound_Insulate_Gate)
 from ..dataModel.requestParam import RequestParam,RequestParam_time,RequestParam_domain,RequestParam_temperature
 
 from ..stream_reader import NonBlockingStreamReader as NBSR
@@ -131,6 +145,9 @@ from .vtk_viewer_2d import vtkViewer2d
 from  ..icons import icon,treeIcons
 
 CONSOLE_WINDOW=True #是否显示控制台窗口
+SOLVER_DGTD="DGTD"
+SOLVER_FEM_DGTD="FEM-DGTD"
+SOLVER_SEMI="SEMI"
 
 
 class ProjectTree(QWidget, ComponentMixin):
@@ -205,6 +222,8 @@ class ProjectTree(QWidget, ComponentMixin):
         self.console=console
 
         self._2dPolarViewer:PolarPlotWidget=polarViewer
+
+        self._solver="DGTD" #默认求解器 DGTD/FEM-DGTD
         
 
         self.tree = QTreeWidget(self, selectionMode=QAbstractItemView.ExtendedSelection)
@@ -670,6 +689,7 @@ class ProjectTree(QWidget, ComponentMixin):
             # QAction(tree.nodeActions.delete, self, enabled=True,
             #             triggered=self.nodeAction_DeleteEM)
         ]
+       
         self.actionsPFBoundEMPEC=[
             QAction(tree.nodeActions.create, self, enabled=True,
                         triggered=self.nodeAction_AddEMPEC),
@@ -795,10 +815,63 @@ class ProjectTree(QWidget, ComponentMixin):
             QAction(tree.nodeActions.delete, self, enabled=True,
                         triggered=self.nodeAction_DeleteStructForceItem),
         ]
+        self.actionsPFBoundSContact=[
+            QAction(tree.nodeActions.create, self, enabled=True,
+                        triggered=self.nodeAction_AddSBoundMetal),
+            # QAction(tree.nodeActions.clear, self, enabled=True,
+            #             triggered=self.nodeAction_ClearCircuitLoad),
+        ]
+        self.actionsPFBoundSContactItem=[
+            QAction(tree.nodeActions.modify,self,enabled=True,
+                    triggered=self.nodeAction_ModifySBoundMetalItem),
+            QAction(tree.nodeActions.delete,self,enabled=True,
+                    triggered=self.nodeAction_DeleteSBoundMetalItem)    
+        ]
+        self.actionsPFBoundSGate=[
+            QAction(tree.nodeActions.create, self, enabled=True,
+                        triggered=self.nodeAction_AddSBoundGate),
+            # QAction(tree.nodeActions.clear, self, enabled=True,
+            #             triggered=self.nodeAction_ClearCircuitLoad),
+        ]
+        self.actionsPFBoundSGateItem=[
+            QAction(tree.nodeActions.modify,self,enabled=True,
+                    triggered=self.nodeAction_ModifySBoundGateItem),
+            QAction(tree.nodeActions.delete,self,enabled=True,
+                    triggered=self.nodeAction_DeleteSBoundGateItem)    
+        ]
+        self.actionsDoppingAnalysis=[
+            QAction(tree.nodeActions.create, self, enabled=True,
+                        triggered=self.nodeAction_AddDoppingAnalysis),
+            # QAction(tree.nodeActions.clear, self, enabled=True,
+            #             triggered=self.nodeAction_ClearCircuitLoad),
+        ]
+        self.actionsDoppingAnalysisItem=[
+            QAction(tree.nodeActions.modify,self,enabled=True,
+                    triggered=self.nodeAction_ModifyDoppingAnalysisItem),
+            QAction(tree.nodeActions.delete,self,enabled=True,
+                    triggered=self.nodeAction_DeleteDoppingAnalysisItem)    
+        ]
+        self.actionsDoppingGauss=[
+            QAction(tree.nodeActions.create, self, enabled=True,
+                        triggered=self.nodeAction_AddDoppingGauss),
+            # QAction(tree.nodeActions.clear, self, enabled=True,
+            #             triggered=self.nodeAction_ClearCircuitLoad),
+        ]
+        self.actionsDoppingGaussItem=[
+            QAction(tree.nodeActions.modify,self,enabled=True,
+                    triggered=self.nodeAction_ModifyDoppingGaussItem),
+            QAction(tree.nodeActions.delete,self,enabled=True,
+                    triggered=self.nodeAction_DeleteDoppingGaussItem)    
+        ]
+
     def onLoad(self):
         '''
         定义初始化操作
         '''
+        self._pf.em.used=True
+        self._pf.circuit.used=True
+        self._pf.thermal.used=True
+        self._pf.struct.used=True
         self.currentProject=Project()
         self.initialNodeField()
         self.initialNodeActions()
@@ -884,6 +957,15 @@ class ProjectTree(QWidget, ComponentMixin):
         elif(currentItem.parent()==self.pfBoundEMPECRoot):
             self.nodeAction_faceClicked()
             pass
+        elif(currentItem.parent()==self.pfBoundSGate):
+            self.nodeAction_faceClicked()
+            pass
+        elif(currentItem.parent()==self.pfBoundSContact):
+            self.nodeAction_faceClicked()
+        elif(currentItem.parent()==self.doppingAnalysisRoot):
+            self.nodeAction_solidClicked()
+        elif(currentItem.parent()==self.doppingGaussRoot):
+            self.nodeAction_faceClicked()
 
     def nodeAction_doublClick(self):
         
@@ -974,50 +1056,50 @@ class ProjectTree(QWidget, ComponentMixin):
             self.nodeAction_AddCircuitLoad()
         elif(currentItem==self.pfBoundStructDirichletRoot):
             self.nodeAction_AddStructDirichlet()
-        elif(currentItem==self.pfBoundStructForceRoot):
-            self.nodeAction_AddStructForce()
-        elif(currentItem==self.pfBoundThermalDirichletRoot):
-            self.nodeAction_AddThermalDirichlet()
+        # elif(currentItem==self.pfBoundStructForceRoot):
+        #     self.nodeAction_AddStructForce()
+        # elif(currentItem==self.pfBoundThermalDirichletRoot):
+        #     self.nodeAction_AddThermalDirichlet()
         elif(currentItem==self.pfBoundThermalConvectionRoot):
             self.nodeAction_AddThermalConvection()
-        elif(currentItem==self.pfBoundThermalRadiationRoot):
-            self.nodeAction_AddThermalRadiation()
+        # elif(currentItem==self.pfBoundThermalRadiationRoot):
+        #     self.nodeAction_AddThermalRadiation()
         elif(currentItem==self.pfBoundThermalSourceRoot):
             self.nodeAction_AddThermalSource()
         elif(currentItem.parent()==self.pfBoundCircuitSourceRoot):
             self.nodeAction_ModifyCircuitSourceItem()
         elif(currentItem.parent()==self.pfBoundCircuitLoadRoot):
             self.nodeAction_ModifyCircuitLoadItem()
-        elif(currentItem.parent()==self.pfBoundThermalDirichletRoot):
-            self.nodeAction_ModifyThermalDirichletItem()
+        # elif(currentItem.parent()==self.pfBoundThermalDirichletRoot):
+        #     self.nodeAction_ModifyThermalDirichletItem()
         elif(currentItem.parent()==self.pfBoundThermalConvectionRoot):
             self.nodeAction_ModifyThermalConvectionItem()
-        elif(currentItem.parent()==self.pfBoundThermalRadiationRoot):
-            self.nodeAction_ModifyThermalRadiationItem()
+        # elif(currentItem.parent()==self.pfBoundThermalRadiationRoot):
+        #     self.nodeAction_ModifyThermalRadiationItem()
         elif(currentItem.parent()==self.pfBoundThermalSourceRoot):
             self.nodeAction_ModifyThermalSourceItem()
         elif(currentItem.parent()==self.pfBoundStructDirichletRoot):
             self.nodeAction_ModifyStructDirichletItem()
-        elif(currentItem.parent()==self.pfBoundStructForceRoot):
-            self.nodeAction_ModifyStructForceItem()
+        # elif(currentItem.parent()==self.pfBoundStructForceRoot):
+        #     self.nodeAction_ModifyStructForceItem()
         elif(currentItem==self.reqTimeRoot):
             self.nodeAction_TimeProperties()
         elif(currentItem==self.reqThermalRoot):
             self.nodeAction_TemperatureProperties()
         elif(currentItem==self.reqDomainRoot):
             self.nodeAction_DomainProperties()
-        elif(currentItem==self.reqFFRRoot):
-            self.nodeAction_FFRProperties()
+        # elif(currentItem==self.reqFFRRoot):
+        #     self.nodeAction_FFRProperties()
         elif(currentItem==self.reqNFRoot):
             self.nodeAction_NFProperties()
-        elif(currentItem==self.pfEMRoot):
-            self.nodeAction_EMProperties()
-        elif(currentItem==self.pfCircuitRoot):
-            self.nodeAction_CircuitProperties()
-        elif(currentItem==self.pfThermalRoot):
-            self.nodeAction_ThermalProperties()
-        elif(currentItem==self.pfStructRoot):
-            self.nodeAction_StructProperties()
+        # elif(currentItem==self.pfEMRoot):
+        #     self.nodeAction_EMProperties()
+        # elif(currentItem==self.pfCircuitRoot):
+        #     self.nodeAction_CircuitProperties()
+        # elif(currentItem==self.pfThermalRoot):
+        #     self.nodeAction_ThermalProperties()
+        # elif(currentItem==self.pfStructRoot):
+        #     self.nodeAction_StructProperties()
         elif(currentItem==self.resultThermal3DRoot):
             self.nodeAction_DisplayThermal3D()
         elif(currentItem==self.resultThermal2DRoot):
@@ -1028,10 +1110,18 @@ class ProjectTree(QWidget, ComponentMixin):
             self.nodeAction_DisplayEM_2d()
         elif(currentItem==self.resultEMDomainRoot):
             self.nodeAction_DisplayEM_3d()
-        elif(currentItem==self.resultFFR3DRoot):
-            self.nodeAction_DisplayEM_ffr()
-        elif(currentItem==self.resultFFR2DRoot):
-            self.nodeAction_DisplayEM_2dPolar()
+        # elif(currentItem==self.resultFFR3DRoot):
+        #     self.nodeAction_DisplayEM_ffr()
+        # elif(currentItem==self.resultFFR2DRoot):
+        #     self.nodeAction_DisplayEM_2dPolar()
+        elif(currentItem==self.resultCircuitLoadRoot):
+            self.nodeAction_DisplayCircuit_load()
+        elif(currentItem==self.resultCircuitSourceRoot):
+            self.nodeAction_DisplayCircuit_source()
+        elif(currentItem==self.pfPlaneWaveRoot):
+            self.nodeAction_PlaneWaveSettings()
+        elif(currentItem==self.pfETimesRoot):
+            self.nodeAction_ETimesSettings()
 
         pass
     def strList2String(self,strList:list):
@@ -1046,8 +1136,11 @@ class ProjectTree(QWidget, ComponentMixin):
     '''
     project节点操作
     '''
-    def sig_createProject(self,projectName:str="DGTD_1"):
+    def sig_createProject(self,projectName:str="Project-1"):
         try:
+            # if(self._solver==SOLVER_FEM_DGTD):
+            #     projectName="电磁热力-1"
+            
             self.initialNodeField()
             # self.initialModelViewer()
             # self.initialVtkViewer()
@@ -1093,124 +1186,162 @@ class ProjectTree(QWidget, ComponentMixin):
         self.materialRoot.setData(0,self.actionIndex,self.actionsMaterialRoot)
         self.materialRoot.setExpanded(True)
 
+        self.doppingRoot= QTreeWidgetItem(self.root)
+        self.doppingRoot.setText(0, "半导体")
+        self.doppingRoot.setIcon(0, treeIcons.gdtd_dopping)
+        # self.doppingRoot.setData(0,self.actionIndex,self.actionsDoppingRoot)
+        self.doppingRoot.setExpanded(True)
+
+        self.doppingAnalysisRoot= QTreeWidgetItem(self.doppingRoot)
+        self.doppingAnalysisRoot.setText(0, "解析掺杂")
+        self.doppingAnalysisRoot.setIcon(0, treeIcons.gdtd_dopping_analysis)
+        self.doppingAnalysisRoot.setData(0,self.actionIndex,self.actionsDoppingAnalysis)
+        self.doppingAnalysisRoot.setExpanded(True)
+
+        self.doppingGaussRoot= QTreeWidgetItem(self.doppingRoot)
+        self.doppingGaussRoot.setText(0, "高斯掺杂")
+        self.doppingGaussRoot.setIcon(0, treeIcons.gdtd_doping_gaussian)
+        self.doppingGaussRoot.setData(0,self.actionIndex,self.actionsDoppingGauss)
+        self.doppingGaussRoot.setExpanded(True)
+       
+
         
 
 
-        self.pfRoot = QTreeWidgetItem(self.root)
-        self.pfRoot.setText(0, tree.projctTreeNodes.pf)
-        self.pfRoot.setIcon(0, treeIcons.gdtd_pf)
-        self.pfRoot.setData(0,self.actionIndex,self.actionsPFRoot)
-        self.pfRoot.setExpanded(True)
+        # self.pfRoot = QTreeWidgetItem(self.root)
+        # self.pfRoot.setText(0, tree.projctTreeNodes.pf)
+        # self.pfRoot.setIcon(0, treeIcons.gdtd_pf)
+        # self.pfRoot.setData(0,self.actionIndex,self.actionsPFRoot)
+        # self.pfRoot.setExpanded(True)
 
-        self.pfEMRoot=QTreeWidgetItem(self.pfRoot) #物理场-电磁，默认隐藏，添加时再显示
-        self.pfEMRoot.setText(0, tree.projctTreeNodes.pf_em)
-        self.pfEMRoot.setIcon(0, treeIcons.pf_em)
-        self.pfEMRoot.setData(0,self.actionIndex,self.actionsPFEMRoot)
-        self.pfEMRoot.setHidden(True)
+        # self.pfEMRoot=QTreeWidgetItem(self.pfRoot) #物理场-电磁，默认隐藏，添加时再显示
+        # self.pfEMRoot.setText(0, tree.projctTreeNodes.pf_em)
+        # self.pfEMRoot.setIcon(0, treeIcons.pf_em)
+        # self.pfEMRoot.setData(0,self.actionIndex,self.actionsPFEMRoot)
+        # self.pfEMRoot.setHidden(True)
 
-        self.pfCircuitRoot=QTreeWidgetItem(self.pfRoot) #物理场-电路，默认隐藏，添加时再显示
-        self.pfCircuitRoot.setText(0, tree.projctTreeNodes.pf_circuit)
-        self.pfCircuitRoot.setIcon(0, treeIcons.pf_circuit)
-        self.pfCircuitRoot.setData(0,self.actionIndex,self.actionsPFCircuitRoot)    
-        self.pfCircuitRoot.setHidden(True)
+        # self.pfCircuitRoot=QTreeWidgetItem(self.pfRoot) #物理场-电路，默认隐藏，添加时再显示
+        # self.pfCircuitRoot.setText(0, tree.projctTreeNodes.pf_circuit)
+        # self.pfCircuitRoot.setIcon(0, treeIcons.pf_circuit)
+        # self.pfCircuitRoot.setData(0,self.actionIndex,self.actionsPFCircuitRoot)    
+        # self.pfCircuitRoot.setHidden(True)
 
-        self.pfThermalRoot=QTreeWidgetItem(self.pfRoot) #物理场-热传递，默认隐藏，添加时再显示
-        self.pfThermalRoot.setText(0, tree.projctTreeNodes.pf_thermal)
-        self.pfThermalRoot.setIcon(0, treeIcons.pf_thermal)
-        self.pfThermalRoot.setData(0,self.actionIndex,self.actionsPFThermalRoot)
-        self.pfThermalRoot.setHidden(True)
+        # self.pfThermalRoot=QTreeWidgetItem(self.pfRoot) #物理场-热传递，默认隐藏，添加时再显示
+        # self.pfThermalRoot.setText(0, tree.projctTreeNodes.pf_thermal)
+        # self.pfThermalRoot.setIcon(0, treeIcons.pf_thermal)
+        # self.pfThermalRoot.setData(0,self.actionIndex,self.actionsPFThermalRoot)
+        # self.pfThermalRoot.setHidden(True)
 
-        self.pfStructRoot=QTreeWidgetItem(self.pfRoot) #物理场-结构，默认隐藏，添加时再显示
-        self.pfStructRoot.setText(0, tree.projctTreeNodes.pf_struct)
-        self.pfStructRoot.setIcon(0, treeIcons.gdtd_pf_struct)
-        self.pfStructRoot.setData(0,self.actionIndex,self.actionsPFStructRoot)
-        self.pfStructRoot.setHidden(True)
+        # self.pfStructRoot=QTreeWidgetItem(self.pfRoot) #物理场-结构，默认隐藏，添加时再显示
+        # self.pfStructRoot.setText(0, tree.projctTreeNodes.pf_struct)
+        # self.pfStructRoot.setIcon(0, treeIcons.gdtd_pf_struct)
+        # self.pfStructRoot.setData(0,self.actionIndex,self.actionsPFStructRoot)
+        # self.pfStructRoot.setHidden(True)
 
         self.pfBoundRoot=QTreeWidgetItem(self.root) #物理场-边界条件，默认隐藏，添加时再显示
         self.pfBoundRoot.setText(0, tree.projctTreeNodes.pf_boundary)
         self.pfBoundRoot.setIcon(0, treeIcons.gdtd_bnd_source)
         self.pfBoundRoot.setData(0,self.actionIndex,[])
 
-        self.pfBoundEMRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电磁-边界条件，默认隐藏，添加时再显示
-        self.pfBoundEMRoot.setText(0, tree.projctTreeNodes.pf_em)
-        self.pfBoundEMRoot.setIcon(0, treeIcons.pf_bound_em)
-        self.pfBoundEMRoot.setData(0,self.actionIndex,[])
-        self.pfBoundEMRoot.setExpanded(True)
-        self.pfBoundEMRoot.setHidden(True)
+        self.pfLoadSourceRoot=QTreeWidgetItem(self.root)
+        self.pfLoadSourceRoot.setText(0, tree.projctTreeNodes.pf_load_source)
+        self.pfLoadSourceRoot.setIcon(0, treeIcons.gdtd_bnd_source)
+        self.pfLoadSourceRoot.setData(0,self.actionIndex,[])
 
-        self.pfBoundEMPECRoot=QTreeWidgetItem(self.pfBoundEMRoot) #物理场-电磁-PEC，默认隐藏，添加时再显示
+       
+        
+
+        # self.pfBoundEMRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电磁-边界条件，默认隐藏，添加时再显示
+        # self.pfBoundEMRoot.setText(0, tree.projctTreeNodes.pf_em)
+        # self.pfBoundEMRoot.setIcon(0, treeIcons.pf_bound_em)
+        # self.pfBoundEMRoot.setData(0,self.actionIndex,[])
+        # self.pfBoundEMRoot.setExpanded(True)
+        # self.pfBoundEMRoot.setHidden(True)
+
+        self.pfBoundSContact=QTreeWidgetItem(self.pfBoundRoot) #物理场-半导体-表面接触，默认隐藏，添加时再显示
+        self.pfBoundSContact.setText(0, "金属接触")
+        self.pfBoundSContact.setIcon(0, treeIcons.gdtd_bound_scontact)
+        self.pfBoundSContact.setData(0,self.actionIndex,self.actionsPFBoundSContact)
+        # self.pfBoundSContact.setHidden(True)
+
+        self.pfBoundSGate=QTreeWidgetItem(self.pfBoundRoot) #物理场-半导体-栅极，默认隐藏，添加时再显示
+        self.pfBoundSGate.setText(0, "薄绝缘栅")
+        self.pfBoundSGate.setIcon(0, treeIcons.gdtd_bound_sgate)
+        self.pfBoundSGate.setData(0,self.actionIndex,self.actionsPFBoundSGate)
+
+        self.pfBoundEMPECRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电磁-PEC，默认隐藏，添加时再显示
         self.pfBoundEMPECRoot.setText(0, tree.projctTreeNodes.pf_em_pec)
         self.pfBoundEMPECRoot.setIcon(0, treeIcons.gdtd_bound_pec)
         self.pfBoundEMPECRoot.setData(0,self.actionIndex,self.actionsPFBoundEMPEC)
         # self.pfBoundEMPECRoot.setHidden(True)
 
-        self.pfBoundCircuitRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电路-边界条件，默认隐藏，添加时再显示
-        self.pfBoundCircuitRoot.setText(0, tree.projctTreeNodes.pf_circuit)
-        self.pfBoundCircuitRoot.setIcon(0, treeIcons.pf_bound_circuit)
-        self.pfBoundCircuitRoot.setData(0,self.actionIndex,[])
-        self.pfBoundCircuitRoot.setExpanded(True)
-        self.pfBoundCircuitRoot.setHidden(True)
+        # self.pfBoundCircuitRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-电路-边界条件，默认隐藏，添加时再显示
+        # self.pfBoundCircuitRoot.setText(0, tree.projctTreeNodes.pf_circuit)
+        # self.pfBoundCircuitRoot.setIcon(0, treeIcons.pf_bound_circuit)
+        # self.pfBoundCircuitRoot.setData(0,self.actionIndex,[])
+        # self.pfBoundCircuitRoot.setExpanded(True)
+        # self.pfBoundCircuitRoot.setHidden(True)
 
-        self.pfBoundCircuitSourceRoot=QTreeWidgetItem(self.pfBoundCircuitRoot) #物理场-电路-电源，默认隐藏，添加时再显示
+        self.pfBoundCircuitSourceRoot=QTreeWidgetItem(self.pfLoadSourceRoot) #物理场-电路-电源，默认隐藏，添加时再显示
         self.pfBoundCircuitSourceRoot.setText(0, tree.projctTreeNodes.pf_circuit_source)
         self.pfBoundCircuitSourceRoot.setIcon(0, treeIcons.pf_bound_circuit_source)
         self.pfBoundCircuitSourceRoot.setData(0,self.actionIndex,self.actionsPFBoundCircuitSource)
         # self.pfBoundCircuitSourceRoot.setHidden(True)
 
-        self.pfBoundCircuitLoadRoot=QTreeWidgetItem(self.pfBoundCircuitRoot) #物理场-电路-负载，默认隐藏，添加时再显示
+        self.pfBoundCircuitLoadRoot=QTreeWidgetItem(self.pfLoadSourceRoot) #物理场-电路-负载，默认隐藏，添加时再显示
         self.pfBoundCircuitLoadRoot.setText(0, tree.projctTreeNodes.pf_circuit_load)
         self.pfBoundCircuitLoadRoot.setIcon(0, treeIcons.pf_bound_circuit_load)
         self.pfBoundCircuitLoadRoot.setData(0,self.actionIndex,self.actionsPFBoundCircuitLoad)
         # self.pfBoundCircuitLoadRoot.setHidden(True)
 
-        self.pfBoundThermalRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-热传递-边界条件，默认隐藏，添加时再显示
-        self.pfBoundThermalRoot.setText(0, tree.projctTreeNodes.pf_thermal)
-        self.pfBoundThermalRoot.setIcon(0, treeIcons.pf_bound_thermal)
-        self.pfBoundThermalRoot.setData(0,self.actionIndex,[])
-        self.pfBoundThermalRoot.setExpanded(True)
-        self.pfBoundThermalRoot.setHidden(True)
+        # self.pfBoundThermalRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-热传递-边界条件，默认隐藏，添加时再显示
+        # self.pfBoundThermalRoot.setText(0, tree.projctTreeNodes.pf_thermal)
+        # self.pfBoundThermalRoot.setIcon(0, treeIcons.pf_bound_thermal)
+        # self.pfBoundThermalRoot.setData(0,self.actionIndex,[])
+        # self.pfBoundThermalRoot.setExpanded(True)
+        # self.pfBoundThermalRoot.setHidden(True)
 
-        self.pfBoundThermalDirichletRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-Dirichlet，默认隐藏，添加时再显示
-        self.pfBoundThermalDirichletRoot.setText(0, tree.projctTreeNodes.pf_thermal_dirichlet)
-        self.pfBoundThermalDirichletRoot.setIcon(0, treeIcons.gdtd_bound_thermal_dirichlet)
-        self.pfBoundThermalDirichletRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalDirichlet)
+        # self.pfBoundThermalDirichletRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-Dirichlet，默认隐藏，添加时再显示
+        # self.pfBoundThermalDirichletRoot.setText(0, tree.projctTreeNodes.pf_thermal_dirichlet)
+        # self.pfBoundThermalDirichletRoot.setIcon(0, treeIcons.gdtd_bound_thermal_dirichlet)
+        # self.pfBoundThermalDirichletRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalDirichlet)
         # self.pfBoundThermalDirichletRoot.setHidden(True)
 
-        self.pfBoundThermalConvectionRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-对流，默认隐藏，添加时再显示
+        self.pfBoundThermalConvectionRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-热传递-对流，默认隐藏，添加时再显示
         self.pfBoundThermalConvectionRoot.setText(0, tree.projctTreeNodes.pf_thermal_convection)
         self.pfBoundThermalConvectionRoot.setIcon(0, treeIcons.gdtd_bound_thermal_convection)
         self.pfBoundThermalConvectionRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalConvection)
         # self.pfBoundThermalConvectionRoot.setHidden(True)
 
-        self.pfBoundThermalRadiationRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-辐射，默认隐藏，添加时再显示
-        self.pfBoundThermalRadiationRoot.setText(0, tree.projctTreeNodes.pf_thermal_radiation)
-        self.pfBoundThermalRadiationRoot.setIcon(0, treeIcons.gdtd_bound_thermal_radiation)
-        self.pfBoundThermalRadiationRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalRadiation)
+        # self.pfBoundThermalRadiationRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-辐射，默认隐藏，添加时再显示
+        # self.pfBoundThermalRadiationRoot.setText(0, tree.projctTreeNodes.pf_thermal_radiation)
+        # self.pfBoundThermalRadiationRoot.setIcon(0, treeIcons.gdtd_bound_thermal_radiation)
+        # self.pfBoundThermalRadiationRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalRadiation)
         # self.pfBoundThermalRadiationRoot.setHidden(True)
 
-        self.pfBoundThermalSourceRoot=QTreeWidgetItem(self.pfBoundThermalRoot) #物理场-热传递-热源，默认隐藏，添加时再显示
+        self.pfBoundThermalSourceRoot=QTreeWidgetItem(self.pfLoadSourceRoot) #物理场-热传递-热源，默认隐藏，添加时再显示
         self.pfBoundThermalSourceRoot.setText(0, tree.projctTreeNodes.pf_thermal_source)
         self.pfBoundThermalSourceRoot.setIcon(0, treeIcons.gdtd_bound_thermal_source)
         self.pfBoundThermalSourceRoot.setData(0,self.actionIndex,self.actionsPFBoundThermalSource)
         # self.pfBoundThermalSourceRoot.setHidden(True)
 
-        self.pfBoundStructRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-结构-边界条件，默认隐藏，添加时再显示
-        self.pfBoundStructRoot.setText(0, tree.projctTreeNodes.pf_struct)
-        self.pfBoundStructRoot.setIcon(0, treeIcons.gdtd_bound_struct)
-        self.pfBoundStructRoot.setData(0,self.actionIndex,[])
-        self.pfBoundStructRoot.setExpanded(True)
-        self.pfBoundStructRoot.setHidden(True)
+        # self.pfBoundStructRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-结构-边界条件，默认隐藏，添加时再显示
+        # self.pfBoundStructRoot.setText(0, tree.projctTreeNodes.pf_struct)
+        # self.pfBoundStructRoot.setIcon(0, treeIcons.gdtd_bound_struct)
+        # self.pfBoundStructRoot.setData(0,self.actionIndex,[])
+        # self.pfBoundStructRoot.setExpanded(True)
+        # self.pfBoundStructRoot.setHidden(True)
 
-        self.pfBoundStructDirichletRoot=QTreeWidgetItem(self.pfBoundStructRoot) #物理场-结构-Dirichlet，默认隐藏，添加时再显示
+        self.pfBoundStructDirichletRoot=QTreeWidgetItem(self.pfBoundRoot) #物理场-结构-Dirichlet，默认隐藏，添加时再显示
         self.pfBoundStructDirichletRoot.setText(0, tree.projctTreeNodes.pf_struct_dirichlet)
         self.pfBoundStructDirichletRoot.setIcon(0, treeIcons.gdtd_bound_struct_dirichlet)
         self.pfBoundStructDirichletRoot.setData(0,self.actionIndex,self.actionsPFBoundStructDirichlet)
         # self.pfBoundStructDirichletRoot.setHidden(True)
 
-        self.pfBoundStructForceRoot=QTreeWidgetItem(self.pfBoundStructRoot) #物理场-结构-力，默认隐藏，添加时再显示
-        self.pfBoundStructForceRoot.setText(0, tree.projctTreeNodes.pf_struct_force)
-        self.pfBoundStructForceRoot.setIcon(0, treeIcons.gdtd_bound_struct_force)
-        self.pfBoundStructForceRoot.setData(0,self.actionIndex,self.actionsPFBoundStructForce)
+        # self.pfBoundStructForceRoot=QTreeWidgetItem(self.pfLoadSourceRoot) #物理场-结构-力，默认隐藏，添加时再显示
+        # self.pfBoundStructForceRoot.setText(0, tree.projctTreeNodes.pf_struct_force)
+        # self.pfBoundStructForceRoot.setIcon(0, treeIcons.gdtd_bound_struct_force)
+        # self.pfBoundStructForceRoot.setData(0,self.actionIndex,self.actionsPFBoundStructForce)
         # self.pfBoundStructForceRoot.setHidden(True)
 
 
@@ -1220,6 +1351,16 @@ class ProjectTree(QWidget, ComponentMixin):
         self.requestRoot.setIcon(0, treeIcons.gdtd_req)
         self.requestRoot.setData(0,self.actionIndex,self.actionsRequestRoot)
         self.requestRoot.setExpanded(True)
+
+        self.pfETimesRoot=QTreeWidgetItem(self.requestRoot) #物理场-半导体-迭代电势，默认隐藏，添加时再显示
+        self.pfETimesRoot.setText(0, "迭代电势")
+        self.pfETimesRoot.setIcon(0, treeIcons.gdtd_e_times)
+        self.pfETimesRoot.setData(0,self.actionIndex,[])
+
+        self.pfPlaneWaveRoot=QTreeWidgetItem(self.requestRoot) #物理场-平面波，默认隐藏，添加时再显示
+        self.pfPlaneWaveRoot.setText(0, "平面波")
+        self.pfPlaneWaveRoot.setIcon(0, treeIcons.gdtd_plane_wave)
+        self.pfPlaneWaveRoot.setData(0,self.actionIndex,[])
 
         self.reqTimeRoot=QTreeWidgetItem(self.requestRoot)
         self.reqTimeRoot.setText(0,tree.projctTreeNodes.reqTime)
@@ -1233,23 +1374,25 @@ class ProjectTree(QWidget, ComponentMixin):
         self.reqNFRoot.setData(0,self.actionIndex,self.actionsReqNFRoot)
         self.reqNFRoot.setExpanded(True)
 
-        self.reqDomainRoot=QTreeWidgetItem(self.requestRoot)
-        self.reqDomainRoot.setText(0,tree.projctTreeNodes.reqDomain)
-        self.reqDomainRoot.setIcon(0,treeIcons.gdtd_req_domain)
-        self.reqDomainRoot.setData(0,self.actionIndex,[])
-        self.reqDomainRoot.setExpanded(True)
+        # self.reqDomainRoot=QTreeWidgetItem(self.requestRoot)
+        # self.reqDomainRoot.setText(0,tree.projctTreeNodes.reqDomain)
+        # self.reqDomainRoot.setIcon(0,treeIcons.gdtd_req_domain)
+        # self.reqDomainRoot.setData(0,self.actionIndex,[])
+        # self.reqDomainRoot.setExpanded(True)
+        self.reqDomainRoot=None
 
-        self.reqFFRRoot=QTreeWidgetItem(self.requestRoot)
-        self.reqFFRRoot.setText(0, tree.projctTreeNodes.reqFFR)
-        self.reqFFRRoot.setIcon(0, treeIcons.req_ffr)
-        self.reqFFRRoot.setData(0,self.actionIndex,self.actionsReqFFRRoot)
-        self.reqFFRRoot.setHidden(True)
+        # self.reqFFRRoot=QTreeWidgetItem(self.requestRoot)
+        # self.reqFFRRoot.setText(0, tree.projctTreeNodes.reqFFR)
+        # self.reqFFRRoot.setIcon(0, treeIcons.req_ffr)
+        # self.reqFFRRoot.setData(0,self.actionIndex,self.actionsReqFFRRoot)
+        # self.reqFFRRoot.setHidden(True)
 
-        self.reqThermalRoot=QTreeWidgetItem(self.requestRoot)
-        self.reqThermalRoot.setText(0,tree.projctTreeNodes.reqThermal)
-        self.reqThermalRoot.setIcon(0,treeIcons.req_thermal)
-        self.reqThermalRoot.setData(0,self.actionIndex,self.actionsReqThermalRoot)
-        self.reqThermalRoot.setHidden(True)
+        # self.reqThermalRoot=QTreeWidgetItem(self.requestRoot)
+        # self.reqThermalRoot.setText(0,tree.projctTreeNodes.reqThermal)
+        # self.reqThermalRoot.setIcon(0,treeIcons.req_thermal)
+        # self.reqThermalRoot.setData(0,self.actionIndex,self.actionsReqThermalRoot)
+        # self.reqThermalRoot.setHidden(True)
+        self.reqThermalRoot=None
 
         self.meshRoot = QTreeWidgetItem(self.root)
         self.meshRoot.setText(0, tree.projctTreeNodes.mesh)
@@ -1266,69 +1409,88 @@ class ProjectTree(QWidget, ComponentMixin):
         self.resultRoot.setData(0,self.actionIndex,self.actionsResultRoot)
         self.resultRoot.setExpanded(True)
 
-        self.resultEMRoot=QTreeWidgetItem(self.resultRoot)
-        self.resultEMRoot.setText(0,tree.projctTreeNodes.result_em)
-        self.resultEMRoot.setIcon(0,treeIcons.gdtd_result_em)
-        self.resultEMRoot.setData(0,self.actionIndex,self.actionsResultEMRoot)
-        self.resultEMRoot.setExpanded(True)
-        self.resultEMRoot.setHidden(True)   
+        # self.resultEMRoot=QTreeWidgetItem(self.resultRoot)
+        # self.resultEMRoot.setText(0,tree.projctTreeNodes.result_em)
+        # self.resultEMRoot.setIcon(0,treeIcons.gdtd_result_em)
+        # self.resultEMRoot.setData(0,self.actionIndex,self.actionsResultEMRoot)
+        # self.resultEMRoot.setExpanded(True)
+        # self.resultEMRoot.setHidden(True)   
 
-        self.resultEM2DRoot=QTreeWidgetItem(self.resultEMRoot)
+        self.resultEM2DRoot=QTreeWidgetItem(self.resultRoot)
         self.resultEM2DRoot.setText(0,tree.projctTreeNodes.result_em_nf)
         self.resultEM2DRoot.setIcon(0,treeIcons.gdtd_result_em_points)
         self.resultEM2DRoot.setData(0,self.actionIndex,self.actionsResultEMNFRoot)
         self.resultEM2DRoot.setExpanded(True)
 
-        self.resultEMDomainRoot=QTreeWidgetItem(self.resultEMRoot)
+        self.resultEMDomainRoot=QTreeWidgetItem(self.resultRoot)
         self.resultEMDomainRoot.setText(0,tree.projctTreeNodes.result_em_domain)    
         self.resultEMDomainRoot.setIcon(0,treeIcons.gdtd_result_em_domain)
         self.resultEMDomainRoot.setData(0,self.actionIndex,self.actionsResultEMDomainRoot)
         self.resultEMDomainRoot.setExpanded(True)
 
-        self.resultFFRRoot=QTreeWidgetItem(self.resultRoot)
-        self.resultFFRRoot.setText(0,tree.projctTreeNodes.result_ffr)
-        self.resultFFRRoot.setIcon(0,treeIcons.gdtd_ffr)
-        self.resultFFRRoot.setData(0,self.actionIndex,self.actionsResultFFRRoot)
-        self.resultFFRRoot.setExpanded(True)
-        self.resultFFRRoot.setHidden(True)
+        # self.resultCircuitRoot=QTreeWidgetItem(self.resultRoot)
+        # self.resultCircuitRoot.setText(0,tree.projctTreeNodes.result_circuit)
+        # self.resultCircuitRoot.setIcon(0,treeIcons.gdtd_result_circuit)
+        # self.resultCircuitRoot.setData(0,self.actionIndex,[])
+        # self.resultCircuitRoot.setExpanded(True)
+        # self.resultCircuitRoot.setHidden(True)
 
-        self.resultFFR2DRoot=QTreeWidgetItem(self.resultFFRRoot)
-        self.resultFFR2DRoot.setText(0,"2D方向图")
-        self.resultFFR2DRoot.setIcon(0,treeIcons.gdtd_2d_ffr)
-        # self.resultFFR2DRoot.setData(0,self.actionIndex,self.actionsResultFFR2DRoot)
-        self.resultFFR2DRoot.setExpanded(True)
+        self.resultCircuitLoadRoot=QTreeWidgetItem(self.resultRoot)
+        self.resultCircuitLoadRoot.setText(0,tree.projctTreeNodes.result_circuit_load)
+        self.resultCircuitLoadRoot.setIcon(0,treeIcons.gdtd_result_circuit_load)
+        self.resultCircuitLoadRoot.setData(0,self.actionIndex,[])
+        self.resultCircuitLoadRoot.setExpanded(True)
 
-        self.resultFFR3DRoot=QTreeWidgetItem(self.resultFFRRoot)
-        self.resultFFR3DRoot.setText(0,"3D方向图")
-        self.resultFFR3DRoot.setIcon(0,treeIcons.gdtd_3d_ffr)
-        self.resultFFR3DRoot.setData(0,self.actionIndex,self.actionsResultFFR3DRoot)
-        self.resultFFR3DRoot.setExpanded(True)
+        self.resultCircuitSourceRoot=QTreeWidgetItem(self.resultRoot)
+        self.resultCircuitSourceRoot.setText(0,tree.projctTreeNodes.result_circuit_source)
+        self.resultCircuitSourceRoot.setIcon(0,treeIcons.gdtd_result_circuit_source)
+        self.resultCircuitSourceRoot.setData(0,self.actionIndex,[])
+        self.resultCircuitSourceRoot.setExpanded(True)
+
+        # self.resultFFRRoot=QTreeWidgetItem(self.resultRoot)
+        # self.resultFFRRoot.setText(0,tree.projctTreeNodes.result_ffr)
+        # self.resultFFRRoot.setIcon(0,treeIcons.gdtd_ffr)
+        # self.resultFFRRoot.setData(0,self.actionIndex,self.actionsResultFFRRoot)
+        # self.resultFFRRoot.setExpanded(True)
+        # self.resultFFRRoot.setHidden(True)
+
+        # self.resultFFR2DRoot=QTreeWidgetItem(self.resultFFRRoot)
+        # self.resultFFR2DRoot.setText(0,"2D方向图")
+        # self.resultFFR2DRoot.setIcon(0,treeIcons.gdtd_2d_ffr)
+        # # self.resultFFR2DRoot.setData(0,self.actionIndex,self.actionsResultFFR2DRoot)
+        # self.resultFFR2DRoot.setExpanded(True)
+
+        # self.resultFFR3DRoot=QTreeWidgetItem(self.resultFFRRoot)
+        # self.resultFFR3DRoot.setText(0,"3D方向图")
+        # self.resultFFR3DRoot.setIcon(0,treeIcons.gdtd_3d_ffr)
+        # self.resultFFR3DRoot.setData(0,self.actionIndex,self.actionsResultFFR3DRoot)
+        # self.resultFFR3DRoot.setExpanded(True)
         
 
-        self.resultThermalRoot=QTreeWidgetItem(self.resultRoot)
-        self.resultThermalRoot.setText(0,tree.projctTreeNodes.result_thermal)
-        self.resultThermalRoot.setIcon(0,treeIcons.gdtd_result_thermal)
-        self.resultThermalRoot.setData(0,self.actionIndex,[])
-        self.resultThermalRoot.setExpanded(True)
-        self.resultThermalRoot.setHidden(True)
+        # self.resultThermalRoot=QTreeWidgetItem(self.resultRoot)
+        # self.resultThermalRoot.setText(0,tree.projctTreeNodes.result_thermal)
+        # self.resultThermalRoot.setIcon(0,treeIcons.gdtd_result_thermal)
+        # self.resultThermalRoot.setData(0,self.actionIndex,[])
+        # self.resultThermalRoot.setExpanded(True)
+        # self.resultThermalRoot.setHidden(True)
 
-        self.resultThermal2DRoot=QTreeWidgetItem(self.resultThermalRoot)
+        self.resultThermal2DRoot=QTreeWidgetItem(self.resultRoot)
         self.resultThermal2DRoot.setText(0,tree.projctTreeNodes.result_thermal_2d)
         self.resultThermal2DRoot.setIcon(0,treeIcons.gdtd_result_thermal_points)
 
-        self.resultThermal3DRoot=QTreeWidgetItem(self.resultThermalRoot)
+        self.resultThermal3DRoot=QTreeWidgetItem(self.resultRoot)
         self.resultThermal3DRoot.setText(0,tree.projctTreeNodes.result_thermal_3d)
         self.resultThermal3DRoot.setIcon(0,treeIcons.gdtd_result_thermal_domain)
 
 
-        self.resultStructRoot=QTreeWidgetItem(self.resultRoot)
-        self.resultStructRoot.setText(0,tree.projctTreeNodes.result_struct)
-        self.resultStructRoot.setIcon(0,treeIcons.gdtd_result_struct)
-        self.resultStructRoot.setData(0,self.actionIndex,[])
-        self.resultStructRoot.setExpanded(True)
-        self.resultStructRoot.setHidden(True)
+        # self.resultStructRoot=QTreeWidgetItem(self.resultRoot)
+        # self.resultStructRoot.setText(0,tree.projctTreeNodes.result_struct)
+        # self.resultStructRoot.setIcon(0,treeIcons.gdtd_result_struct)
+        # self.resultStructRoot.setData(0,self.actionIndex,[])
+        # self.resultStructRoot.setExpanded(True)
+        # self.resultStructRoot.setHidden(True)
 
-        self.resultDisplacement3DRoot=QTreeWidgetItem(self.resultStructRoot)
+        self.resultDisplacement3DRoot=QTreeWidgetItem(self.resultRoot)
         self.resultDisplacement3DRoot.setText(0,tree.projctTreeNodes.result_struct_3d)
         self.resultDisplacement3DRoot.setIcon(0,treeIcons.gdtd_result_struct_domain)
 
@@ -1397,7 +1559,8 @@ class ProjectTree(QWidget, ComponentMixin):
         self.nodeAction_RunSimulation(False)
     def sig_run_sim_exe(self,exeName):
         try:
-            sourceSolverFile=self._dir+"\\"+exeName
+            sourceSolverFile=self._dir+"/Core/DGTD/"+exeName
+            mpiexeFile=self._dir+"/Core/DGTD/mpiexec.exe"
             print("run exeName",exeName)
             if(self.currentProject.mpiNum>1 and "EM" in exeName):
                 print("sim use mpi",exeName)
@@ -1414,17 +1577,21 @@ class ProjectTree(QWidget, ComponentMixin):
                 sourceSolverFile
             ]
             self.console.clear()
-            if(self.currentProject.mpiNum>1 and "EM" in exeName):
+            if(self.currentProject.mpiNum>1):
                 # print("sim use mpi",exeName)
-                cmd=f"mpiexec -localonly {self.currentProject.mpiNum} {exeName}"
+                # cmd=f"mpiexec -localonly {self.currentProject.mpiNum} {exeName}"
+                cmd=f"{mpiexeFile} -n {self.currentProject.mpiNum} {sourceSolverFile}"
+                print("cmd",cmd)
                
                 p = subprocess.Popen(cmd,
                                  cwd=exe_dir, 
-                                 creationflags=subprocess.CREATE_NEW_CONSOLE,
-                                #  stdout=subprocess.PIPE,
-                                #  stderr=subprocess.PIPE
+                                 creationflags=subprocess.CREATE_NO_WINDOW,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE
                                  )
-                self.currentProcess=p
+                self.currentProcess=p 
+                self.nbsr = NBSR(p.stdout)
+                self.startReadTimer() 
             else:
                 p=None
                 if not CONSOLE_WINDOW:
@@ -1465,96 +1632,15 @@ class ProjectTree(QWidget, ComponentMixin):
                 return
             if(saveProject):
                 self.nodeAction_SaveProject(False)
+
            
-            # self._postFilter=PostFilter() #重置后处理筛选对象
-            # self._postData=PostData()
-
-            # self.nodeAction_InitResults()
-            if(not hasattr(self.currentProject,"exeName")):#之前的工程，保持兼容
-                frm=frmSimSelect(self)
-                frm.move(self.topLeffPoint())
-                frm.show()
-                frm.sigApplySimExe.connect(self.sig_run_sim_exe)
-            else:
-                exeName=self.currentProject.exeName
-                self.sig_run_sim_exe(exeName)
-            return
-
-
-            exeName="thermal.exe"
-            pf=self._pf
-            calTypeList=[0,0,0,0]
-            if(pf.em.used):
-                calTypeList[0]=1
-            if(pf.circuit.used):
-                calTypeList[1]=1
-            if(pf.thermal.used):
-                calTypeList[2]=1
-            if(pf.struct.used):
-                calTypeList[3]=1
-            if(calTypeList[0]==0 and calTypeList[1]==0 and calTypeList[2]==1 and calTypeList[3]==0):
-                exeName="thermal.exe"
-            elif(calTypeList[0]==0 and calTypeList[1]==0 and calTypeList[2]==0 and calTypeList[3]==1):
-                exeName="Mechanical.exe"
-            elif(calTypeList[0]==1 and calTypeList[1]==1 and calTypeList[2]==0 and calTypeList[3]==0):
-                
-                exeName="EM.exe"
-                # else:
-                #     exeName=f"mpiexec -localonly {self.currentProject.mpiNum} EM.exe"
-            elif(calTypeList[0]==1 and calTypeList[1]==1 and calTypeList[2]==1 and calTypeList[3]==0):
-                exeName="EM_Thermal.exe"
-            elif(calTypeList[0]==0 and calTypeList[1]==0 and calTypeList[2]==1 and calTypeList[3]==1):
-                exeName="Thermal_Mechanical.exe"
-            elif(calTypeList[0]==1 and calTypeList[1]==1 and calTypeList[2]==0 and calTypeList[3]==1):
-                exeName="EM_Mechanical.exe"
-            elif(calTypeList[0]==1 and calTypeList[1]==1 and calTypeList[2]==1 and calTypeList[3]==1):
-                exeName="EM_Thermal_Mechanical.exe"
-            else:
-                QtWidgets.QMessageBox.about(self,"求解计算","不支持的计算类型             ")
-                return
-
-            sourceSolverFile=self._dir+"\\"+exeName
-
-            # sourceSolverFile="D:\\Program Files\\Axure\Axure RP 8\\AxureRP8.exe"
-            # sourceSolverFile="C:/Windows/System32/notepad.exe"
-            if(not os.path.exists(sourceSolverFile)):
-                QtWidgets.QMessageBox.about(self,"求解计算","算法模块不存在，请检查文件:\n"+sourceSolverFile)
-                return
-            exe_dir = os.path.dirname(sourceSolverFile)
-   
-
-            cmd=[
-                sourceSolverFile
-            ]
-            self.console.clear()
-            if(self.currentProject.mpiNum>1 and exeName=="EM.exe"):
-                cmd=f"mpiexec -localonly {self.currentProject.mpiNum} EM.exe"
-               
-                # subprocess.Popen(['powershell', '-Command', f'Start-Process "{exeName}" -Verb runAs'])
-
-                # cmd=[exeName]
-                p = subprocess.Popen(cmd,
-                                 cwd=exe_dir, 
-                                 creationflags=subprocess.CREATE_NEW_CONSOLE,
-                                #  stdout=subprocess.PIPE,
-                                #  stderr=subprocess.PIPE
-                                 )
-                self.currentProcess=p
-            else:
-                p = subprocess.Popen(cmd,
-                                    cwd=exe_dir, 
-                                    stdout=subprocess.PIPE,
-                                    creationflags = subprocess.CREATE_NO_WINDOW,
-                                    stderr=subprocess.PIPE
-                                 )
-                self.currentProcess=p 
-                self.nbsr = NBSR(p.stdout)
-                self.startReadTimer() 
-          
+            exeName="DGTD.exe"
+            if(self._solver==SOLVER_FEM_DGTD):
+                exeName="FEM-DGTD.exe"
+            self.sig_run_sim_exe(exeName)
             
-         
-            
-            # encoding=Project.solverEncoding
+
+        
                
             
         except Exception as e:
@@ -1598,31 +1684,40 @@ class ProjectTree(QWidget, ComponentMixin):
         
 
             QtWidgets.QApplication.processEvents()  
-        return
+    
 
         #读取进度文件
+
+        try:
         
-        self.parent.log_clear()
-        rate="0"
-        endIndex=0
-        if(os.path.exists(self.currentProject.getLogRateFileName())):
-            rLogs=api_reader.readText(self.currentProject.getLogRateFileName())
-            for i in range(len(rLogs)):
-                r=rLogs[i].strip()
-                if(len(r)<1):
-                    continue
+            self.parent.log_clear()
+            rate="0"
+            endIndex=0
             
-                if(r.startswith("<!--End_Process Rate")):
-                    rate=rLogs[i-1].strip()
-                    endIndex=i
-            
-            res_rate="计算进度:{0}%".format(rate)
-            self._pLogger.info(res_rate)
-            outList=rLogs[endIndex+1:]
-            for r in outList:
-                if(len(r.strip())<1):
-                    continue
-                self._pLogger.info(r)
+            if(os.path.exists(self.get_fname_log_rate())):
+                rLogs=api_reader.readText(self.get_fname_log_rate())
+                for i in range(len(rLogs)):
+                    r=rLogs[i].strip()
+                    if(len(r)<1):
+                        continue
+                
+                    if(r.startswith("<!--End_Process Rate")):
+                        rate=rLogs[i-1].strip()
+                        endIndex=i
+                
+                res_rate="计算进度:{0}%".format(rate)
+                self._pLogger.info(res_rate)
+                outList=rLogs[endIndex+1:]
+                for r in outList:
+                    if(len(r.strip())<1):
+                        continue
+                    if(r.strip().startswith("<")):
+                        continue
+                    self._pLogger.info("out:"+r)
+        except Exception as e:
+            print("read log error",e)
+            traceback.print_exc()
+            pass
         
             
             # if("100" in r):
@@ -1642,14 +1737,20 @@ class ProjectTree(QWidget, ComponentMixin):
         return self.currentProject.getSolverPath()+"/input/{0}.geo".format(self.currentProject.name)
     def get_name_model_named(self):
         return self.currentProject.getSolverPath()+"/input/{0}_model_named.stp".format(self.currentProject.name)
+    def get_name_bnd_named(self):
+        return self.currentProject.getSolverPath()+"/input/{0}_bnd_named.stp".format(self.currentProject.name)
     def get_name_pml_named(self):
         return self.currentProject.getSolverPath()+"/input/{0}_pml_named.stp".format(self.currentProject.name)
     def get_name_exf_named(self):
         return self.currentProject.getSolverPath()+"/input/{0}_exf_named.stp".format(self.currentProject.name)
     def get_fname_param(self):
         return self.currentProject.getSolverPath()+"/input/Parameters.txt"
+    def get_fname_param_semi(self):
+        return self.currentProject.getSolverPath()+"/input/Parameters_SEMI.txt"
     def get_fname_medium(self):
         return self.currentProject.getSolverPath()+"/input/Materials.txt"
+    def get_fname_medium_semi(self):
+        return self.currentProject.getSolverPath()+"/input/Materials_SEMI.txt"
     def get_fname_bound(self):
         return self.currentProject.getSolverPath()+"/input/BoundarySource.txt"
     def get_fname_mesh(self):
@@ -1658,6 +1759,8 @@ class ProjectTree(QWidget, ComponentMixin):
         return self.currentProject.getSolverPath()+"/input/Mesh.vtk"
     def get_fname_mesh_msh(self):
         return self.currentProject.getSolverPath()+"/input/Mesh.msh"
+    def get_fname_log_rate(self):
+        return self.currentProject.getSolverPath()+"/output/process_rate and error.txt"
     def get_fname_thermal_3d(self):
         return self.currentProject.getSolverPath()+"/output/res_Temperature_3D.txt"
     def get_fname_thermal_2d(self):
@@ -1670,6 +1773,12 @@ class ProjectTree(QWidget, ComponentMixin):
         return self.currentProject.getSolverPath()+"/output/res_E_3D.txt"
     def get_fname_em_ffr(self):
         return self.currentProject.getSolverPath()+"/output/res_Radiation_Pattern.txt"
+    def get_fname_circuit_load(self):
+        return self.currentProject.getSolverPath()+"/output/res_Load_port_I_V.txt"
+    def get_fname_circuit_source(self):
+        return self.currentProject.getSolverPath()+"/output/res_Soure_port_I_V.txt"
+    def get_fname_model_nodes_length(self):
+        return self.currentProject.getSolverPath()+"/input/Mesh_model_nodes.txt"
     
     # def projectSaveMesh(self):
     #     '''保存mesh文件 mesh/target.mesh and target.stl
@@ -1736,11 +1845,15 @@ class ProjectTree(QWidget, ComponentMixin):
                 if(srcFile!=dstFile):
                     api_project.copyFile(srcFile,dstFile)
         pass
-    
-    def projectSaveParam(self):
+    def projectSaveParam_SEMI(self):
         #保存全局参数文件project.param
-        fname=self.get_fname_param()
-        ffrObj=self.reqFFRRoot.data(0,FFR.objIndex)
+        fname=self.get_fname_param_semi()
+        mediumDic={}
+        mediumIndex=-1
+        if(self.currentModel!=None):
+            mediumDic=self.currentModel.mediumFaces
+            mediumIndex=self.currentModel.medium
+        # ffrObj=self.reqFFRRoot.data(0,FFR.objIndex)
         nfObj=self.reqNFRoot.data(0,NF.objIndex)
         points_nf=[]
         if(nfObj!=None):
@@ -1748,21 +1861,59 @@ class ProjectTree(QWidget, ComponentMixin):
 
         reqObj=RequestParam()
         timeObj=self.reqTimeRoot.data(0,RequestParam.objIndex)
-        domainObj=self.reqDomainRoot.data(0,RequestParam.objIndex)
-        thermalObj=self.reqThermalRoot.data(0,RequestParam.objIndex)
+        # domainObj=self.reqDomainRoot.data(0,RequestParam.objIndex)
+        # thermalObj=self.reqThermalRoot.data(0,RequestParam.objIndex)
         pml_param=(0,0,0,0,0,0,0)
         if(timeObj!=None):
             reqObj.reqTime=timeObj
-        if(domainObj!=None):
-            reqObj.reqDomain=domainObj
-        if(thermalObj!=None):
-            reqObj.reqTemperature=thermalObj
+        # if(domainObj!=None):
+        #     reqObj.reqDomain=domainObj
+        # if(thermalObj!=None):
+        #     reqObj.reqTemperature=thermalObj
         if(self.currentModel!=None and hasattr(self.currentModel,"pml_param")):
             pml_param=self.currentModel.pml_param
 
     
  
-        code,message,data=api_writer.write_param_fem(fname,self._pf,reqObj,points_nf,ffrObj,pml_param)
+        code,message,data=api_writer.write_param_fem_semi(fname,self._pf,reqObj,points_nf,mediumDic,mediumIndex)
+        if(code!=1):
+            QtWidgets.QMessageBox.about(self,"生成求解参数文件",message)
+           
+            self._cLogger.debug("生成求解参数文件失败:"+message)
+            
+        pass
+
+    def projectSaveParam(self):
+        #保存全局参数文件project.param
+        fname=self.get_fname_param()
+        mediumDic={}
+        mediumIndex=-1
+        if(self.currentModel!=None):
+            mediumDic=self.currentModel.mediumFaces
+            mediumIndex=self.currentModel.medium
+        # ffrObj=self.reqFFRRoot.data(0,FFR.objIndex)
+        nfObj=self.reqNFRoot.data(0,NF.objIndex)
+        points_nf=[]
+        if(nfObj!=None):
+            points_nf=self.getPoints_nf(nfObj)
+
+        reqObj=RequestParam()
+        timeObj=self.reqTimeRoot.data(0,RequestParam.objIndex)
+        # domainObj=self.reqDomainRoot.data(0,RequestParam.objIndex)
+        # thermalObj=self.reqThermalRoot.data(0,RequestParam.objIndex)
+        pml_param=(0,0,0,0,0,0,0)
+        if(timeObj!=None):
+            reqObj.reqTime=timeObj
+        # if(domainObj!=None):
+        #     reqObj.reqDomain=domainObj
+        # if(thermalObj!=None):
+        #     reqObj.reqTemperature=thermalObj
+        if(self.currentModel!=None and hasattr(self.currentModel,"pml_param")):
+            pml_param=self.currentModel.pml_param
+
+    
+ 
+        code,message,data=api_writer.write_param_fem_dgtd(fname,self._pf,reqObj,points_nf,mediumDic,mediumIndex)
         if(code!=1):
             QtWidgets.QMessageBox.about(self,"生成求解参数文件",message)
            
@@ -1796,6 +1947,11 @@ class ProjectTree(QWidget, ComponentMixin):
                 points=api_model.local_global_points(center,normal,angel,points)
             return points
         return []
+        pass
+    def projectSaveMedia_SEMI(self):
+        fname=self.get_fname_medium_semi()
+        mediaList=self._mediaList
+        code,message,_=api_writer.write_mediaLibrary_SEMI(fname,mediaList)
         pass
     def projectSaveMedia(self):
         '''
@@ -1889,10 +2045,10 @@ class ProjectTree(QWidget, ComponentMixin):
         pObj.modelColor=self._modelColor
         pObj.pf=self._pf
         pObj.requestParam.reqTime=self.reqTimeRoot.data(0,RequestParam.objIndex)
-        pObj.requestParam.reqDomain=self.reqDomainRoot.data(0,RequestParam.objIndex)
-        pObj.requestParam.reqTemperature=self.reqThermalRoot.data(0,RequestParam.objIndex)
+        # pObj.requestParam.reqDomain=self.reqDomainRoot.data(0,RequestParam.objIndex)
+        # pObj.requestParam.reqTemperature=self.reqThermalRoot.data(0,RequestParam.objIndex)
         pObj.nfList.append(self.reqNFRoot.data(0,NF.objIndex))
-        pObj.ffrList.append(self.reqFFRRoot.data(0,FFR.objIndex))
+        # pObj.ffrList.append(self.reqFFRRoot.data(0,FFR.objIndex))
         pObj.exeName=self.currentProject.exeName
         pObj.pfName=self.currentProject.pfName
         
@@ -1969,28 +2125,36 @@ class ProjectTree(QWidget, ComponentMixin):
          
             
             self.sig_createProject(pObj.name)
+            self._pf.em.used=True
+            self._pf.circuit.used=True
+            self._pf.thermal.used=True
+            self._pf.struct.used=True
             if(self._pf.em.used):
-                self.nodeAction_AddEM()
+                # self.nodeAction_AddEM()
                 self.initFaces_pec()
             if(self._pf.circuit.used):
-                self.nodeAction_AddCircuit()
+                # self.nodeAction_AddCircuit()
                 self.initFaces_circuit_source()
                 self.initFaces_circle_load()
             if(self._pf.thermal.used):
-                self.nodeAction_AddThermal()
-                self.initFaces_thermal_dirichlet()
+                # self.nodeAction_AddThermal()
+                # self.initFaces_thermal_dirichlet()
                 self.initFaces_thermal_convection()
-                self.initFaces_thermal_radiation()
+                # self.initFaces_thermal_radiation()
                 self.initSolids_thermal_source()
             if(self._pf.struct.used):
-                self.nodeAction_AddStruct()
+                # self.nodeAction_AddStruct()
                 self.initFaces_struct_dirichlet()
                 self.initFaces_struct_force()
+            self.initFaces_sbound_gate()
+            self.initFaces_sbound_metal()
+            self.initItems_dopping_analysis()
+            self.initItems_dopping_gauss()
             self.reqTimeRoot.setData(0,RequestParam.objIndex,pObj.requestParam.reqTime)
-            self.reqDomainRoot.setData(0,RequestParam.objIndex,pObj.requestParam.reqDomain)
-            self.reqThermalRoot.setData(0,RequestParam.objIndex,pObj.requestParam.reqTemperature)
+            # self.reqDomainRoot.setData(0,RequestParam.objIndex,pObj.requestParam.reqDomain)
+            # self.reqThermalRoot.setData(0,RequestParam.objIndex,pObj.requestParam.reqTemperature)
             self.reqNFRoot.setData(0,NF.objIndex,pObj.nfList[0])
-            self.reqFFRRoot.setData(0,FFR.objIndex,pObj.ffrList[0])
+            # self.reqFFRRoot.setData(0,FFR.objIndex,pObj.ffrList[0])
             QtWidgets.QApplication.processEvents()
    
           
@@ -2008,12 +2172,12 @@ class ProjectTree(QWidget, ComponentMixin):
             #     pass
 
             if(pObj.currentModel!=None):
-                self._logger.info("加载模型:{0}...".format(pObj.currentModel.fileName))
+                self._logger.info("Model:{0}...".format(pObj.currentModel.fileName))
                 self.console.print_text(" ")
                 QtWidgets.QApplication.processEvents()
                 fname,shape,shapeList,aisShapeList=api_model.openModelWithFile(pObj.currentModel.fileName,
                                                                                              self.modelViewer)
-                self._logger.info("加载模型完成.")
+                # self._logger.info(".")
                 self.currentModel.shape=shape
                 self.currentModel.shapeList=shapeList
                 self.currentModel.aisShapeList=aisShapeList
@@ -2154,7 +2318,7 @@ class ProjectTree(QWidget, ComponentMixin):
 
         try:
             base_path=self.currentProject.getSolverPath()
-            api_writer.write_project_path(self._dir+"/dir.txt",base_path)
+            api_writer.write_project_path(self._dir+"/Core/DGTD/dir.txt",base_path)
 
             projectName=self.root.text(0)
             fname=self.currentProject.fpath+"/"+projectName+".femx"
@@ -2178,9 +2342,14 @@ class ProjectTree(QWidget, ComponentMixin):
                 os.makedirs(output_path)
             
             self.projectSaveParam() #求解设置参数
-            self.projectSaveBound() #边界条件
+            
+            # self.projectSaveBound() #边界条件
             self.projectSaveMedia()
+            
             self.projectSaveModel()
+            if(self._solver==SOLVER_SEMI):
+                self.projectSaveParam_SEMI() #半导体参数
+                self.projectSaveMedia_SEMI()
             # self.projectSaveGeo()
             # self.projectSaveAntenna()
             # self.nodeAction_InitResults()
@@ -3123,7 +3292,7 @@ class ProjectTree(QWidget, ComponentMixin):
     def nodeAction_ImportModel(self,reOpen:bool=False):
         
 
-        EXTENSIONS = "STP files(*.stp , *.step);;*.iges, *.igs;;*.stl"
+        EXTENSIONS = "STP files(*.stp , *.step);;*.iges;;*.stl"
         curr_dir = Path('').abspath().dirname()
         fname = get_open_filename(EXTENSIONS, curr_dir)
         if fname == '':
@@ -3180,13 +3349,15 @@ class ProjectTree(QWidget, ComponentMixin):
             # modelObj.faceNum=api_model.get_face_num(shape)
             modelObj.shapeList=shapeList
             modelObj.aisShapeList=aisShapeList
-            self.initSolids(len(shapeList))
+            
             # self.initFaces(modelObj.faceNum)
             self._selectContext.setOpacity(modelObj.opacity)
 
             self.sig_AddModel(modelObj)
             self.sigActivateTab.emit(0)
             self.currentModel=modelObj
+
+            self.initSolids(len(shapeList))
             if(not self._show_axis_global):
                 api_model.show_axis_global(self.modelViewer,5)
                 self._show_axis_global=True
@@ -3344,8 +3515,18 @@ class ProjectTree(QWidget, ComponentMixin):
         if(solidNum<1): return
         for i in range(solidNum):
             #在modelRoot下添加节点
+            typeTips="Solid"
+            if(i<len(self.currentModel.shapeList)):
+                shapeType=self.currentModel.shapeList[i].ShapeType()
+                print("component shapeType",shapeType)
+                if(shapeType==TopAbs_SOLID):
+                    typeTips="Solid"
+                elif(shapeType==TopAbs_SHELL):
+                    typeTips="Shell"
+                elif(shapeType==TopAbs_FACE):
+                    typeTips="Face"
             shapeItem=QTreeWidgetItem(self.componentRoot)
-            shapeItem.setText(0,"Solid{0}".format(i+1))
+            shapeItem.setText(0,typeTips+"{0}".format(i+1))
             shapeItem.setData(0,self.actionIndex,self.actionsSolidItem)
             shapeItem.setData(0,Model.objIndex,i)
             shapeItem.setIcon(0,treeIcons.gdtd_component_item)
@@ -3399,7 +3580,7 @@ class ProjectTree(QWidget, ComponentMixin):
         fname,_ = QtWidgets.QFileDialog.getSaveFileName(filter=Model.exportExtension)
 
         if fname != '':
-            code,message=api_model.exportModel(self.currentModel.shape,fname,True)
+            code,message=api_model.exportModel(self.currentModel.shape,fname)
             QtWidgets.QMessageBox.about(self, "Model export", message)
             
         pass
@@ -3902,6 +4083,7 @@ class ProjectTree(QWidget, ComponentMixin):
             
         pass
     def nodeAction_faceClicked(self):
+        self._selectContext.clearSolidSelected()
    
         currentItem=self.tree.currentItem()
         currentText=currentItem.text(0)
@@ -4296,24 +4478,25 @@ class ProjectTree(QWidget, ComponentMixin):
     def getFaceBound(self):
         #获取面的边界设置，用于生成网格，
         faceDic={}
-        if(self._pf.em.used):
-            for k in self._pf.em.em_pec_dic.keys():
-                faceDic[k]=True 
-        if(self._pf.circuit.used):
-            for k in self._pf.circuit.circuit_load_dic.keys():
-                faceDic[k]=True
-            for k in self._pf.circuit.circuit_source_dic.keys():
-                faceDic[k]=True
-        if(self._pf.thermal.used):
-            for k in self._pf.thermal.thermal_convection_dic.keys():
-                faceDic[k]=True
-            for k in self._pf.thermal.thermal_radiation_dic.keys():
-                faceDic[k]=True
-            for k in self._pf.thermal.thermal_dirichlet_dic.keys():
-                faceDic[k]=True
-        if(self._pf.struct.used):
-            for k in self._pf.struct.struct_dirichlet_dic.keys():
-                faceDic[k]=True
+       
+        for k in self._pf.em.em_pec_dic.keys():
+            faceDic[k]="PEC" 
+    
+        for k in self._pf.circuit.circuit_source_dic.keys():
+            faceDic[k]="Source"
+        for k in self._pf.circuit.circuit_load_dic.keys():
+            faceDic[k]="Load"
+        
+    
+        for k in self._pf.thermal.thermal_convection_dic.keys():
+            faceDic[k]=True
+        for k in self._pf.thermal.thermal_radiation_dic.keys():
+            faceDic[k]=True
+        for k in self._pf.thermal.thermal_dirichlet_dic.keys():
+            faceDic[k]=True
+    
+        for k in self._pf.struct.struct_dirichlet_dic.keys():
+            faceDic[k]="Struct"
         return faceDic
     def getBodyMaterial(self):
         t=self.currentModel.mediumFaces
@@ -4377,7 +4560,7 @@ class ProjectTree(QWidget, ComponentMixin):
         QtWidgets.QApplication.processEvents()
         # QtWidgets.QMessageBox.about(self,"Mesh","并行生成完成")
         srcFile=_dir+f"/EMProcMesh.txt.epart.{self.currentProject.mpiNum}"
-        destFile=f"{self.get_input_path()}/EMProc.txt"
+        destFile=f"{self.get_input_path()}/parallel.txt"
         if(os.path.exists(srcFile)):
             api_project.copyFile(srcFile,destFile)
         else:
@@ -4389,6 +4572,7 @@ class ProjectTree(QWidget, ComponentMixin):
             
             sourceSolverFile=_dir+"/xmesh.exe"
             # sourceSolverFile=_dir+"/bin/xmesh.exe"
+            print("mesh exe",sourceSolverFile)
             
             
             if(not os.path.exists(sourceSolverFile)):
@@ -4456,8 +4640,31 @@ class ProjectTree(QWidget, ComponentMixin):
             return
         self.currentMesh.options=options
         faceDic=self.getFaceBound()
-        bodyDic=self.currentModel.mediumFaces #体编号，材料编号
+        faceShapeList=[]
+        face_bnd={}
+        for k in faceDic.keys():
+            f=self._selectContext.getFaceById(k)
+            if(f!=None):
+                faceShapeList.append(f)
+                faceInfo=api_model.get_face_center_area(f)
+                face_bnd[k]=faceInfo
+                face_bnd[k]["bndType"]=faceDic[k]
+                face_bnd[k]["faceId"]=k
+                if(faceDic[k]=="PEC"):
+                    face_bnd[k]["bndId"]=1
+                elif(faceDic[k]=="Source"):
+                    face_bnd[k]["bndId"]=2
+                elif(faceDic[k]=="Load"):
+                    face_bnd[k]["bndId"]=3
+                elif(faceDic[k]=="Struct"):
+                    face_bnd[k]["bndId"]=999
+            else:
+                print("face not found",k)
+            
 
+            
+        bodyDic=self.currentModel.mediumFaces #体编号，材料编号
+        
         fNameList=[]
         #将bodydic的value值+1 材料索引编号
         bodyDicN={}
@@ -4469,6 +4676,10 @@ class ProjectTree(QWidget, ComponentMixin):
         # fragShape=api_model.fragment_shape(self.currentModel.shapeList)
         api_model.exportModel([self.currentModel.shape],fName_model,(faceDic,bodyDicN))
         fNameList.append(fName_model)
+        if(len(faceShapeList)>0):
+            fname_bnd_faces=self.get_name_bnd_named()
+            api_model.exportModel(faceShapeList,fname_bnd_faces,({},{}))
+            fNameList.append(fname_bnd_faces)
         #pml固定材料，0-7 8个角，10015 12条棱 10011 10013 10014
         pml_bodyDic={
             4:10015,
@@ -4504,15 +4715,15 @@ class ProjectTree(QWidget, ComponentMixin):
         for k,v in pml_bodyDic.items():
             pml_bodyDicN[kIndex]=v
             kIndex=kIndex+1
-        if(self._pf.em.used):
-            if(len(self.currentModel.shapeList_exf)>0):
-                fName_exf=self.get_name_exf_named()
-                api_model.exportModel(self.currentModel.shapeList_exf,fName_exf,({},{0:10007,1:10008}))
-                fNameList.append(fName_exf)
-            if(len(self.currentModel.shapeList_pml)>0):
-                fName_pml=self.get_name_pml_named()
-                api_model.exportModel(self.currentModel.shapeList_pml,fName_pml,({},pml_bodyDicN))
-                fNameList.append(fName_pml)
+        
+        if(len(self.currentModel.shapeList_exf)>0):
+            fName_exf=self.get_name_exf_named()
+            api_model.exportModel(self.currentModel.shapeList_exf,fName_exf,({},{0:10007,1:10008}))
+            fNameList.append(fName_exf)
+        if(len(self.currentModel.shapeList_pml)>0):
+            fName_pml=self.get_name_pml_named()
+            api_model.exportModel(self.currentModel.shapeList_pml,fName_pml,({},pml_bodyDicN))
+            fNameList.append(fName_pml)
         
         vtkFileName=self.get_fname_mesh_vtk()
         mshFileName=self.get_fname_mesh_msh()
@@ -4529,7 +4740,8 @@ class ProjectTree(QWidget, ComponentMixin):
                     "mshFileName":mshFileName,
                     "outputFileName":outputFileName,
                     "thermal_struct_used":thermal_struct_used,
-                    "localSize":self.currentMesh.localSize}
+                    "localSize":self.currentMesh.localSize,
+                    "face_bnd":face_bnd}
         str_json=json.dumps(param_json)
         
         self.run_mesh_solver(str_json)
@@ -4602,6 +4814,27 @@ class ProjectTree(QWidget, ComponentMixin):
         pass
     def set_solver(self,solver:str):
         print("set solver",solver)
+        self._solver=solver
+        if(solver==SOLVER_DGTD):
+            #隐藏相关节点
+            self.pfBoundThermalConvectionRoot.setHidden(True)
+            self.pfBoundStructDirichletRoot.setHidden(True)
+            self.pfBoundThermalSourceRoot.setHidden(True)
+            self.resultThermal2DRoot.setHidden(True)
+            self.resultThermal3DRoot.setHidden(True)
+            self.resultDisplacement3DRoot.setHidden(True)
+            pass
+        elif(solver==SOLVER_FEM_DGTD):
+            self.pfBoundThermalConvectionRoot.setHidden(False)
+            self.pfBoundStructDirichletRoot.setHidden(False)
+            self.pfBoundThermalSourceRoot.setHidden(False)
+            self.resultThermal2DRoot.setHidden(False)
+            self.resultThermal3DRoot.setHidden(False)
+            self.resultDisplacement3DRoot.setHidden(False)
+            pass
+        elif(solver==SOLVER_SEMI):
+            pass
+        
         pass
     def nodeAction_ExportMesh(self):
         if self.currentMesh==None:
@@ -4900,9 +5133,9 @@ class ProjectTree(QWidget, ComponentMixin):
     def nodeAction_DeleteEM(self):
         self.pfEMRoot.setHidden(True)
         self.pfBoundEMRoot.setHidden(True)
-        self.reqFFRRoot.setHidden(True)
+        # self.reqFFRRoot.setHidden(True)
         self.resultEMRoot.setHidden(True)
-        self.resultFFRRoot.setHidden(True)
+        # self.resultFFRRoot.setHidden(True)
         self._pf.em.used=False
         pass
     # region 新版本物理场设置
@@ -5000,9 +5233,9 @@ class ProjectTree(QWidget, ComponentMixin):
 
         self.pfEMRoot.setHidden(False)
         self.pfBoundEMRoot.setHidden(False)
-        self.reqFFRRoot.setHidden(False)
+        # self.reqFFRRoot.setHidden(False)
         self.resultEMRoot.setHidden(False)
-        self.resultFFRRoot.setHidden(False)
+        # self.resultFFRRoot.setHidden(False)
         self.tree.setCurrentItem(self.pfEMRoot)
         self._pf.em.used=True
         self.pfEMRoot.setData(0,PF.objIndex,self._pf.em)
@@ -5079,13 +5312,13 @@ class ProjectTree(QWidget, ComponentMixin):
         self.node_clear(nodeRoot)
         for k in face_dic:
             sourceObj:PF_Circuit_Source=face_dic[k]
-            source_type_str="线端口"
-            if(not hasattr(sourceObj,"source_type")):
-                sourceObj.source_type=0
-            if(sourceObj.source_type==1):
-                source_type_str="面端口"
+            source_type_str=""
+            # if(not hasattr(sourceObj,"source_type")):
+            #     sourceObj.source_type=0
+            # if(sourceObj.source_type==1):
+            #     source_type_str="面端口"
             itemNode=QTreeWidgetItem(nodeRoot)
-            itemNode.setText(0,f"Face{k+1}({source_type_str})")
+            itemNode.setText(0,f"Face{k+1}")
             if(sourceObj.source_type==0):
                 itemNode.setIcon(0,treeIcons.gdtd_port_line)
             else:
@@ -5110,20 +5343,22 @@ class ProjectTree(QWidget, ComponentMixin):
         self._pf.circuit.circuit_source_dic[faceId]=sourceObj
         self.initFaces_circuit_source()
         pass
-    def sig_selectFaceCircuitLoad(self,faceId:int,loadValue:float,faceLength:tuple,faceId_old):
+    def sig_selectFaceCircuitLoad(self,faceId:int,loadValue:float,faceLength:tuple,faceId_old,loadType:int):
         if(faceId_old in self._pf.circuit.circuit_load_dic):
             del self._pf.circuit.circuit_load_dic[faceId_old]
-        self._pf.circuit.circuit_load_dic[faceId]=(loadValue,faceLength)
+        self._pf.circuit.circuit_load_dic[faceId]=(loadValue,faceLength,loadType)
         self.initFaces_circle_load()
         pass
     def nodeAction_DeleteCircuit(self):
         self.pfCircuitRoot.setHidden(True)
         self.pfBoundCircuitRoot.setHidden(True)
+        self.resultCircuitRoot.setHidden(True)
         self._pf.circuit.used=False
         pass
     def nodeAction_AddCircuit(self):
         self.pfCircuitRoot.setHidden(False)
         self.pfBoundCircuitRoot.setHidden(False)
+        self.resultCircuitRoot.setHidden(False)
         self.tree.setCurrentItem(self.pfCircuitRoot)
         self._pf.circuit.used=True
         
@@ -5235,7 +5470,7 @@ class ProjectTree(QWidget, ComponentMixin):
     def nodeAction_AddThermal(self):
         self.pfThermalRoot.setHidden(False)
         self.pfBoundThermalRoot.setHidden(False)
-        self.reqThermalRoot.setHidden(False)
+        # self.reqThermalRoot.setHidden(False)
         self.resultThermalRoot.setHidden(False)
         self.tree.setCurrentItem(self.pfThermalRoot)
         self._pf.thermal.used=True
@@ -5248,7 +5483,17 @@ class ProjectTree(QWidget, ComponentMixin):
         frm.sigModify.connect(self.sig_modifyThermal)
         frm.move(self.topLeffPoint())
         frm.show()
-        self.tree.setCurrentItem(self.pfThermalRoot)    
+        self.tree.setCurrentItem(self.pfThermalRoot)  
+    def init_thermal_convection(self,face_dic,nodeRoot:QTreeWidgetItem,actions):  
+        self.node_clear(nodeRoot)
+        nodeRoot.setExpanded(True)
+        for k in face_dic:
+            itemNode=QTreeWidgetItem(nodeRoot)
+            itemNode.setText(0,"对流系数")
+            itemNode.setIcon(0,treeIcons.face)
+            itemNode.setData(0,PF.objIndex,(k,face_dic[k]))
+            itemNode.setData(0,self.actionIndex,actions)
+
 
     def initFaces_thermal_base(self,face_dic,nodeRoot:QTreeWidgetItem,actions):
         self.node_clear(nodeRoot)
@@ -5270,6 +5515,7 @@ class ProjectTree(QWidget, ComponentMixin):
             itemNode.setData(0,PF.objIndex,(k,solid_dic[k]))
             itemNode.setData(0,self.actionIndex,actions)
     def initFaces_thermal_dirichlet(self):
+        return
         self.initFaces_thermal_base(self._pf.thermal.thermal_dirichlet_dic,
                                     self.pfBoundThermalDirichletRoot,
                                     self.actionsPFBoundThermalDirichletItem)
@@ -5323,7 +5569,7 @@ class ProjectTree(QWidget, ComponentMixin):
         pass
 
     def initFaces_thermal_convection(self):
-        self.initFaces_thermal_base(self._pf.thermal.thermal_convection_dic,
+        self.init_thermal_convection(self._pf.thermal.thermal_convection_dic,
                                     self.pfBoundThermalConvectionRoot,
                                     self.actionsPFBoundThermalConvectionItem)
 
@@ -5338,10 +5584,10 @@ class ProjectTree(QWidget, ComponentMixin):
     def nodeAction_AddThermalConvection(self):
         self.closeFormsOpened()
         thermalObj=PF_Thermal_Convection()
-        frm=frmThermalBase(self,thermalObj)
-        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+        frm=frmThermalConvection(self,thermalObj)
+      
         frm.sigSelected.connect(self.sig_selectFaceThermalConvection)
-        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        
         frm.sigClosed.connect(self.sig_clearFaceSelected)
         frm.move(self.topLeffPoint())
         frm.show()
@@ -5362,15 +5608,15 @@ class ProjectTree(QWidget, ComponentMixin):
         self.closeFormsOpened()
         currentItem=self.tree.currentItem()
         k,convectionObj=currentItem.data(0,PF.objIndex)
-        frm=frmThermalBase(self,convectionObj)
-        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+        frm=frmThermalConvection(self,convectionObj)
+       
         frm.sigSelected.connect(self.sig_selectFaceThermalConvection)
-        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+ 
         frm.sigClosed.connect(self.sig_clearFaceSelected)
         frm.move(self.topLeffPoint())
         frm.show()
         self._selectContext.Action_select_face()
-        self._selectContext.initFaceSelected(convectionObj.selectId)
+ 
         self._forms.append(frm) 
         pass
     def initFaces_thermal_radiation(self):
@@ -5522,6 +5768,7 @@ class ProjectTree(QWidget, ComponentMixin):
             itemNode.setData(0,actionIndex,actions)
 
     def initFaces_struct_force(self):
+        return
         face_dic=self._pf.struct.struct_force_dic
         nodeRoot=self.pfBoundStructForceRoot
         actions=self.actionsPFBoundStructForceItem
@@ -5684,8 +5931,10 @@ class ProjectTree(QWidget, ComponentMixin):
     求解设置-方向图节点操作
     '''
     def sig_FFRParamSet(self,ffrObj:FFR):
-        self.reqFFRRoot.setData(0,FFR.objIndex,ffrObj)
+        # self.reqFFRRoot.setData(0,FFR.objIndex,ffrObj)
+        pass
     def nodeAction_FFRProperties(self):
+        return
         currentItem=self.reqFFRRoot
         ffrObj=currentItem.data(0,FFR.objIndex)
         frm=frmRequestFFR(self,1,ffrObj)
@@ -7531,26 +7780,99 @@ class ProjectTree(QWidget, ComponentMixin):
             if(not os.path.exists(fname)):
                 QtWidgets.QMessageBox.about(self,"电场","文件不存在，请检查."+fname)
                 return
-            value_list=api_reader.read_em_2d(fname)
+            fList=api_reader.read_em_2d_fem(fname)
+            value_list=fList[0]
             chart=api_vtk.chart_line(value_list,"Time(S)","E_Total(V/m)",displayPoints=False)
             self._vtkViewer2d.display_chart(chart)
             self.sigActivateTab.emit(3)
         except Exception as e:
+            traceback.print_exc()
             QtWidgets.QMessageBox.about(self,"电场分析","查看电场数据错误:"+str(e))
             return
         pass
+    def get_model_nodes_length(self):
+        len=1000000
+        fname=self.get_fname_model_nodes_length()
+        if(os.path.exists(fname)):
+            try:
+                with open(fname,'r') as f:
+                    line=f.readline()
+                    len=int(line.strip())
+                return len-1
+            except Exception as e:
+                traceback.print_exc()
+                return len
+    def render_em_3d(self,points_list,tet_list,value_list,tetera_num=1000000):
+       
+        points=[]
+        for i in range(len(points_list)):
+            p=points_list[i]
+            points.append((p[0],p[1],p[2],value_list[i]))
+
+        v_min=min(value_list)
+        v_max=max(value_list)
+        
+        actor=api_vtk.em_3d(points_list,tet_list,value_list,tetera_num)
+        # actor,_=api_vtk.points_vertex(points)
+        barActor=api_vtk.scalar_actor(v_min,v_max,"E_Total(V/m)")
+        self._actors_current.clear()
+        self._actors_current.append(actor)
+        self._vtkViewer3d.clear()
+        self._vtkViewer3d.clear_actor_custom()
+        
+        self._vtkViewer3d.display_actor(actor)
+        self._vtkViewer3d.display_actor(barActor)
+        self._vtkViewer3d.reset_camera()
+        # self.sig_setActorOpacity(self.currentModel.opacityMap)
+        
+        self.sigActivateTab.emit(2)
+
+        pass
+    def sig_em_3d_filter(self,timeIndex,tetera_num):
+        try:
+            point_list=self._postData.em_3d.get("point_list")
+            tet_list=self._postData.em_3d.get("tet_list")
+            fList=self._postData.em_3d.get("fList")
+            e_list=fList[timeIndex]
+            self._postData.em_3d["tetera_num"]=tetera_num
+            self.render_em_3d(point_list,tet_list,e_list,tetera_num)
+
+
+            pass
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"电场分析","查看电场数据错误:"+str(e))
     def nodeAction_DisplayEM_3d(self):
         '''
         显示电磁场观察域
         '''
         try:
             self.closeFormsOpened()
+        
+            self.get_fname_displacement_3d
+            
             fname=self.get_fname_em_3d()
             if(not os.path.exists(fname)):
                 QtWidgets.QMessageBox.about(self,"电场","文件不存在，请检查."+fname)
                 return
             
-            points_list,tet_list,e_list=api_reader.read_em_3d(fname)
+            points_list,tet_list,fList,timeList=api_reader.read_em_3d_fem(fname)
+            model_nodes_length=self.get_model_nodes_length()
+            self._postData.em_3d={"point_list":points_list,
+                                 "tet_list":tet_list,
+                                 "fList":fList,
+                                 "timeList":timeList,
+                                 "tetera_num":model_nodes_length}
+            e_list=fList[0]
+            self.render_em_3d(points_list,tet_list,e_list,model_nodes_length)
+
+            frm=frmPostFilter(self,timeList,model_nodes_length)
+            frm.show()
+            frm.move(self.topLeffPoint())
+            frm.sigShowParamFilter.connect(self.sig_em_3d_filter)
+            self._forms.append(frm)
+            return
+
             points=[]
             for i in range(len(points_list)):
                 p=points_list[i]
@@ -7570,11 +7892,57 @@ class ProjectTree(QWidget, ComponentMixin):
             self._vtkViewer3d.display_actor(actor)
             self._vtkViewer3d.display_actor(barActor)
             self._vtkViewer3d.reset_camera()
-            self.sig_setActorOpacity(self.currentModel.opacityMap)
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
             
             self.sigActivateTab.emit(2)
         except Exception as e:
+            traceback.print_exc()
             QtWidgets.QMessageBox.about(self,"电场分析","查看电场数据错误:"+str(e))
+            return
+        pass
+    def nodeAction_DisplayCircuit_load(self):
+        print("显示电路负载")
+        '''
+        显示电路负载曲线，电流、电压
+        '''
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_circuit_load()
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"电路负载","文件不存在，请检查."+fname)
+                return
+            value_list=api_reader.read_circuit_load_2d(fname)
+            v_list=[]
+            for v in value_list:
+                v_list.append((v[0],v[1]))
+
+            chart=api_vtk.chart_line(v_list,"Time(S)","Voltage(V)",displayPoints=False)
+            self._vtkViewer2d.display_chart(chart)
+            self.sigActivateTab.emit(3)
+        except Exception as e:
+            QtWidgets.QMessageBox.about(self,"电路分析","查看负载数据错误:"+str(e))
+            return
+        pass
+    def nodeAction_DisplayCircuit_source(self):
+        print("显示电路源")
+        '''
+        显示电路负载曲线，电流、电压
+        '''
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_circuit_source()
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"电路激励","文件不存在，请检查."+fname)
+                return
+            value_list=api_reader.read_circuit_source_2d(fname)
+            v_list=[]
+            for v in value_list:
+                v_list.append((v[0],v[1]))
+            chart=api_vtk.chart_line(v_list,"Time(S)","E_Total(V/m)",displayPoints=False)
+            self._vtkViewer2d.display_chart(chart)
+            self.sigActivateTab.emit(3)
+        except Exception as e:
+            QtWidgets.QMessageBox.about(self,"电路分析","查看激励数据错误:"+str(e))
             return
         pass
     def nodeAction_display_ffr_db(self):
@@ -7740,6 +8108,42 @@ class ProjectTree(QWidget, ComponentMixin):
         self._2dPolarViewer.render_multi(rList,yName,xAxisIndex,lineName)
   
         pass
+    def render_thermal_3d(self,points_list,tet_list,value_list,tetera_num=1000000):
+        points=[]
+        for i in range(len(points_list)):
+            p=points_list[i]
+            points.append((p[0],p[1],p[2],value_list[i]))
+
+        v_min=min(value_list)
+        v_max=max(value_list)
+        
+        actor=api_vtk.thermal_3d(points_list,tet_list,value_list,tetera_num)
+        # actor,_=api_vtk.points_vertex(points)
+        barActor=api_vtk.scalar_actor(v_min,v_max,"Temperature(K)")
+        self._actors_current.clear()
+        self._actors_current.append(actor)
+        self._vtkViewer3d.clear()
+        self._vtkViewer3d.clear_actor_custom()
+        
+        self._vtkViewer3d.display_actor(actor)
+        self._vtkViewer3d.display_actor(barActor)
+        self._vtkViewer3d.reset_camera()
+        # self.sig_setActorOpacity(self.currentModel.opacityMap)
+        
+        self.sigActivateTab.emit(2)
+    def sig_thermal_3d_filter(self,timeIndex,tetera_num):
+        try:
+            point_list=self._postData.thermal_3d.get("point_list")
+            tet_list=self._postData.thermal_3d.get("tet_list")
+            fList=self._postData.thermal_3d.get("fList")
+            temperature_list=fList[timeIndex]
+            self._postData.thermal_3d["tetera_num"]=tetera_num
+            self.render_thermal_3d(point_list,tet_list,temperature_list,tetera_num)
+            pass
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"热分析","查看温度数据错误:"+str(e))
+
     def nodeAction_DisplayThermal3D(self):
         try:
             self.closeFormsOpened()
@@ -7748,7 +8152,24 @@ class ProjectTree(QWidget, ComponentMixin):
                 QtWidgets.QMessageBox.about(self,"热分析","温度文件不存在，请检查."+fname)
                 return
             
-            points_list,tet_list,temperature_list=api_reader.read_thermal_3d(fname)
+            points_list,tet_list,fList,timeList=api_reader.read_thermal_3d_fem(fname)
+            temperature_list=fList[0] #目前只支持第一个时刻
+            model_nodes_length=self.get_model_nodes_length()
+            self._postData.thermal_3d={"point_list":points_list,
+                                        "tet_list":tet_list,
+                                        "fList":fList,
+                                        "tetera_num":model_nodes_length}
+            
+            self.render_thermal_3d(points_list,tet_list,temperature_list,model_nodes_length)
+
+            frm=frmPostFilter(self,timeList,model_nodes_length)
+            frm.show()
+            frm.move(self.topLeffPoint())
+            frm.sigShowParamFilter.connect(self.sig_thermal_3d_filter)
+            self._forms.append(frm)
+
+
+            return
             points=[]
             for i in range(len(points_list)):
                 p=points_list[i]
@@ -7768,10 +8189,11 @@ class ProjectTree(QWidget, ComponentMixin):
             self._vtkViewer3d.display_actor(actor)
             self._vtkViewer3d.display_actor(barActor)
             self._vtkViewer3d.reset_camera()
-            self.sig_setActorOpacity(self.currentModel.opacityMap)
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
             
             self.sigActivateTab.emit(2)
         except Exception as e:
+            traceback.print_exc()
             QtWidgets.QMessageBox.about(self,"热分析","查看温度数据错误:"+str(e))
             return
 
@@ -7783,14 +8205,20 @@ class ProjectTree(QWidget, ComponentMixin):
             if(not os.path.exists(fname)):
                 QtWidgets.QMessageBox.about(self,"热分析","温度文件不存在，请检查."+fname)
                 return
-            temperature_list=api_reader.read_thermal_2d(fname)
+            fList=api_reader.read_thermal_2d_fem(fname)
+            temperature_list=fList[0]
             chart=api_vtk.chart_line(temperature_list,"Time(S)","Temperature(K)",displayPoints=False)
             self._vtkViewer2d.display_chart(chart)
             self.sigActivateTab.emit(3)
         except Exception as e:
             QtWidgets.QMessageBox.about(self,"热分析","查看温度数据错误:"+str(e))
             return
-    def sig_displace_showParam(self,showModel,showActor):
+    def sig_displace_showParam(self,showModel,showActor,tetera_num):
+        point_list=self._postData.displacement_3d["point_list"]
+        tet_list=self._postData.displacement_3d["tet_list"]
+        displacement_list=self._postData.displacement_3d["value_list"]
+        self._postData.displacement_3d["tetera_num"]=tetera_num
+        self.render_displacement_3d(point_list,tet_list,displacement_list,tetera_num)
         if(self._stl_actor!=None):
             self._vtkViewer3d.remove_actor(self._stl_actor) 
             if(showModel):
@@ -7799,15 +8227,40 @@ class ProjectTree(QWidget, ComponentMixin):
             self._vtkViewer3d.remove_actor(self._displace_actor)
             if(showActor):
                 self._vtkViewer3d.display_actor(self._displace_actor)
+    def render_displacement_3d(self,points_list,tet_list,displacement_list,tetera_num=1000000):
+        points=[]
+        for i in range(len(points_list)):
+            p=points_list[i]
+            points.append((p[0],p[1],p[2],displacement_list[i]))
+
+        v_min=min(displacement_list)
+        v_max=max(displacement_list)
+    
+        actor=api_vtk.displacement_3d_fem(points_list,tet_list,displacement_list,tetera_num)
+        stl_actor=api_vtk.stl_model(self.currentModel.geoFile,opacity=0.5)
+        # actor,_=api_vtk.points_vertex(points)
+        barActor=api_vtk.scalar_actor(v_min,v_max,"Disp(m)",dotPrecision=6)
+        self._actors_current.clear()
+        self._actors_current.append(actor)
+        
+        self._vtkViewer3d.clear()
+        self._vtkViewer3d.clear_actor_custom()
+        self._vtkViewer3d.display_actor(actor)
+        self._vtkViewer3d.display_actor(stl_actor)
+        self._vtkViewer3d.display_actor(barActor)
+        self._vtkViewer3d.reset_camera()
+        self._stl_actor=stl_actor
+        self._displace_actor=actor
+        # self.sig_setActorOpacity(self.currentModel.opacityMap)
+
+    
+        self.sigActivateTab.emit(2)
+
             
     def nodeAction_DisplayDisplacement3D(self):
         try:
             self.closeFormsOpened()
-            frm=frmPostParam(self)
-            frm.show()
-            frm.move(self.topLeffPoint())
-            frm.sigShowParam.connect(self.sig_displace_showParam)
-            self._forms.append(frm)
+            
             
             
             
@@ -7817,15 +8270,27 @@ class ProjectTree(QWidget, ComponentMixin):
                 return
             
             points_list,tet_list,displacement_list=api_reader.read_displacement_3d(fname)
+            model_nodes_length=self.get_model_nodes_length()
+            self._postData.displacement_3d={"point_list":points_list,
+                                            "tet_list":tet_list,
+                                            "value_list":displacement_list,
+                                            "tetera_num":model_nodes_length}
+            self.render_displacement_3d(points_list,tet_list,displacement_list,model_nodes_length)
+            frm=frmPostParam(self,model_nodes_length)
+            frm.show()
+            frm.move(self.topLeffPoint())
+            frm.sigShowParam.connect(self.sig_displace_showParam)
+            self._forms.append(frm)
+            return
             points=[]
             for i in range(len(points_list)):
                 p=points_list[i]
-                points.append((p[0],p[1],p[2],displacement_list[i][3]))
+                points.append((p[0],p[1],p[2],displacement_list[i]))
 
-            v_min=min(item[3] for item in displacement_list)
-            v_max=max(item[3] for item in displacement_list)
+            v_min=min(displacement_list)
+            v_max=max(displacement_list)
        
-            actor=api_vtk.displacement_3d(points_list,tet_list,displacement_list)
+            actor=api_vtk.displacement_3d_fem(points_list,tet_list,displacement_list)
             stl_actor=api_vtk.stl_model(self.currentModel.geoFile,opacity=0.5)
             # actor,_=api_vtk.points_vertex(points)
             barActor=api_vtk.scalar_actor(v_min,v_max,"Disp(m)",dotPrecision=6)
@@ -7840,7 +8305,7 @@ class ProjectTree(QWidget, ComponentMixin):
             self._vtkViewer3d.reset_camera()
             self._stl_actor=stl_actor
             self._displace_actor=actor
-            self.sig_setActorOpacity(self.currentModel.opacityMap)
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
         
             self.sigActivateTab.emit(2)
 
@@ -7934,6 +8399,274 @@ class ProjectTree(QWidget, ComponentMixin):
         self._context_menu.exec_(self.tree.viewport().mapToGlobal(position))
         
 
+    def nodeAction_PlaneWaveSettings(self):
+        if(not hasattr(self._pf,"plane_wave")):
+            self._pf.plane_wave=PF_Plane_Wave()
+        frm=frmPlaneWave(self,self._pf.plane_wave)
+        frm.show()
+        frm.move(self.topLeffPoint())
+        frm.sigApplyPlaneWave.connect(self.sig_applyPlaneWaveSettings)
+        pass
+    def sig_applyPlaneWaveSettings(self,waveObj):
+        self._pf.plane_wave=waveObj
+
+    def nodeAction_ETimesSettings(self):
+        if(not hasattr(self._pf,"e_times")):
+            self._pf.e_times=PF_E_Times()
+        frm=frmETimes(self,self._pf.e_times)
+        frm.show()
+        frm.move(self.topLeffPoint())
+        frm.sigApplyETimes.connect(self.sig_applyETimesSettings)
+      
+        pass
+    def sig_applyETimesSettings(self,eTimesObj):
+        self._pf.e_times=eTimesObj
+
+    #region sboundary
+    
+    def initFaces_sbound_metal(self):
+        face_dic=self._pf.sbound.metal_contact_dic
+        nodeRoot=self.pfBoundSContact
+        actions=self.actionsPFBoundSContactItem
+        actionIndex=self.actionIndex
+        self.node_clear(nodeRoot)
+        for k in face_dic:
+            itemNode=QTreeWidgetItem(nodeRoot)
+            itemNode.setText(0,"Face"+str(k+1))
+            itemNode.setIcon(0,treeIcons.face)
+            itemNode.setData(0,PF.objIndex,(k,face_dic[k]))
+            itemNode.setData(0,actionIndex,actions)
+    def nodeAction_AddSBoundMetal(self):
+        self.closeFormsOpened()
+        frm=frmSBoundMetal(self)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+
+        frm.sigApplySBoundMetal.connect(self.sig_apply_sbound_metal)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._forms.append(frm) 
+        pass
+  
+    def nodeAction_ModifySBoundMetalItem(self):
+        self.closeFormsOpened()
+        currentItem=self.tree.currentItem()
+        k,boundObj=currentItem.data(0,PF.objIndex)
+        frm=frmSBoundMetal(self,boundObj)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+     
+        frm.sigApplySBoundMetal.connect(self.sig_apply_sbound_metal)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._selectContext.initFaceSelected(k)
+        self._forms.append(frm)
+        pass
+    def sig_apply_sbound_metal(self,boundObj:PF_SBound_Metal_Contact,faceId_old):
+        if(not hasattr(self._pf,"sbound")):
+            self._pf.sbound=PF_SBound()
+        if(faceId_old>=0 and faceId_old!=boundObj.faceId):#修改了面
+            #删除旧的节点
+            self._pf.sbound.metal_contact_dic.pop(faceId_old)
+        self._pf.sbound.metal_contact_dic[boundObj.faceId]=boundObj
+        self.initFaces_sbound_metal()
+
+
+    def nodeAction_DeleteSBoundMetalItem(self):
+        currentItem=self.tree.currentItem()
+        k,_=currentItem.data(0,PF.objIndex)
+        del self._pf.sbound.metal_contact_dic[k]
+        self.pfBoundSContact.removeChild(currentItem)
+
+
+    def initFaces_sbound_gate(self):
+        face_dic=self._pf.sbound.insulate_gate_dic
+        nodeRoot=self.pfBoundSGate
+        actions=self.actionsPFBoundSGateItem
+        actionIndex=self.actionIndex
+        self.node_clear(nodeRoot)
+        for k in face_dic:
+            itemNode=QTreeWidgetItem(nodeRoot)
+            itemNode.setText(0,"Face"+str(k+1))
+            itemNode.setIcon(0,treeIcons.face)
+            itemNode.setData(0,PF.objIndex,(k,face_dic[k]))
+            itemNode.setData(0,actionIndex,actions)
+    def nodeAction_AddSBoundGate(self):
+        self.closeFormsOpened()
+        frm=frmSBoundGate(self)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+
+        frm.sigApplySBoundGate.connect(self.sig_apply_sbound_gate)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._forms.append(frm) 
+        pass
+  
+    def nodeAction_ModifySBoundGateItem(self):
+        self.closeFormsOpened()
+        currentItem=self.tree.currentItem()
+        k,boundObj=currentItem.data(0,PF.objIndex)
+        frm=frmSBoundGate(self,boundObj)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+     
+        frm.sigApplySBoundGate.connect(self.sig_apply_sbound_gate)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._selectContext.initFaceSelected(k)
+        self._forms.append(frm)
+        pass
+    def sig_apply_sbound_gate(self,boundObj:PF_SBound_Insulate_Gate,faceId_old):
+        if(not hasattr(self._pf,"sbound")):
+            self._pf.sbound=PF_SBound()
+        if(faceId_old>=0 and faceId_old!=boundObj.faceId):#修改了面
+            #删除旧的节点
+            self._pf.sbound.metal_contact_dic.pop(faceId_old)
+        self._pf.sbound.insulate_gate_dic[boundObj.faceId]=boundObj
+        self.initFaces_sbound_gate()
+
+
+    def nodeAction_DeleteSBoundGateItem(self):
+        currentItem=self.tree.currentItem()
+        k,_=currentItem.data(0,PF.objIndex)
+        del self._pf.sbound.insulate_gate_dic[k]
+        self.pfBoundSGate.removeChild(currentItem)
+    #endregion
+
+    #region 半导体掺杂 dopping
+    def initItems_dopping_analysis(self):
+        item_dic=self._pf.dopping.dopping_analysis_dic
+        nodeRoot=self.doppingAnalysisRoot
+        actions=self.actionsDoppingAnalysisItem
+        actionIndex=self.actionIndex
+        self.node_clear(nodeRoot)
+        for k in item_dic:
+            itemNode=QTreeWidgetItem(nodeRoot)
+            itemNode.setText(0,"Solid"+str(k+1))
+            itemNode.setIcon(0,treeIcons.face)
+            itemNode.setData(0,PF.objIndex,(k,item_dic[k]))
+            itemNode.setData(0,actionIndex,actions)
+    def nodeAction_AddDoppingAnalysis(self):
+        self.closeFormsOpened()
+        frm=frmDoppingAnalysis(self)
+        # self._selectContext.sigBodyClicked.connect(frm.sig_chooseFace)
+        self._selectContext.sigBodyClicked.connect(frm.sig_chooseSolid)
+
+
+        frm.sigApplyDoppintAnalysis.connect(self.sig_apply_dopping_analysis)
+        frm.sigClosed.connect(self.sig_clearSolidSelected)
+        frm.sigSelectSolid.connect(self.sig_selectSolidMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_body()
+        self._forms.append(frm) 
+        pass
+  
+    def nodeAction_ModifyDoppingAnalysisItem(self):
+        self.closeFormsOpened()
+        currentItem=self.tree.currentItem()
+        k,obj=currentItem.data(0,PF.objIndex)
+        frm=frmDoppingAnalysis(self,obj)
+        self._selectContext.sigBodyClicked.connect(frm.sig_chooseSolid)
+     
+        frm.sigApplyDoppintAnalysis.connect(self.sig_apply_dopping_analysis)
+        frm.sigClosed.connect(self.sig_clearSolidSelected)
+        frm.sigSelectSolid.connect(self.sig_selectSolidMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_body()
+        self._selectContext.initSolidSelected(k)
+        self._forms.append(frm)
+        pass
+    def sig_apply_dopping_analysis(self,obj:PF_Dopping_Analysis,bodyId_old):
+        if(not hasattr(self._pf,"dopping")):
+            self._pf.dopping=PF_Dopping()
+        if(bodyId_old>=0 and bodyId_old!=obj.dopping_bodyId):#修改了面
+            #删除旧的节点
+            self._pf.dopping.dopping_analysis_dic.pop(bodyId_old)
+        self._pf.dopping.dopping_analysis_dic[obj.dopping_bodyId]=obj
+        self.initItems_dopping_analysis()
+
+
+    def nodeAction_DeleteDoppingAnalysisItem(self):
+        currentItem=self.tree.currentItem()
+        k,_=currentItem.data(0,PF.objIndex)
+        del self._pf.dopping.dopping_analysis_dic[k]
+        self.doppingAnalysisRoot.removeChild(currentItem)
+
+
+    def initItems_dopping_gauss(self):
+        item_dic=self._pf.dopping.dopping_gaussian_dic
+        nodeRoot=self.doppingGaussRoot
+        actions=self.actionsDoppingGaussItem
+        actionIndex=self.actionIndex
+        self.node_clear(nodeRoot)
+        for k in item_dic:
+            itemNode=QTreeWidgetItem(nodeRoot)
+            
+            itemText="Face"+str(k+1)
+            itemNode.setText(0,itemText)
+            itemNode.setIcon(0,treeIcons.face)
+            itemNode.setData(0,PF.objIndex,(k,item_dic[k]))
+            itemNode.setData(0,actionIndex,actions)
+    def nodeAction_AddDoppingGauss(self):
+        self.closeFormsOpened()
+        frm=frmDoppingGauss(self)
+        # self._selectContext.sigBodyClicked.connect(frm.sig_chooseFace)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+
+
+        frm.sigApplyDoppingGauss.connect(self.sig_apply_dopping_gauss)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._forms.append(frm) 
+        pass
+  
+    def nodeAction_ModifyDoppingGaussItem(self):
+        self.closeFormsOpened()
+        currentItem=self.tree.currentItem()
+        k,obj=currentItem.data(0,PF.objIndex)
+        frm=frmDoppingGauss(self,obj)
+        self._selectContext.sigFaceClicked.connect(frm.sig_chooseFace)
+     
+        frm.sigApplyDoppingGauss.connect(self.sig_apply_dopping_gauss)
+        frm.sigClosed.connect(self.sig_clearFaceSelected)
+        frm.sigSelectFace.connect(self.sig_selectFaceMaual)
+        frm.move(self.topLeffPoint())
+        frm.show()
+        self._selectContext.Action_select_face()
+        self._selectContext.initFaceSelected(k)
+        self._forms.append(frm)
+        pass
+    def sig_apply_dopping_gauss(self,obj:PF_Dopping_Gaussian,faceId_old):
+        if(not hasattr(self._pf,"dopping")):
+            self._pf.dopping=PF_Dopping()
+        if(faceId_old>=0 and faceId_old!=obj.dopping_faceId):#修改了面
+            #删除旧的节点
+            self._pf.dopping.dopping_gaussian_dic.pop(faceId_old)
+        self._pf.dopping.dopping_gaussian_dic[obj.dopping_faceId]=obj
+        self.initItems_dopping_gauss()
+
+
+    def nodeAction_DeleteDoppingGaussItem(self):
+        currentItem=self.tree.currentItem()
+        k,_=currentItem.data(0,PF.objIndex)
+        del self._pf.dopping.dopping_gaussian_dic[k]
+        self.doppingGaussRoot.removeChild(currentItem)
+
+    #endregion
 
 
 
