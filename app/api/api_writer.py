@@ -726,7 +726,7 @@ def write_mesh(fname:str,nodeList,boundaryList,tetList,model_nodes_length=0):
             f.write(node_begin+newline)
             f.write(str(len(nodeList))+newline)
             for i in range(len(nodeList)):
-                f.write(splitext.join(map(lambda x: f"{x / m_unit:.4f}",nodeList[i]))+newline)
+                f.write(splitext.join(map(lambda x: f"{x / m_unit:.6f}",nodeList[i]))+newline)
             f.write(node_end+newline)
             f.write(newline)
 
@@ -1216,6 +1216,7 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
     c_heat_convection=get_comment("对流换热系数的值")
     c_heat_body_num=get_comment("设置作为热源的材料个数，没有设置热源则输出0，后续相关也不用输出")
     c_heat_body_tip=get_comment("热源材料号，热源（W/m3）")
+    c_v_times=get_comment("用户设置的迭代电势次数")
 
  
     c_solution_time=get_comment("用户设置的总仿真时间和时间步长，单位都是s")
@@ -1286,7 +1287,7 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
                 v:PF_Dopping_Analysis=dopping_analysis_dic[k]
                 f.write("analysis_doping"+splitext+c_semi_dopping_type+newline)
                 f.write(str(v.dopping_bodyId+1)+splitext+c_semi_dopping_body_id+newline)
-                f.write(str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
+                f.write(dopping_type_str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
                 f.write(str(v.dopping_concentration)+splitext+c_semi_dopping_concentration+newline)
                         
                 f.write(newline)
@@ -1296,7 +1297,7 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
                 f.write("gaosi_doping"+splitext+c_semi_dopping_type+newline)
                 f.write(str(v.dopping_bodyId+1)+splitext+c_semi_dopping_body_id+newline)
                 f.write(str(v.dopping_faceId+1)+splitext+c_semi_dopping_face_id+newline)
-                f.write(str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
+                f.write(dopping_type_str(v.dopping_type+1)+splitext+c_semi_dopping_e_type+newline)
                 f.write(str(v.dopping_concentration)+splitext+c_semi_dopping_concentration+newline)
                 f.write(str(v.dopping_depth)+splitext+c_semi_dopping_depth+newline)
                 f.write(newline)
@@ -1355,6 +1356,13 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
                 f.write(c_end_heat+newline)
                 f.write(newline)
             f.write(c_begin_solution+newline)
+            f.write(str(pf.e_times.value)+splitext+c_v_times+newline)
+            v_nf_num=str(len(points))
+            f.write(v_nf_num+splitext+c_solution_nf_num+newline)
+            rowIndex=0
+            for p in points:
+                rowIndex=rowIndex+1
+                f.write(splitext.join(map(str,[p[0],p[1],p[2]]))+splitext+c_solution_nf_row.format(rowIndex)+newline)
             f.write(splitext.join(map(str,[timeObj.timeTotal_g,timeObj.timeStep_g]))+splitext+c_solution_time+newline)
             if(timeObj.timePoints_g!=None):
                 f.write(str(len(timeObj.timePoints_g))+splitext+c_solution_time_points+newline)
@@ -1363,12 +1371,12 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
                 f.write("0"+splitext+c_solution_time_points+newline)
                 f.write("0"+splitext+c_solution_time_points_row+newline)
                 f.write(newline)
-            v_nf_num=str(len(points))
-            f.write(v_nf_num+splitext+c_solution_nf_num+newline)
-            rowIndex=0
-            for p in points:
-                rowIndex=rowIndex+1
-                f.write(splitext.join(map(str,[p[0],p[1],p[2]]))+splitext+c_solution_nf_row.format(rowIndex)+newline)
+            # v_nf_num=str(len(points))
+            # f.write(v_nf_num+splitext+c_solution_nf_num+newline)
+            # rowIndex=0
+            # for p in points:
+            #     rowIndex=rowIndex+1
+            #     f.write(splitext.join(map(str,[p[0],p[1],p[2]]))+splitext+c_solution_nf_row.format(rowIndex)+newline)
             f.write(c_end_solution+newline)
             f.write(newline)
      
@@ -1379,6 +1387,117 @@ def write_param_fem_semi(fname,pf:PF,requestParam:RequestParam,points:list,mediu
         return (1,"success",None)
 
         
+        pass
+    except Exception as e:
+        traceback.print_exc()
+        return (-1,"failed "+str(e),e)
+    pass
+def dopping_type_str(t:int):
+    '''
+    掺杂类型字符串
+    '''
+    if(t==1):
+        return "electronic_doping"
+    elif(t==2):
+        return "hole_doping"
+    return "unknown"
+def write_mesh_semi(fname:str,node_list:list,cell_list_face:dict,cell_list_hex:list):
+    '''
+    输出半导体计算的网格文件
+    '''
+    print("write_mesh_semi:",fname)
+
+    m_unit=1000
+    newline="\n"
+    splitext="\t"
+    c_tips=get_comment("""注意：
+1.需要输出所有注释
+2.一行中的间隔使用制表符
+3.顶点信息、面信息和六面体信息之间各空一行
+4.数据需要转换成米输出
+""")
+    c_node_begin=get_comment("Begin_Node")
+    c_node_end=get_comment("End_Node")
+    c_node_num=get_comment("网格顶点总数")
+    c_node_info=get_comment("X/m  Y/m  Z/m")
+    c_face_begin=get_comment("Begin_Face")
+    c_face_end=get_comment("End_Face")
+    c_cell_num_face=get_comment("边界面对应网格四边形总数")
+    c_face_info=get_comment("面顶点1编号 顶点2编号 顶点3编号 顶点4编号 几何面编号（1、2等）")
+    c_hex_begin=get_comment("Begin_Hex")
+    c_hex_end=get_comment("End_Hex")
+    c_cell_num_hex=get_comment("六面体单元总数")
+    c_hex_info=get_comment("六面体单元编号、材料索引号、所属空间域编号 顶点和棱边中心点编号")
+
+    try:
+        fname_debug=fname.replace(".txt","_debug.txt")
+        with open(fname_debug,"w",encoding="utf-8") as f:
+            f.write(c_node_begin+newline)
+            f.write(str(len(node_list))+splitext+c_node_num+newline)
+            for i in range(len(node_list)):
+                f.write(splitext.join(map(lambda x: f"{x / m_unit:.6f}",node_list[i]))+newline)
+            f.write(c_node_end+newline)
+            f.write(newline)
+
+            f.write(c_face_begin+newline)
+            f.write(str(len(cell_list_face))+splitext+c_cell_num_face+newline)
+            for i in range(len(cell_list_face)):
+                if(i==0):
+                    f.write(splitext.join(map(str,cell_list_face[i]))+splitext+c_face_info+newline)
+                else:
+                    f.write(splitext.join(map(str,cell_list_face[i]))+newline)
+            f.write(c_face_end+newline)
+            f.write(newline)
+
+            f.write(c_hex_begin+newline)
+            f.write(str(len(cell_list_hex))+splitext+c_cell_num_hex+newline)
+     
+            for i in range(len(cell_list_hex)):
+                if(i==0):
+                    f.write(splitext.join(map(str,cell_list_hex[i]))+splitext+c_hex_info+newline)
+                else:
+                    f.write(splitext.join(map(str,cell_list_hex[i]))+newline)
+            f.write(c_hex_end+newline)
+
+         
+
+            for i in range(len(cell_list_hex)):
+                f.write("hex "+str(i+1)+":"+newline)
+                cells_hex=cell_list_hex[i][3:]
+                f.write("x y z:"+newline)
+                for j in range(len(list(cells_hex))):
+                    xyz=node_list[cells_hex[j]-1]
+                    f.write(f"{xyz[0]/m_unit:.6f} {xyz[1]/m_unit:.6f} {xyz[2]/m_unit:.6f}"+newline)
+                f.write(newline)
+                
+
+        with open(fname,"w",encoding="utf-8") as f:
+            f.write(c_node_begin+newline)
+            f.write(str(len(node_list))+splitext+c_node_num+newline)
+            for i in range(len(node_list)):
+                f.write(splitext.join(map(lambda x: f"{x / m_unit:.6f}",node_list[i]))+newline)
+            f.write(c_node_end+newline)
+            f.write(newline)
+
+            f.write(c_face_begin+newline)
+            f.write(str(len(cell_list_face))+splitext+c_cell_num_face+newline)
+            for i in range(len(cell_list_face)):
+                if(i==0):
+                    f.write(splitext.join(map(str,cell_list_face[i]))+splitext+c_face_info+newline)
+                else:
+                    f.write(splitext.join(map(str,cell_list_face[i]))+newline)
+            f.write(c_face_end+newline)
+            f.write(newline)
+
+            f.write(c_hex_begin+newline)
+            f.write(str(len(cell_list_hex))+splitext+c_cell_num_hex+newline)
+     
+            for i in range(len(cell_list_hex)):
+                if(i==0):
+                    f.write(splitext.join(map(str,cell_list_hex[i]))+splitext+c_hex_info+newline)
+                else:
+                    f.write(splitext.join(map(str,cell_list_hex[i]))+newline)
+            f.write(c_hex_end+newline)
         pass
     except Exception as e:
         traceback.print_exc()

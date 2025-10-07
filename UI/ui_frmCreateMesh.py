@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\project\cae\fem-gdtd\src2\UI\frmCreateMesh.ui'
+# Form implementation generated from reading ui file 'd:\project\cae\emx2.0\0.src_dgtd\UI\frmCreateMesh.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -61,6 +61,30 @@ class Ui_frmCreateMesh(object):
         self.txt_size_max.setGeometry(QtCore.QRect(220, 14, 81, 28))
         self.txt_size_max.setObjectName("txt_size_max")
         self.tabWidget.addTab(self.tab, "")
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.txtHex_x = QtWidgets.QLineEdit(self.tab_3)
+        self.txtHex_x.setGeometry(QtCore.QRect(130, 20, 171, 28))
+        self.txtHex_x.setText("")
+        self.txtHex_x.setObjectName("txtHex_x")
+        self.label_4 = QtWidgets.QLabel(self.tab_3)
+        self.label_4.setGeometry(QtCore.QRect(10, 20, 111, 28))
+        self.label_4.setObjectName("label_4")
+        self.label_5 = QtWidgets.QLabel(self.tab_3)
+        self.label_5.setGeometry(QtCore.QRect(10, 60, 111, 28))
+        self.label_5.setObjectName("label_5")
+        self.txtHex_y = QtWidgets.QLineEdit(self.tab_3)
+        self.txtHex_y.setGeometry(QtCore.QRect(130, 60, 171, 28))
+        self.txtHex_y.setText("")
+        self.txtHex_y.setObjectName("txtHex_y")
+        self.txtHex_z = QtWidgets.QLineEdit(self.tab_3)
+        self.txtHex_z.setGeometry(QtCore.QRect(130, 100, 171, 28))
+        self.txtHex_z.setText("")
+        self.txtHex_z.setObjectName("txtHex_z")
+        self.label_6 = QtWidgets.QLabel(self.tab_3)
+        self.label_6.setGeometry(QtCore.QRect(10, 100, 111, 28))
+        self.label_6.setObjectName("label_6")
+        self.tabWidget.addTab(self.tab_3, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.groupBox = QtWidgets.QGroupBox(self.tab_2)
@@ -100,7 +124,11 @@ class Ui_frmCreateMesh(object):
         self.cbx3dAlogrithm.setItemText(0, _translate("frmCreateMesh", "Delaunay "))
         self.cbx3dAlogrithm.setItemText(1, _translate("frmCreateMesh", "Frontal"))
         self.cbx3dAlogrithm.setItemText(2, _translate("frmCreateMesh", "HXT"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("frmCreateMesh", "参数设置"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("frmCreateMesh", "四面体网格"))
+        self.label_4.setText(_translate("frmCreateMesh", "X方向尺寸(m)"))
+        self.label_5.setText(_translate("frmCreateMesh", "Y方向尺寸(m)"))
+        self.label_6.setText(_translate("frmCreateMesh", "Z方向尺寸(m)"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("frmCreateMesh", "六面体网格"))
         self.btnClear.setText(_translate("frmCreateMesh", "移除全部"))
         self.btnRemove.setText(_translate("frmCreateMesh", "移除选中行"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("frmCreateMesh", "局部尺寸"))

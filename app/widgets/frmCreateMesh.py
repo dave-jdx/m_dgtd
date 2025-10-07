@@ -8,7 +8,14 @@ SPEED=3e+8
 class frmCreateMesh(Ui_frmCreateMesh,frmBase):
     sigCreate=QtCore.pyqtSignal(dict)
     sigOptions=QtCore.pyqtSignal(dict)
-    def __init__(self,parent=None,options:dict={"maxh":0.1,"minh":0,"3dAlogrithm":0,"smoothing_steps":1,"optimize_tetrahedra":1},
+    def __init__(self,parent=None,options:dict={"maxh":0.1,
+                                                "minh":0,
+                                                "3dAlogrithm":0,
+                                                "smoothing_steps":1,
+                                                "optimize_tetrahedra":1,
+                                                "hex_x":0.01,
+                                                "hex_y":0.01,
+                                                "hex_z":0.01,},
                  localSize:dict={}):
         self.parent=parent
         super(frmCreateMesh,self).__init__(parent)
@@ -29,12 +36,16 @@ class frmCreateMesh(Ui_frmCreateMesh,frmBase):
         self.txt_smoothind_steps.setText(str(options[Mesh.k_smoothing_steps]))
         self.chk_optimize_tet.setChecked(options[Mesh.k_optimize_tetrahedra])
         self.cbx3dAlogrithm.setCurrentIndex(options[Mesh.k_3dAlogrithm])
+
+        self.txtHex_x.setText(str(options.get("hex_x",0.01)))
+        self.txtHex_y.setText(str(options.get("hex_y",0.01)))
+        self.txtHex_z.setText(str(options.get("hex_z",0.01)))
         
         self.onLoad()
 
     def onLoad(self):
         super().onLoad()
-        self.tabWidget.setTabVisible(1,False)
+        # self.tabWidget.setTabVisible(1,False)
         pass
 
 
@@ -68,6 +79,10 @@ class frmCreateMesh(Ui_frmCreateMesh,frmBase):
         options[Mesh.k_smoothing_steps]=smoothing_steps
         options[Mesh.k_optimize_tetrahedra]=optimize_tetrahedra
         options[Mesh.k_3dAlogrithm]=alogrithm
+
+        options["hex_x"]=float(self.txtHex_x.text())
+        options["hex_y"]=float(self.txtHex_y.text())
+        options["hex_z"]=float(self.txtHex_z.text())
 
         return options
 

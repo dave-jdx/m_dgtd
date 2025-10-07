@@ -149,7 +149,7 @@ mainStyle="""
 """
 
 class MainWindow(QMainWindow, MainMixin):
-    name = '半导体电热力仿真软件V1.0921'
+    name = '半导体电热力仿真软件V1.0929'
     org = 'CSSC'
     _gripSize = 2
     def __init__(self, parent=None, spid=None,projectFile:str=""):
@@ -505,7 +505,7 @@ class MainWindow(QMainWindow, MainMixin):
         # self._titleBar.setStyleSheet(self.themeUI.titleBar)
         self.setWindowState(QtCore.Qt.WindowState.WindowMaximized)
         self.projectTree.sig_createProject()
-        self.projectTree.set_solver("FEM-DGTD")
+        self.projectTree.set_solver("SEMI")
        
     def prepare_actions_home(self):
         self.action_new_project=QAction(icon('new'),'New',self,shortcut="ctrl+N",triggered=self.createProject)
@@ -527,6 +527,16 @@ class MainWindow(QMainWindow, MainMixin):
         # self.savePreferences()
         # self.saveComponentState()
         super(MainWindow, self).closeEvent(event)
+    def set_solver(self,solver:str):
+        if(self.btn_solver==None):
+            return
+        if(solver=="DGTD"):
+            self.btn_solver.setText("电磁")
+        elif(solver=="FEM-DGTD"):
+            self.btn_solver.setText("电热力")
+        elif(solver=="SEMI"):
+            self.btn_solver.setText("半导体")
+        pass
 
     def set_solver_dgtd(self):
         if(self.btn_solver!=None):

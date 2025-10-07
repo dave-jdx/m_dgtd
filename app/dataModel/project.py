@@ -31,6 +31,7 @@ class Project():
         self.fpath:str=self.userDataPath+"/temp"
         self.defaultPath:str=self.userDataPath+"/temp"
         self.name:str="FEM-GDTD-1"
+        self.solver=""
        
 
         self.currentModel:Model=None

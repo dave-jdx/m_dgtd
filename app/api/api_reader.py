@@ -1494,3 +1494,189 @@ def read_txt_chardet(file_path):
 
 
     return  encoding
+def read_semi_3d_values(fname:str,fname_mesh:str=None):
+    
+        
+    m_unit=1000
+    begin_hex=get_comment("Begin_Hex Mesh")
+    end_hex=get_comment("End_Hex Mesh")
+
+    begin_node=get_comment("Begin_Node Coord")
+    end_node=get_comment("End_Node Coord")
+
+    begin_data=get_comment("Begin_Simulation Data")
+    end_data=get_comment("End_Simulation Data")
+
+    begin_node_mesh=get_comment("Begin_Node")
+    end_node_mesh=get_comment("End_Node")
+    inside_node_mesh=False
+
+    points_list_mesh=[]
+    with open(fname_mesh,"r",encoding="utf-8") as file:
+        for line in file:
+            line=line.strip()
+            if(line.startswith(begin_node_mesh)):
+                inside_node_mesh=True
+                continue
+            if(line.startswith(end_node_mesh)):
+                inside_node_mesh=False
+                continue
+            if(inside_node_mesh):
+                #处理节点数据
+                arr=line.split()
+                if(len(arr)>=3):
+                   
+                    x=float(arr[0])*m_unit
+                    y=float(arr[1])*m_unit
+                    z=float(arr[2])*m_unit
+
+                    points_list_mesh.append((round(x,2),round(y,2),round(z,2)))
+            
+    points_list=[]
+    cell_list=[]
+    e_values=[]
+    inside_hex=False
+    inside_node=False
+    inside_data=False
+    hex_id_dic={}
+    point_dic={}
+    with open(fname,"r",encoding="utf-8") as file:
+        for line in file:
+            line=line.strip()
+            if(line.startswith(begin_hex)):
+                inside_hex=True
+                continue
+            if(line.startswith(end_hex)):
+                inside_hex=False
+                continue
+            if(line.startswith(begin_node)):
+                inside_node=True
+                continue
+            if(line.startswith(end_node)):
+                inside_node=False
+                continue
+            if(line.startswith(begin_data)):
+                inside_data=True
+                continue
+            if(line.startswith(end_data)):
+                inside_data=False
+                continue
+            if(inside_hex):
+                #处理六面体网格数据
+                arr=line.split()
+                if(len(arr)>=9):
+                    index=int(arr[0])
+                    v1=int(arr[1])
+                    v2=int(arr[2])
+                    v3=int(arr[3])
+                    v4=int(arr[4])
+                    v5=int(arr[5])
+                    v6=int(arr[6])
+                    v7=int(arr[7])
+                    v8=int(arr[8])
+                    hex_id_dic[v1]=points_list_mesh[v1]
+                    hex_id_dic[v2]=points_list_mesh[v2]
+                    hex_id_dic[v3]=points_list_mesh[v3]
+                    hex_id_dic[v4]=points_list_mesh[v4]
+                    hex_id_dic[v5]=points_list_mesh[v5]
+                    hex_id_dic[v6]=points_list_mesh[v6]
+                    hex_id_dic[v7]=points_list_mesh[v7]
+                    hex_id_dic[v8]=points_list_mesh[v8]
+                    cell_list.append((v1,v2,v3,v4,v5,v6,v7,v8))
+            if(inside_node):
+                #处理节点数据
+                arr=line.split()
+                if(len(arr)>=4):
+                    index=int(arr[0])
+                    x=float(arr[1])*m_unit*m_unit*10
+                    y=float(arr[2])*m_unit*m_unit*10
+                    z=float(arr[3])*m_unit*m_unit*10
+                    points_list.append((x,y,z))
+                    point_dic[(round(x,2),round(y,2),round(z,2))]=index
+            if(inside_data):
+                #处理物理场分析数据
+                arr=line.split()
+                if(len(arr)>=2):
+                    index=int(arr[0])
+                    v=float(arr[1])
+                    e_values.append((v))
+ 
+    cell_list_new=[]
+    for cell in cell_list:
+        v1=cell[0]
+        v2=cell[1]
+        v3=cell[2]
+        v4=cell[3]
+        v5=cell[4]
+        v6=cell[5]
+        v7=cell[6]
+        v8=cell[7]
+        p1=hex_id_dic[v1]
+        p2=hex_id_dic[v2]
+        p3=hex_id_dic[v3]
+        p4=hex_id_dic[v4]
+        p5=hex_id_dic[v5]
+        p6=hex_id_dic[v6]
+        p7=hex_id_dic[v7]
+        p8=hex_id_dic[v8]
+        if(p1 in point_dic and p2 in point_dic and p3 in point_dic and p4 in point_dic and
+            p5 in point_dic and p6 in point_dic and p7 in point_dic and p8 in point_dic):
+            new_v1=point_dic[p1]
+            new_v2=point_dic[p2]
+            new_v3=point_dic[p3]
+            new_v4=point_dic[p4]
+            new_v5=point_dic[p5]
+            new_v6=point_dic[p6]
+            new_v7=point_dic[p7]
+            new_v8=point_dic[p8]
+            cell_list_new.append((new_v1,new_v2,new_v3,new_v4,new_v5,new_v6,new_v7,new_v8))
+    
+    return points_list,cell_list_new,e_values
+def read_semi_points(fname:str):
+    m_unit=1000
+    begin_node=get_comment("Begin_Node Coord")
+    end_node=get_comment("End_Node Coord")
+
+    begin_simulation=get_comment("Begin_Simulation Data")
+    end_simulation=get_comment("End_Simulation Data")
+
+    points_list=[]
+    values_list=[]
+    inside_node=False
+    inside_simulation=False
+
+    with open(fname,"r",encoding="utf-8") as file:
+        for line in file:
+            line=line.strip()
+            if(line.startswith(begin_node)):
+                inside_node=True
+                continue
+            if(line.startswith(end_node)):
+                inside_node=False
+                continue
+            if(line.startswith(begin_simulation)):
+                inside_simulation=True
+                continue
+            if(line.startswith(end_simulation)):
+                inside_simulation=False
+                continue
+            if(inside_node):
+                #处理节点数据
+                arr=line.split()
+                if(len(arr)>=4):
+                    index=int(arr[0])
+                    x=float(arr[1])*m_unit
+                    y=float(arr[2])*m_unit
+                    z=float(arr[3])*m_unit
+                    points_list.append((x,y,z))
+            if(inside_simulation):
+                #处理物理场分析数据
+                arr=line.split()
+                if(len(arr)>=5):
+                    index=int(arr[0])
+                    v1=float(arr[1])
+                    v2=float(arr[2])
+                    v3=float(arr[3])
+                    v4=float(arr[4])
+                    values_list.append((v1,v2,v3,v4))
+    return points_list,values_list

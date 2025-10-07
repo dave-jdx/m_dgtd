@@ -1,5 +1,5 @@
 from typing import List,Set,Dict,Tuple
-import random
+import random,math
 import numpy as np
 from numpy import sin,cos,pi
 from vtkmodules.all import(
@@ -47,7 +47,12 @@ from vtkmodules.all import(
     VTK_TETRA,
     vtkLine,
     vtkUnstructuredGrid,
-    vtkTetra
+    vtkTetra,
+    vtkHexahedron,
+    vtkIdTypeArray,
+    vtkUnsignedCharArray,
+    VTK_HEXAHEDRON
+    
 
     
 )
@@ -588,9 +593,83 @@ def cloud_map_nf(pointList:List[Tuple[float,float,float,float]],numberOfColors=2
     actor.SetScale(1000)
     # actor.GetProperty().SetPointSize(5)
     # actor.GetProperty().SetColor(colors.GetColor3d("Red"))
-    return actor
+    return actor,minV,maxV
 
     pass
+
+# def cloud_map_nf(pointList:List[Tuple[float,float,float,float]],numberOfColors=256):
+#     '''
+#     云图显示显示某个面的云图 (x,y,z,value)-规则排列数据
+#     '''
+#     minV=1e9
+#     maxV=-1e9
+#     #排序
+#     xNum=len(list(set(t[4] for t in pointList)))
+#     yNum=len(list(set(t[5] for t in pointList)))
+#     zNum=len(list(set(t[6] for t in pointList)))
+#     if(zNum==1):#xy面
+#         pointList=sorted(pointList, key=lambda x: x[5])
+#     elif(yNum==1):#xz面
+#         pointList=sorted(pointList, key=lambda x: x[6])
+#     elif(xNum==1):#yz面
+#         pointList=sorted(pointList, key=lambda x: x[6])
+#     for p in pointList:
+#         if(p[3]<minV):
+#             minV=p[3]
+#         if(p[3]>maxV):
+#             maxV=p[3]
+#     points = vtkPoints()
+#     scalarArr = vtkDoubleArray()
+#     pLen=len(pointList)
+#     scalarArr.SetNumberOfValues(pLen)
+#     for i in range(pLen):
+#         p=pointList[i]
+#         points.InsertPoint(i,[p[0],p[1],p[2]])
+#         scalarArr.SetValue(i,p[3])
+
+
+#     polyData=vtkPolyData()
+#     polyData.SetPoints(points)
+#     polyData.GetPointData().SetScalars(scalarArr)
+#     result:vtkPolyData=None
+#     grid = vtkStructuredGrid()
+
+#     grid.SetDimensions(xNum,yNum,zNum)
+   
+
+#     grid.SetPoints(points)
+#     grid.GetPointData().SetScalars(scalarArr)
+
+#     surface = vtkStructuredGridGeometryFilter()
+#     surface.SetInputData(grid)
+#     surface.Update()
+
+#     result=surface.GetOutput()
+#     lut = vtkLookupTable()
+#     lut.SetHueRange(0.667, 0)
+#     lut.SetNumberOfTableValues(numberOfColors)
+#     lut.SetTableRange(minV,maxV)
+#     lut.Build()
+
+#     # transform = vtkTransform()
+#     # transform.Translate(center[0],center[1], center[2])
+#     # transform.Translate(0,0,1000)
+
+#     mapper=vtkPolyDataMapper()
+#     mapper.SetInterpolateScalarsBeforeMapping(1)
+#     mapper.SetInputData(result)
+#     mapper.SetScalarRange(minV,maxV)
+#     mapper.SetLookupTable(lut)
+
+#     actor=vtkActor()
+#     actor.SetMapper(mapper)
+#     # actor.SetUserTransform(transform)
+#     actor.SetScale(1000)
+#     # actor.GetProperty().SetPointSize(5)
+#     # actor.GetProperty().SetColor(colors.GetColor3d("Red"))
+#     return actor
+
+#     pass
 
 def cloud_map(pointList:List[Tuple[float,float,float,float]],numberOfColors=256,_xNum=-1,_yNum=-1):
     '''
@@ -1262,6 +1341,7 @@ def thermal_3d(points_list:list,tetrahedra:list,temperature_values:list,tetera_n
     # 创建映射器并设置标量范围
     mapper = vtkDataSetMapper()
     mapper.SetInputData(ugrid)
+    mapper.SetLookupTable(lut)
     mapper.SetScalarRange(temperature.GetRange())
     mapper.SetLookupTable(lut)
 
@@ -1549,5 +1629,145 @@ def ffr_3dpolar(pointList,isdb=True,numberOfColors=256):
 
     return actor,pointList_n,minV_db,maxV_db,minV_linear,maxV_linear
     pass
+def semi_3d(points_list:list,hex_list:list,e_values:list,hex_num:int=1000000):
+  
+    ugrid=build_ugrid_hex(points_list,hex_list,hex_num)
+
+    # eList = vtkDoubleArray()
+
+    # for temp in e_values:
+    #     eList.InsertNextValue(temp)
+
+        
+    # # 将温度数据添加到点数据中
+    # ugrid.GetPointData().SetScalars(eList)
+
+    # 假设 e_values 是长度 == ugrid.GetNumberOfPoints() 的列表或 numpy 数组
+    npts = ugrid.GetNumberOfPoints()
+    if len(e_values) != npts:
+        raise ValueError(f"e_values 长度({len(e_values)})必须等于点数({npts})")
+
+    eList = vtkDoubleArray()
+    eList.SetName("Field")               # 自定义数组名
+    eList.SetNumberOfTuples(npts)
+
+    # 方式 1：纯 VTK 循环（通用）
+    for i, v in enumerate(e_values):
+        eList.SetValue(i, float(v))
+
+    # 方式 2：推荐（如果你有 numpy）——更快
+    # arr = numpy_to_vtk(np.asarray(e_values, dtype=float), deep=True)
+    # arr.SetName("Field")
+
+    # ugrid.GetPointData().AddArray(eList)     # 可添加多数组
+    ugrid.GetPointData().SetScalars(eList)   # 设置默认标量数组
+    # —— 你的 ugrid 构造完后：
+    validate_ugrid(ugrid, expect_point_scalars_name="Field")  # 如果数组名叫别的就填别的
+
+     
+    r=eList.GetRange()
+    lut = vtkLookupTable()
+    lut.SetHueRange(0.667, 0)
+    lut.SetRange(eList.GetRange())  
+    
+
+    # 创建映射器并设置标量范围
+    mapper = vtkDataSetMapper()
+    mapper.SetInputData(ugrid)
+    mapper.SetScalarRange(eList.GetRange())
+    mapper.SetLookupTable(lut)
+
+    # 创建演员
+    actor = vtkActor()
+    actor.SetMapper(mapper)
+    #设置透明度
+    # actor.GetProperty().SetOpacity(0.5)
+    # actor.GetProperty().SetRepresentationToWireframe()
+    return actor
+
+def build_ugrid_hex(points_list, hex_list, hex_num=None):
+    # 点
+    points = vtkPoints()
+    points.SetNumberOfPoints(len(points_list))
+    for i, p in enumerate(points_list):
+        points.SetPoint(i, p)
+
+    # 截断
+    n_hex = len(hex_list) if hex_num is None else min(hex_num, len(hex_list))
+
+    # 构造 offsets 与 connectivity
+    # 每个 hex 8 点，connectivity 长度 = n_hex * 8
+    offsets = vtkIdTypeArray()
+    offsets.SetNumberOfValues(n_hex)
+    connectivity = vtkIdTypeArray()
+    connectivity.SetNumberOfValues(n_hex * 8)
+
+    off = 0
+    ci = 0
+    for i in range(n_hex):
+        offsets.SetValue(i, off)
+        conn = hex_list[i]
+        if len(conn) != 8:
+            raise ValueError("每个六面体必须 8 个点索引")
+        for k in range(8):
+            connectivity.SetValue(ci, int(conn[k]))
+            ci += 1
+        off += 8
+
+    cells = vtkCellArray()
+    cells.SetData(offsets, connectivity)
+
+    # 类型数组（全是 HEX）
+    types = vtkUnsignedCharArray()
+    types.SetNumberOfValues(n_hex)
+    types.FillComponent(0, VTK_HEXAHEDRON)
+
+    # 组装 UGrid
+    ugrid = vtkUnstructuredGrid()
+    ugrid.SetPoints(points)
+    ugrid.SetCells(types, cells)
+    return ugrid
+
+
+
+def validate_ugrid(ugrid, expect_point_scalars_name=None):
+    npts   = ugrid.GetNumberOfPoints()
+    ncells = ugrid.GetNumberOfCells()
+    print("[CHECK] points:", npts, "cells:", ncells)
+    if npts == 0 or ncells == 0:
+        raise RuntimeError("UGrid 为空（点或单元为 0）。")
+
+    # 1) 连通性越界检查
+    ug = ugrid
+    for cid in range(ncells):
+        c = ug.GetCell(cid)
+        ids = c.GetPointIds()
+        for k in range(ids.GetNumberOfIds()):
+            pid = ids.GetId(k)
+            if pid < 0 or pid >= npts:
+                raise RuntimeError(f"Cell {cid} 包含越界点号 {pid}/{npts-1}")
+
+    # 2) 标量检查（PointData）
+    scal = ug.GetPointData().GetScalars() if expect_point_scalars_name is None \
+        else ug.GetPointData().GetArray(expect_point_scalars_name)
+    if scal is None:
+        print("[WARN] 未找到 PointData 标量；将按 CellData 或常量着色。")
+    else:
+        if scal.GetNumberOfTuples() != npts:
+            raise RuntimeError(f"PointData 标量长度({scal.GetNumberOfTuples()}) != 点数({npts})")
+        r = scal.GetRange()
+        if any(math.isnan(v) or math.isinf(v) for v in (r[0], r[1])):
+            raise RuntimeError("标量范围含 NaN/Inf。请清洗数据。")
+        # 逐点快速抽样检查 NaN/Inf
+        step = max(1, npts // 1000)
+        for i in range(0, npts, step):
+            v = scal.GetTuple1(i)
+            if math.isnan(v) or math.isinf(v):
+                raise RuntimeError(f"标量在点 {i} 处为 NaN/Inf。")
+
+    print("[CHECK] OK")
+
+
+
 
 

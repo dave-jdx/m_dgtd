@@ -82,6 +82,7 @@ from .frmMeshSize import frmMeshSize
 from .frmSimSelect import frmSimSelect
 from .polarPlotWidget import PolarPlotWidget
 from .frmFilter2dPolar import frmFilter2dPolar
+from .frmFilterPointsSEMI import frmFilterPointsSEMI
 
 from .frmPlaneWave import frmPlaneWave
 from .frmETimes import frmETimes
@@ -1122,6 +1123,16 @@ class ProjectTree(QWidget, ComponentMixin):
             self.nodeAction_PlaneWaveSettings()
         elif(currentItem==self.pfETimesRoot):
             self.nodeAction_ETimesSettings()
+        elif(currentItem==self.resultSEMIFhi3DRoot):
+            self.nodeAction_displayFhi3D()
+        elif(currentItem==self.resultSEMIN3DRoot):
+            self.nodeAction_DisplayN3D()
+        elif(currentItem==self.resultSEMINDopping3DRoot):
+            self.nodeAction_displayNDopping3D()
+        elif(currentItem==self.resultSEMIP3DRoot):
+            self.nodeAction_displayP3D()
+        elif(currentItem==self.resultSEMIPointsRoot):
+            self.nodeAction_displayPoints3D()
 
         pass
     def strList2String(self,strList:list):
@@ -1494,6 +1505,37 @@ class ProjectTree(QWidget, ComponentMixin):
         self.resultDisplacement3DRoot.setText(0,tree.projctTreeNodes.result_struct_3d)
         self.resultDisplacement3DRoot.setIcon(0,treeIcons.gdtd_result_struct_domain)
 
+        self.resultSEMIRoot=QTreeWidgetItem(self.resultRoot)
+        self.resultSEMIRoot.setText(0, "半导体")
+        self.resultSEMIRoot.setIcon(0, treeIcons.gdtd_dopping)
+        
+
+        self.resultSEMIFhi3DRoot=QTreeWidgetItem(self.resultSEMIRoot)
+        self.resultSEMIFhi3DRoot.setText(0, "Fhi_3D")
+        self.resultSEMIFhi3DRoot.setIcon(0, treeIcons.gdtd_result_thermal_domain)
+
+        
+        self.resultSEMIN3DRoot=QTreeWidgetItem(self.resultSEMIRoot)
+        self.resultSEMIN3DRoot.setText(0, "N_3D")
+        self.resultSEMIN3DRoot.setIcon(0, treeIcons.gdtd_result_thermal_domain)
+
+
+        self.resultSEMINDopping3DRoot=QTreeWidgetItem(self.resultSEMIRoot)
+        self.resultSEMINDopping3DRoot.setText(0, "N_Dopping_3D")
+        self.resultSEMINDopping3DRoot.setIcon(0, treeIcons.gdtd_result_thermal_domain)
+
+
+        self.resultSEMIP3DRoot=QTreeWidgetItem(self.resultSEMIRoot)
+        self.resultSEMIP3DRoot.setText(0, "P_3D")
+        self.resultSEMIP3DRoot.setIcon(0, treeIcons.gdtd_result_thermal_domain)
+
+        self.resultSEMIPointsRoot=QTreeWidgetItem(self.resultSEMIRoot)
+        self.resultSEMIPointsRoot.setText(0, "Points")
+        self.resultSEMIPointsRoot.setIcon(0, treeIcons.gdtd_result_thermal_domain)
+
+        # self.resultSEMIRoot.setExpanded(True)
+
+
 
         # self.resultExtendRoot=QTreeWidgetItem(self.root)
         # self.resultExtendRoot.setText(0,tree.projctTreeNodes.results_extend)
@@ -1514,6 +1556,7 @@ class ProjectTree(QWidget, ComponentMixin):
         # self.extendEMIRoot.setExpanded(True)
 
         self.tree.expandAll()  # 节点全部展开
+        self.resultSEMIRoot.setExpanded(False)
         # self.sigPickFace.emit()
 
         pass
@@ -1755,6 +1798,8 @@ class ProjectTree(QWidget, ComponentMixin):
         return self.currentProject.getSolverPath()+"/input/BoundarySource.txt"
     def get_fname_mesh(self):
         return self.currentProject.getSolverPath()+"/input/Mesh.txt"
+    def get_fname_mesh_hex(self):
+        return self.currentProject.getSolverPath()+"/input/Mesh_SEMI.txt"
     def get_fname_mesh_vtk(self):
         return self.currentProject.getSolverPath()+"/input/Mesh.vtk"
     def get_fname_mesh_msh(self):
@@ -1779,6 +1824,17 @@ class ProjectTree(QWidget, ComponentMixin):
         return self.currentProject.getSolverPath()+"/output/res_Soure_port_I_V.txt"
     def get_fname_model_nodes_length(self):
         return self.currentProject.getSolverPath()+"/input/Mesh_model_nodes.txt"
+    def get_fname_fhi_3d_semi(self):
+        return self.currentProject.getSolverPath()+"/output/res_Fhi_3D.txt"
+    def get_fname_n_3d_semi(self):
+        return self.currentProject.getSolverPath()+"/output/res_N_3D.txt"
+    def get_fname_ndopping_3d_semi(self):
+        return self.currentProject.getSolverPath()+"/output/res_Ndoping_3D.txt"
+    def get_fname_p_3d_semi(self):
+        return self.currentProject.getSolverPath()+"/output/res_P_3D.txt"
+    def get_fname_points_semi(self):
+        return self.currentProject.getSolverPath()+"/output/res_points.txt"
+    
     
     # def projectSaveMesh(self):
     #     '''保存mesh文件 mesh/target.mesh and target.stl
@@ -2217,6 +2273,9 @@ class ProjectTree(QWidget, ComponentMixin):
             self._is_saved=True
             if(hasattr(self.currentProject,"pfName")):
                 self.sigPFName.emit(self.currentProject.pfName)
+            if(hasattr(self.currentProject,"solver")):
+                self.currentProject.solver=self._solver
+            self.parent.set_solver(self._solver)
             # self.sigPickFace.emit()
             # print(pObj)
         except Exception as e:
@@ -4497,6 +4556,17 @@ class ProjectTree(QWidget, ComponentMixin):
     
         for k in self._pf.struct.struct_dirichlet_dic.keys():
             faceDic[k]="Struct"
+
+        # for k in self._pf.dopping.dopping_analysis_dic.keys():
+        #     faceDic[k]="Dopping_analysis"
+
+        # for k in self._pf.dopping.dopping_gaussian_dic.keys():
+        #     faceDic[k]="Dopping_gaussian" 
+            
+        # for k in self._pf.sbound.metal_contact_dic.keys():
+        #     faceDic[k]="Metal_contact"
+        # for k in self._pf.sbound.insulate_gate_dic.keys():
+        #     faceDic[k]="Insulate_gate"
         return faceDic
     def getBodyMaterial(self):
         t=self.currentModel.mediumFaces
@@ -4623,6 +4693,50 @@ class ProjectTree(QWidget, ComponentMixin):
     def sig_options_save(self,options:dict):
         self.currentMesh.options=options
         QtWidgets.QMessageBox.about(self, "网格", "保存设置成功")
+    def create_mesh_hex(self,options:dict={}):
+        '''创建六面体网格
+
+        '''
+        fNameList=[]
+        fNameList.append(self.currentModel.fileName)
+        options=self.currentMesh.options
+        
+        param_json={"fnameList":fNameList,
+                    "options":options,
+                    "vtkFileName":"",
+                    "mshFileName":"",
+                    "outputFileName":"",
+
+                    "face_bnd":{}}
+        str_json=json.dumps(param_json)
+        code,message,data=api_gmsh.createMesh_hex(str_json)
+        if(code!=1):
+            QtWidgets.QMessageBox.about(self, "Mesh", "创建六面体网格失败:"+message)
+            return
+        else:
+            fname=self.get_fname_mesh_hex()
+            mediumDic=self.currentModel.mediumFaces
+            node_list=data[0]
+            cell_list_face=data[1]
+            cell_list_hex=data[2]
+            cell_list_hex_ansys=data[3]
+            cell_list_hex_medium=[]
+
+            # print(node_list)
+            # print(cell_list_face)
+            # print(cell_list_hex)
+            hexId=1
+            for item in cell_list_hex_ansys:
+                bodyId=item[0]-1
+                mediumIndex=self.currentModel.medium
+                if(mediumDic.get(bodyId) is not None):
+                    mediumIndex=mediumDic.get(bodyId)+1
+                cell_list_hex_medium.append((hexId,mediumIndex,item[0])+tuple(item[2:]))
+                hexId=hexId+1
+
+
+            api_writer.write_mesh_semi(fname,node_list,cell_list_face,cell_list_hex_medium)
+        pass
 
     def sig_createMesh(self,options:dict):
         '''创建网格 生成网格对象
@@ -4632,34 +4746,53 @@ class ProjectTree(QWidget, ComponentMixin):
         # fname = self.currentModel.fileName
         #生成网格时，需要先标记材料体域、边界条件面，在gmsh中导入stp文件
         #按照完美匹配层域、空气域1、空气域2，模型域的顺序来生成网格
+        
         if(self.currentModel==None):
             QtWidgets.QMessageBox.about(self, "Mesh", "请先选中一个模型")
             return
         if(not os.path.exists(self.currentModel.fileName)):
             QtWidgets.QMessageBox.about(self, "Mesh", "模型文件丢失:"+self.currentModel.fileName)
             return
+        
         self.currentMesh.options=options
+        self.create_mesh_hex()
         faceDic=self.getFaceBound()
         faceShapeList=[]
         face_bnd={}
-        for k in faceDic.keys():
-            f=self._selectContext.getFaceById(k)
-            if(f!=None):
-                faceShapeList.append(f)
-                faceInfo=api_model.get_face_center_area(f)
-                face_bnd[k]=faceInfo
-                face_bnd[k]["bndType"]=faceDic[k]
-                face_bnd[k]["faceId"]=k
-                if(faceDic[k]=="PEC"):
-                    face_bnd[k]["bndId"]=1
-                elif(faceDic[k]=="Source"):
-                    face_bnd[k]["bndId"]=2
-                elif(faceDic[k]=="Load"):
-                    face_bnd[k]["bndId"]=3
-                elif(faceDic[k]=="Struct"):
-                    face_bnd[k]["bndId"]=999
-            else:
-                print("face not found",k)
+        if(self._solver==SOLVER_FEM_DGTD):
+            for k in faceDic.keys():
+                f=self._selectContext.getFaceById(k)
+                if(f!=None):
+                    faceShapeList.append(f)
+                    faceInfo=api_model.get_face_center_area(f)
+                    face_bnd[k]=faceInfo
+                    face_bnd[k]["bndType"]=faceDic[k]
+                    face_bnd[k]["faceId"]=k
+                    if(faceDic[k]=="PEC"):
+                        face_bnd[k]["bndId"]=1
+                    elif(faceDic[k]=="Source"):
+                        face_bnd[k]["bndId"]=2
+                    elif(faceDic[k]=="Load"):
+                        face_bnd[k]["bndId"]=3
+                    elif(faceDic[k]=="Struct"):
+                        face_bnd[k]["bndId"]=999
+                else:
+                    print("face not found",k)
+        elif(self._solver==SOLVER_SEMI):
+             for k in faceDic.keys():
+                f=self._selectContext.getFaceById(k)
+                if(f!=None):
+                    faceShapeList.append(f)
+                    faceInfo=api_model.get_face_center_area(f)
+                    face_bnd[k]=faceInfo
+                    face_bnd[k]["bndType"]=faceDic[k]
+                    face_bnd[k]["faceId"]=k
+                    face_bnd[k]["bndId"]=k+1
+                    
+                    if(faceDic[k]=="Struct"):
+                        face_bnd[k]["bndId"]=999
+                else:
+                    print("face not found",k)
             
 
             
@@ -4744,8 +4877,9 @@ class ProjectTree(QWidget, ComponentMixin):
                     "face_bnd":face_bnd}
         str_json=json.dumps(param_json)
         
-        self.run_mesh_solver(str_json)
-        return
+        if(self._solver==SOLVER_FEM_DGTD):
+            self.run_mesh_solver(str_json)
+            return
         
 
         # rec_json=json.loads(str_json)
@@ -4833,7 +4967,9 @@ class ProjectTree(QWidget, ComponentMixin):
             self.resultDisplacement3DRoot.setHidden(False)
             pass
         elif(solver==SOLVER_SEMI):
+
             pass
+        self.currentProject.solver=solver
         
         pass
     def nodeAction_ExportMesh(self):
@@ -8666,6 +8802,159 @@ class ProjectTree(QWidget, ComponentMixin):
         del self._pf.dopping.dopping_gaussian_dic[k]
         self.doppingGaussRoot.removeChild(currentItem)
 
+    #endregion
+
+    #region 半导体后处理数据查看
+    def nodeAction_DisplayN3D(self):
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_n_3d_semi()
+            fname_mesh=self.get_fname_mesh_hex()
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"半导体分析","N文件不存在，请检查."+fname)
+                return
+            points_list,cell_list,value_list=api_reader.read_semi_3d_values(fname,fname_mesh)
+            actor=api_vtk.semi_3d(points_list,cell_list,value_list)
+            v_min=min(value_list)
+            v_max=max(value_list)
+            barActor=api_vtk.scalar_actor(v_min,v_max,"P(/m^3)",dotPrecision=6)
+            self._actors_current.clear()
+            self._actors_current.append(actor)
+            self._vtkViewer3d.clear()
+            self._vtkViewer3d.clear_actor_custom()
+            self._vtkViewer3d.display_actor(actor)
+            self._vtkViewer3d.display_actor(barActor)
+            self._vtkViewer3d.reset_camera()
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
+            self.sigActivateTab.emit(2)
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看N数据错误:"+str(e))
+
+    def nodeAction_displayP3D(self):
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_p_3d_semi()    
+            fname_mesh=self.get_fname_mesh_hex()
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"半导体分析","P文件不存在，请检查."+fname)
+                return
+            points_list,cell_list,value_list=api_reader.read_semi_3d_values(fname,fname_mesh)
+            actor=api_vtk.semi_3d(points_list,cell_list,value_list)
+            v_min=min(value_list)
+            v_max=max(value_list)
+            barActor=api_vtk.scalar_actor(v_min,v_max,"P(/m^3)",dotPrecision=6)
+            self._actors_current.clear()
+            self._actors_current.append(actor)
+            self._vtkViewer3d.clear()
+            self._vtkViewer3d.clear_actor_custom()
+            self._vtkViewer3d.display_actor(actor)
+            self._vtkViewer3d.display_actor(barActor)
+            self._vtkViewer3d.reset_camera()
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
+            self.sigActivateTab.emit(2)
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看P数据错误:"+str(e))
+    def nodeAction_displayNDopping3D(self):
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_ndopping_3d_semi()    
+            fname_mesh=self.get_fname_mesh_hex()
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"半导体分析","N掺杂文件不存在，请检查."+fname)
+                return
+            points_list,cell_list,value_list=api_reader.read_semi_3d_values(fname,fname_mesh)
+            actor=api_vtk.semi_3d(points_list,cell_list,value_list)
+            v_min=min(value_list)
+            v_max=max(value_list)
+            barActor=api_vtk.scalar_actor(v_min,v_max,"P(/m^3)",dotPrecision=6)
+            self._actors_current.clear()
+            self._actors_current.append(actor)
+            self._vtkViewer3d.clear()
+            self._vtkViewer3d.clear_actor_custom()
+            self._vtkViewer3d.display_actor(actor)
+            self._vtkViewer3d.display_actor(barActor)
+            self._vtkViewer3d.reset_camera()
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
+            self.sigActivateTab.emit(2)
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看N掺杂数据错误:"+str(e))
+    def nodeAction_displayFhi3D(self):
+        try:
+            self.closeFormsOpened()
+            fname=self.get_fname_fhi_3d_semi()  
+            fname_mesh=self.get_fname_mesh_hex()  
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"半导体分析","Fhi文件不存在，请检查."+fname)
+                return
+            points_list,cell_list,value_list=api_reader.read_semi_3d_values(fname,fname_mesh)
+            actor=api_vtk.semi_3d(points_list,cell_list,value_list)
+            v_min=min(value_list)
+            v_max=max(value_list)
+            barActor=api_vtk.scalar_actor(v_min,v_max,"P(/m^3)",dotPrecision=6)
+            self._actors_current.clear()
+            self._actors_current.append(actor)
+            self._vtkViewer3d.clear()
+            self._vtkViewer3d.clear_actor_custom()
+            self._vtkViewer3d.display_actor(actor)
+            self._vtkViewer3d.display_actor(barActor)
+            self._vtkViewer3d.reset_camera()
+            # self.sig_setActorOpacity(self.currentModel.opacityMap)
+            self.sigActivateTab.emit(2)
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看Fhi数据错误:"+str(e))
+
+    def nodeAction_displayPoints3D(self):
+        try:
+            self.closeFormsOpened()
+
+            frm=frmFilterPointsSEMI(self)
+            frm.show()
+            frm.move(self.topLeffPoint())
+            frm.sigApply.connect(self.sig_applyFilterPointsSEMI)
+            
+            self.render_points3d_semi(0)
+
+            
+
+            pass
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看Points数据错误:"+str(e))
+
+    def sig_applyFilterPointsSEMI(self,filterData:dict):
+        filterValue=filterData["filterValue"]
+        self.render_points3d_semi(filterValue)
+    def render_points3d_semi(self,valueIndex=0):
+        try:
+            fname=self.get_fname_points_semi()  
+            if(not os.path.exists(fname)):
+                QtWidgets.QMessageBox.about(self,"半导体分析","Points文件不存在，请检查."+fname)
+                return
+            points_list,value_list=api_reader.read_semi_points(fname)
+            points_n=[]
+            for i in range(len(points_list)):
+                p=points_list[i]
+                v=value_list[i]
+                points_n.append((p[0],p[1],p[2],v[valueIndex],p[0],p[1],p[2])) #x,y,z,vx,vy,vz
+            actor,minV,maxV=api_vtk.cloud_map_nf(points_n)
+            barActor=api_vtk.scalar_actor(minV,maxV,"Value",dotPrecision=2)
+            self._actors_current.clear()
+            self._actors_current.append(actor)
+            self._vtkViewer3d.clear()
+            self._vtkViewer3d.clear_actor_custom()
+            self._vtkViewer3d.display_actor(actor)
+            self._vtkViewer3d.display_actor(barActor)
+            self._vtkViewer3d.reset_camera()
+            self.sigActivateTab.emit(2)
+        except Exception as e:
+            traceback.print_exc()
+            QtWidgets.QMessageBox.about(self,"半导体分析","查看Points数据错误:"+str(e))
+
+            
     #endregion
 
 
